@@ -1,0 +1,6 @@
+node_modules
+.env
+591/chromedriver.exe
+591/__pycache__
+591/geckodriver.log
+
