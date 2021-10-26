@@ -3,4 +3,5 @@ node_modules
 591/chromedriver.exe
 591/__pycache__
 591/geckodriver.log
+package-lock.json
 
