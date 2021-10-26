@@ -93,9 +93,10 @@ app.get('/search', async (req, res) => {
     }
   }
   // console.log(distToStationMap)
-  const time1_2 = Date.now()
+  const nearByStationCount = counter - 1
+  console.log('nearByStationCount: ', nearByStationCount);
   // can't get to any station but itself
-  if (counter === 1) {
+  if (nearByStationCount === 0) {
     return res.send([
       {
         stationId: '-2',
