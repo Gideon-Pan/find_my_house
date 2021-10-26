@@ -1,0 +1,25 @@
+/* Always set the map height explicitly to define the size of the div
+       * element that contains the map. */
+.filters {
+  display: flex;
+  margin-top: 20px;
+  justify-content: center;
+}
+
+.filters select {
+  margin: 0 10px;
+}
+
+#map {
+  height: 80%;
+  width: 80%;
+  margin: 30px auto;
+}
+
+/* Optional: Makes the sample page fill the window. */
+html,
+body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}

@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Localizing the Map</title>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=default"></script>
+    <link rel="stylesheet" type="text/css" href="./style.css" />
+    <script
+      src="https://code.jquery.com/jquery-3.6.0.js"
+      integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk="
+      crossorigin="anonymous"
+    ></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="./index.js"></script>
+  </head>
+  <body>
+    <div class="filters">
+      <!-- <label>活動商品名稱</label> -->
+      <select name="start_work" id="start_work">
+        <!-- <option value="">上班時間</option> -->
+        <option value="9:00">9:00</option>
+      </select>
+
+      <select name="commute_time" id="commute_time">
+        <!-- <option value="">通勤時間</option> -->
+        <!-- <option value="9:00">10分鐘</option>
+        <option value="9:00">15分鐘</option> -->
+        <option value="20">20min</option>
+        <option value="25">25min</option>
+        <option value="30">30min</option>
+        <option value="45">45min</option>
+        <option value="60">1hr</option>
+      </select>
+
+      <select name="commute_way" id="commute_way">
+        <!-- <option value="">交通方式</option> -->
+        <option value="metro">捷運</option>
+        <option value="bus">公車</option>
+      </select>
+
+      <select name="walk_distance" id="walk_distance">
+        <!-- <option value="">步行距離</option> -->
+        <!-- <option value="300">300m</option> -->
+        <option value="400">400m</option>
+        <option value="500">500m</option>
+        <option value="1000">1km</option>
+        <!-- <option value="10000000000000000">不限</option> -->
+      </select>
+
+      <select name="budget" id="budget">
+        <!-- <option value="">預算</option> -->
+        <option value="12000">12000</option>
+      </select>
+
+      <!-- <select name="start_work" id="start_work">
+        <option value="">上班時間</option>
+        <option value="9:00">9:00</option>
+      </select> -->
+      <button onclick="search()">搜尋</button>
+    </div>
+    <div id="map"></div>
+
+    <!-- Async script executes immediately and must be after any DOM elements used in callback. -->
+    <script
+      src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAelfKdFaiuBDDl6dsiN9c0e4R0rmGkCHs&callback=initMap&v=weekly&language=zh-TW&region=JP"
+      async
+    ></script>
+  </body>
+</html>
