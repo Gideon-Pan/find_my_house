@@ -1,0 +1,26 @@
+{
+  "name": "renting_new",
+  "version": "1.0.0",
+  "description": "",
+  "main": "ask.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "dotenv": "^10.0.0",
+    "geolib": "^3.3.3",
+    "jssha": "^3.2.0",
+    "mongodb": "^4.1.3",
+    "mysql2": "^2.3.2"
+  },
+  "prettier": {
+    "trailingComma": "none",
+    "tabWidth": 2,
+    "semi": false,
+    "singleQuote": true
+  }
+}
+
