@@ -140,6 +140,7 @@ function initMap() {
 }
 
 async function search() {
+  const time1 = Date.now()
   const startWork = $('#start_work').val()
   const commuteTime = $('#commute_time').val() * 60
   const commuteWay = $('#commute_way').val()
@@ -154,8 +155,8 @@ async function search() {
 
   hideCircles()
   circles = []
-  // removeReachableArea()
-  // return showReachableArea(data)
+  removeReachableArea()
+  return showReachableArea(data, time1)
   data.forEach((station) => {
     // Add the circle for this city to the map.
     const center = { lat: station.lat, lng: station.lng }
@@ -171,6 +172,8 @@ async function search() {
     })
     circles.push(stationCircle)
   })
+  const time2 = Date.now()
+  console.log("It takes total :", (time2 - time1) / 1000, "seconds")
 }
 
 // here
@@ -217,7 +220,7 @@ function removeReachableArea() {
   }
 }
 
-function showReachableArea(stations) {
+async function showReachableArea(stations, time1) {
   var mycity = new google.maps.LatLng(25, 121.52)
   var bigOne = new google.maps.LatLng(25, 121.53)
   var smallOne = new google.maps.LatLng(25, 121.52)
@@ -249,4 +252,6 @@ function showReachableArea(stations) {
   console.log(map)
   joined.setMap(map)
   polygons.push(joined)
+  const time2 = Date.now()
+  console.log("It takes total :", (time2 - time1) / 1000, "seconds")
 }

@@ -34,6 +34,22 @@ async function getMongoData(collection) {
   return data
 }
 
+async function insertMany591(collection, data) {
+  await client.connect()
+  const db = client.db('591_data')
+  await db.collection(collection).insertMany(data)
+  console.log(`finishing insert data into ${collection} Collection`)
+  await client.close()
+}
+
+async function get591MongoData(collection) {
+  await client.connect()
+  const db = client.db('591_data')
+  const data = await db.collection(collection).find({}).toArray()
+  await client.close()
+  return data
+}
+
 // async function getCollectionSize(collectionName) {
 //   await client.connect()
 //   const db = client.db("ptx")
@@ -46,5 +62,7 @@ async function getMongoData(collection) {
 module.exports = {
   createCollection,
   insertMany,
-  getMongoData
+  getMongoData,
+  get591MongoData,
+  insertMany591
 }

@@ -4,4 +4,5 @@ node_modules
 591/__pycache__
 591/geckodriver.log
 package-lock.json
+dump/
 
