@@ -1,0 +1,27 @@
+.test {
+  /* font-size: 100px; */
+}
+
+.house-info {
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+  line-height: 20px;
+  max-width: 200px;
+  font-family: Microsoft YaHei, Verdana, Geneva, Tahoma, sans-serif;
+}
+
+.house-info p {
+  margin: 2px;
+}
+
+.house-info a {
+  margin: 2px;
+  color: #28AFB0;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.house-info a:hover {
+  cursor: pointer;
+}

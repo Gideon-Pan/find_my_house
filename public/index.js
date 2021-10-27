@@ -1,22 +1,11 @@
-// This example displays a map with the language and region set
-// to Japan. These settings are specified in the HTML script element
-// when loading the Google Maps JavaScript API.
-// Setting the language shows the map in the language of your choice.
-// Setting the region biases the geocoding results to that region.
-
-// const { default: axios } = require("axios")
-
 let map
 let markers = []
+let houseMarkers = []
+let houseInfowindow
+let houseInfowindows = []
 let circles = []
 const polygons = []
 let walkVelocity = 1.25
-// const Appworks = {
-//   lat: 25.042482379737326,
-//   lng: 121.5647583475222
-// }
-// let officeLat = Appworks.lat
-// let officeLng = Appworks.lng
 
 // const Justin = {
 //   lat: 25.00921512991647,
@@ -29,16 +18,7 @@ const Justin = {
 let officeLat = Justin.lat
 let officeLng = Justin.lng
 
-const stationMap = {
-  Appworks: {
-    center: { lat: 25.042482379737326, lng: 121.5647583475222 },
-    distanceLeft: 400
-  },
-  Appwork: {
-    center: { lat: 25.042482379737326, lng: 121.5547583475222 },
-    distanceLeft: 200
-  }
-}
+const Appworks = { lat: 25.042482379737326, lng: 121.5647583475222 }
 
 function setMapOnAll(map) {
   for (let i = 0; i < markers.length; i++) {
@@ -70,14 +50,6 @@ function initMap() {
     center: myLatlng
   })
 
-  // let infoWindow = new google.maps.InfoWindow({
-  //   content: "Click the map to get Lat/Lng!",
-  //   position: myLatlng,
-  // });
-
-  // infoWindow.open(map);
-  // Configure the click listener.
-
   const icon = {
     url: './assets/office-place.png', // url
     scaledSize: new google.maps.Size(30, 30), // scaled size
@@ -91,52 +63,17 @@ function initMap() {
     icon: icon,
     draggable: true
   })
+
   marker.addListener('dragend', (mapsMouseEvent) => {
     officeLat = mapsMouseEvent.latLng.toJSON().lat
     officeLng = mapsMouseEvent.latLng.toJSON().lng
     search()
   })
 
+  houseInfowindow = new google.maps.InfoWindow()
+
   // choose office by click
-  map.addListener('click', (mapsMouseEvent) => {
-    //   hideMarkers()
-
-    //   const icon = {
-    //     url: './assets/office-place.png', // url
-    //     scaledSize: new google.maps.Size(30, 30), // scaled size
-    //     origin: new google.maps.Point(0, 0), // origin
-    //     anchor: new google.maps.Point(15, 20) // anchor
-    //   }
-    //   const marker = new google.maps.Marker({
-    //     position: mapsMouseEvent.latLng.toJSON(),
-    //     map: map,
-    //     icon: icon
-    //   })
-
-    //   markers = []
-    //   markers.push(marker)
-    console.log(mapsMouseEvent.latLng.toJSON())
-    //   officeLat = mapsMouseEvent.latLng.toJSON().lat
-    //   officeLng = mapsMouseEvent.latLng.toJSON().lng
-
-    //   // circles = []
-    //   // for (const station in stationMap) {
-    //   //   // Add the circle for this city to the map.
-    //   //   const stationCircle = new google.maps.Circle({
-    //   //     strokeColor: '#FF0000',
-    //   //     strokeOpacity: 0.8,
-    //   //     strokeWeight: 2,
-    //   //     fillColor: '#FF0000',
-    //   //     fillOpacity: 0.35,
-    //   //     map,
-    //   //     center: stationMap[station].center,
-    //   //     radius: stationMap[station].distanceLeft
-    //   //   })
-    //   //   circles.push(stationCircle)
-    //   // }
-    // console.log(google)
-    // showReachableArea(map)
-  })
+  // click.js
 }
 
 async function search() {
@@ -152,11 +89,15 @@ async function search() {
   console.log(url)
   const { data } = await axios.get(url)
   console.log(data)
+  const { positionData, houseData } = data
 
   hideCircles()
   circles = []
   removeReachableArea()
-  return showReachableArea(data, time1)
+
+  renderHouses(houseData)
+
+  return showReachableArea(positionData, time1)
   data.forEach((station) => {
     // Add the circle for this city to the map.
     const center = { lat: station.lat, lng: station.lng }
@@ -173,10 +114,98 @@ async function search() {
     circles.push(stationCircle)
   })
   const time2 = Date.now()
-  console.log("It takes total :", (time2 - time1) / 1000, "seconds")
+  console.log('It takes total :', (time2 - time1) / 1000, 'seconds')
 }
 
+
+
 // here
+function renderHouses(houses) {
+  houses.forEach((house) => {
+    // console.log('a')
+    const {
+      title,
+      link,
+      category,
+      image,
+      price,
+      address,
+      latitude,
+      longitude
+    } = house
+    const houseIcon = {
+      url: './assets/renting.png', // url
+      scaledSize: new google.maps.Size(30, 30), // scaled size
+      origin: new google.maps.Point(0, 0), // origin
+      anchor: new google.maps.Point(15, 20) // anchor
+      // anchor: new google.maps.Point(15, 20) // anchor
+    }
+    const houseMarker = new google.maps.Marker({
+      // position: { lat: 25.042482379737326, lng: 121.5647583475222 },
+      position: {
+        lat: latitude,
+        lng: longitude
+      },
+      map: map,
+      icon: houseIcon
+    })
+    const contentString = `  
+  <div class="house-info">
+      <img src=${image} width="125" height="100" />
+      <p>房型：${category}</p>
+      <p>價格：${price}/月</p>
+      <p>地址：${address}</p>
+      <a href="${link}" target="_blank">查看更多</a>
+    </div>
+  `
+    // const houseInfowindow = new google.maps.InfoWindow({
+    //   content: contentString
+    // })
+    houseInfowindow.addListener('domready', () => {
+      var test = $('.test')
+      // test.html('test')
+    })
+    houseMarker.addListener('click', () => {
+      houseInfowindow.open({
+        anchor: houseMarker,
+        map,
+        shouldFocus: false
+      })
+    })
+    // console.log(houseInfowindow)
+
+    google.maps.event.addListener(map, 'click', function () {
+      houseInfowindow.close()
+    })
+    // console.log(houseInfowindows)
+    // if (houseMarkers.length !== 0) {
+      // houseInfowindows.forEach((houseInfowindowOld) => {
+      //   // console.log(houseInfowindowOld)
+      //   houseInfowindowOld.close()
+      //   houseInfowindowOld.setMap(null)
+      // })
+    // }
+    google.maps.event.addListener(houseMarker, 'click', (function(marker, content, infowindow) {
+      lastOpenedInfoWindow = false
+      return function() {
+         closeLastOpenedInfoWindow();
+         infowindow.setContent(content);
+         infowindow.open(map, marker);
+         lastOpenedInfoWindow = infowindow;
+      };
+   }(houseMarker, contentString, houseInfowindow)))
+  
+   
+   function closeLastOpenedInfoWindow() {
+      if (lastOpenedInfoWindow) {
+         lastOpenedInfoWindow.close();
+      }
+   }
+
+    houseMarkers.push(houseMarker)
+    houseInfowindows.push(houseInfowindow)
+  })
+}
 
 function drawCircle(point, radius, dir) {
   var d2r = Math.PI / 180 // degrees to radians
@@ -224,10 +253,14 @@ async function showReachableArea(stations, time1) {
   var mycity = new google.maps.LatLng(25, 121.52)
   var bigOne = new google.maps.LatLng(25, 121.53)
   var smallOne = new google.maps.LatLng(25, 121.52)
-  console.log('he')
-  const paths = stations.map(station => {
-    const {lat, lng, distanceLeft} = station
-    return drawCircle(new google.maps.LatLng(lat, lng), distanceLeft / 1609.366, 1)
+  // console.log('he')
+  const paths = stations.map((station) => {
+    const { lat, lng, distanceLeft } = station
+    return drawCircle(
+      new google.maps.LatLng(lat, lng),
+      distanceLeft / 1609.366,
+      1
+    )
   })
   var joined = new google.maps.Polygon({
     // paths: [
@@ -248,10 +281,17 @@ async function showReachableArea(stations, time1) {
     fillOpacity: 0.6
   })
   // console.log('jel')
-  console.log(joined)
-  console.log(map)
+  // console.log(joined)
+  // console.log(map)
   joined.setMap(map)
   polygons.push(joined)
   const time2 = Date.now()
-  console.log("It takes total :", (time2 - time1) / 1000, "seconds")
+  console.log('It takes total :', (time2 - time1) / 1000, 'seconds')
 }
+
+async function testHouse() {
+  const { houses } = await axios.get('/test')
+  console.log(houses)
+}
+
+// testHouse()
