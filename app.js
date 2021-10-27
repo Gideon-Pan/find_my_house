@@ -8,7 +8,7 @@ const { Vertex, Edge } = require('./controller/graph')
 const { getShortestPath } = require('./controller/shortest_path')
 // const { Edge } = require('./graph')
 // const { makeGraph } = require('./makeGraph')
-
+const db = require('./model/db/mysql/mysql')
 // console.log(makeGraph)
 
 const app = express()
@@ -34,10 +34,22 @@ async function main() {
 }
 main()
 
+app.get('/test', async (req, res) => {
+  const q = `SELECT * FROM house 
+    WHERE latitude IS NOT NULL 
+      AND longitude IS NOT NULL 
+    LIMIT 5`
+  // console.log(db)
+  const [data] = await db.query(q)
+  console.log(data)
+  res.send(data)
+})
+
 app.get('/search', async (req, res) => {
   const g = req.query.commuteWay === 'bus' ? graphForBus : graphForMetro
   const start = Date.now()
   console.log('receive')
+
   let { commuteTime, officeLat, officeLng, maxWalkDistance } = req.query
   officeLat = Number(officeLat)
   officeLng = Number(officeLng)
@@ -92,19 +104,27 @@ app.get('/search', async (req, res) => {
       counter++
     }
   }
+
+
+
   // console.log(distToStationMap)
   const nearByStationCount = counter - 1
-  console.log('nearByStationCount: ', nearByStationCount);
+  console.log('nearByStationCount: ', nearByStationCount)
   // can't get to any station but itself
   if (nearByStationCount === 0) {
-    return res.send([
+    const positionData = [
       {
         stationId: '-2',
         lat: officeLat,
         lng: officeLng,
         distanceLeft: maxWalkDistance
       }
-    ])
+    ]
+    const houseData = await getHousesInRange(positionData)
+    return res.send({
+      positionData,
+      houseData
+    })
   }
 
   // const counter = {}
@@ -112,7 +132,7 @@ app.get('/search', async (req, res) => {
   const reachableStations = getShortestPath(g, '-2', commuteTime)
 
   const reachableStationsMap = {}
-  console.log(reachableStations.length)
+  console.log("reachable station count:", reachableStations.length)
 
   reachableStations.forEach((reachableStation) => {
     const { id, startStationId, timeSpent } = reachableStation
@@ -162,14 +182,44 @@ app.get('/search', async (req, res) => {
       distanceLeft
     }
   })
-  const respondData = Object.values(reachableStationsMap)
+  const positionData = Object.values(reachableStationsMap)
+
+  const houseData = await getHousesInRange(positionData)
+  // console.log(positionData)
   // console.log(respondData.length)
   const end = Date.now()
   console.log('It totally takes', (end - start) / 1000, 'seconds')
-  return res.send(respondData)
+  console.log('respond')
+  // console.log(houseData)
+  return res.send({
+    positionData,
+    houseData
+  })
   // {stationId: 'G08', lat: 25.020733, lng: 121.528143, distanceLeft: 134}
 })
 
 app.listen(3000, () => {
   console.log('Listening on port 3000')
 })
+
+async function getHousesInRange(positionData) {
+  const q = `SELECT * FROM house 
+  WHERE latitude IS NOT NULL 
+    AND longitude IS NOT NULL 
+  `
+  // console.log(db)
+  const [houses] = await db.query(q)
+  const houseData = houses.filter(house => {
+    const {latitude, longitude} = house
+    for (let i = 0; i < positionData.length; i++) {
+      const position = positionData[i]
+      const radius = position.distanceLeft
+      if (getDistance({latitude, longitude}, {latitude: position.lat, longitude: position.lng}) < radius) {
+        return true
+      }
+    }
+    // console.log('waht')
+    return false
+  })
+  return houseData
+}
