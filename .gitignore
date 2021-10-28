@@ -5,4 +5,5 @@ node_modules
 591/geckodriver.log
 package-lock.json
 dump/
+public/assets
 

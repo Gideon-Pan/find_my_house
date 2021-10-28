@@ -61,7 +61,8 @@ function initMap() {
     position: Justin,
     map: map,
     icon: icon,
-    draggable: true
+    draggable: true,
+    zIndex: 99999999
   })
 
   marker.addListener('dragend', (mapsMouseEvent) => {
@@ -94,7 +95,7 @@ async function search() {
   hideCircles()
   circles = []
   removeReachableArea()
-
+  clearHouses()
   renderHouses(houseData)
 
   return showReachableArea(positionData, time1)
@@ -117,11 +118,16 @@ async function search() {
   console.log('It takes total :', (time2 - time1) / 1000, 'seconds')
 }
 
-
+function clearHouses() {
+  for (let houseMarker of houseMarkers) {
+    houseMarker.setMap(null)
+  }
+  houseMarkers = []
+}
 
 // here
 function renderHouses(houses) {
-  houses.forEach((house) => {
+  houses.forEach((house, i) => {
     // console.log('a')
     const {
       title,
@@ -134,7 +140,11 @@ function renderHouses(houses) {
       longitude
     } = house
     const houseIcon = {
-      url: './assets/renting.png', // url
+      // url: './assets/renting.png', // url
+      // url: './assets/renting-house.jpg',
+      // url: './assets/icon.jfif',
+      // 2, 4 works
+      url: './assets/2.png',
       scaledSize: new google.maps.Size(30, 30), // scaled size
       origin: new google.maps.Point(0, 0), // origin
       anchor: new google.maps.Point(15, 20) // anchor
@@ -147,13 +157,14 @@ function renderHouses(houses) {
         lng: longitude
       },
       map: map,
-      icon: houseIcon
+      icon: houseIcon,
+      // label: `${i}`
     })
     const contentString = `  
   <div class="house-info">
       <img src=${image} width="125" height="100" />
       <p>房型：${category}</p>
-      <p>價格：${price}/月</p>
+      <p>價格：${price}元/月</p>
       <p>地址：${address}</p>
       <a href="${link}" target="_blank">查看更多</a>
     </div>
@@ -179,32 +190,39 @@ function renderHouses(houses) {
     })
     // console.log(houseInfowindows)
     // if (houseMarkers.length !== 0) {
-      // houseInfowindows.forEach((houseInfowindowOld) => {
-      //   // console.log(houseInfowindowOld)
-      //   houseInfowindowOld.close()
-      //   houseInfowindowOld.setMap(null)
-      // })
+    // houseInfowindows.forEach((houseInfowindowOld) => {
+    //   // console.log(houseInfowindowOld)
+    //   houseInfowindowOld.close()
+    //   houseInfowindowOld.setMap(null)
+    // })
     // }
-    google.maps.event.addListener(houseMarker, 'click', (function(marker, content, infowindow) {
-      lastOpenedInfoWindow = false
-      return function() {
-         closeLastOpenedInfoWindow();
-         infowindow.setContent(content);
-         infowindow.open(map, marker);
-         lastOpenedInfoWindow = infowindow;
-      };
-   }(houseMarker, contentString, houseInfowindow)))
-  
-   
-   function closeLastOpenedInfoWindow() {
+    google.maps.event.addListener(
+      houseMarker,
+      'click',
+      (function (marker, content, infowindow) {
+        lastOpenedInfoWindow = false
+        return function () {
+          closeLastOpenedInfoWindow()
+          infowindow.setContent(content)
+          infowindow.open(map, marker)
+          lastOpenedInfoWindow = infowindow
+        }
+      })(houseMarker, contentString, houseInfowindow)
+    )
+
+    function closeLastOpenedInfoWindow() {
       if (lastOpenedInfoWindow) {
-         lastOpenedInfoWindow.close();
+        lastOpenedInfoWindow.close()
       }
-   }
+    }
 
     houseMarkers.push(houseMarker)
-    houseInfowindows.push(houseInfowindow)
+    // houseInfowindows.push(houseInfowindow)
   })
+  // Add a marker clusterer to manage the markers.
+  console.log(houseMarkers)
+  // new markerClusterer.MarkerClusterer({ houseMarkers, map })
+  new markerClusterer.MarkerClusterer(map, houseMarkers)
 }
 
 function drawCircle(point, radius, dir) {

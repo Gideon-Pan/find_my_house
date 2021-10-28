@@ -8,7 +8,7 @@ const content = `
   <div class="house-info">
       <img src=${image} width="125" height="100" />
       <p>房型：${category}</p>
-      <p>價格：${price}/月</p>
+      <p>價格：${price}元/月</p>
       <p>地址：${address}</p>
       <a href="${link}" target="_blank">查看更多</a>
     </div>
