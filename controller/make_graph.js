@@ -2,11 +2,19 @@ const { Vertex, Edge, Graph } = require('./graph')
 const db = require('../model/db/mysql/mysql')
 
 async function makeVertice(g, type) {
+  let condition
+  if (type === 'mix') {
+    condition = ''
+  } else {
+    condition = `WHERE type = '${type}'`
+  }
   const q = `SELECT ptx_stop_id, name, type, latitude, longitude FROM stop
     JOIN station
       ON stop.station_id = station.id
-    WHERE type = '${type}'`
+      ${condition}`
   const [stops] = await db.query(q)
+  // if (type === 'mix')  console.log(stops)
+
   stops.forEach((stop) => {
     const { ptx_stop_id, name, type, latitude, longitude } = stop
     const vertex = new Vertex(ptx_stop_id, name, latitude, longitude)
@@ -30,18 +38,30 @@ async function makeBusIdMap() {
 
 async function makeEdges(g, type) {
   // console.log(g)
+  let condition
+  if (type === 'mix') {
+    condition = `WHERE from_stop_id IS NOT NULL
+      AND to_stop_id IS NOT NULL
+      AND time IS NOT NULL
+    `
+  } else {
+    condition = `WHERE from_stop_id IS NOT NULL
+      AND to_stop_id IS NOT NULL
+      AND time IS NOT NULL
+      AND type='${type}'
+    `
+  }
+
   const busIdMap = await makeBusIdMap()
-  const q = `SELECT from_stop_id, to_stop_id, time_period_hour, time_period_minute, time FROM time_between_stop
+  const q = `SELECT from_stop_id, to_stop_id, time_period_hour, time_period_minute, time, distance FROM time_between_stop
     JOIN time_period
       ON time_between_stop.time_period_id = time_period.id
     JOIN stop
       ON stop.id = from_stop_id
     JOIN station
       ON station.id = stop.station_id
-    WHERE from_stop_id IS NOT NULL
-      AND to_stop_id IS NOT NULL
-      AND time IS NOT NULL
-      AND type='${type}'`
+    ${condition}
+    `
   const [data] = await db.query(q)
   data.forEach(
     ({
@@ -49,7 +69,8 @@ async function makeEdges(g, type) {
       to_stop_id,
       time_period_hour,
       time_period_minute,
-      time
+      time,
+      
     }) => {
       if (!busIdMap[from_stop_id]) {
         console.log(from_stop_id)

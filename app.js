@@ -19,11 +19,13 @@ const walkVelocity = 1.25 / 1.414
 
 let graphForBus
 let graphForMetro
+let graphForMix
 let waitingTimeMap
 async function main() {
   const time0_0 = Date.now()
   graphForBus = await makeGraph('bus')
   graphForMetro = await makeGraph('metro')
+  graphForMix = await makeGraph('mix')
   waitingTimeMap = await makeWaitingTimeMap()
   const time0_1 = Date.now()
   console.log(
@@ -46,7 +48,20 @@ app.get('/test', async (req, res) => {
 })
 
 app.get('/search', async (req, res) => {
-  const g = req.query.commuteWay === 'bus' ? graphForBus : graphForMetro
+  // const g = req.query.commuteWay === 'bus' ? graphForBus : graphForMetro
+  let g
+  switch (req.query.commuteWay) {
+    case 'bus':
+      g = graphForBus
+      break
+    case 'metro':
+      g = graphForMetro
+      break
+    case 'mix':
+      g = graphForMix
+  }
+  // console.log(g)
+  
   const start = Date.now()
   console.log('receive')
 
@@ -69,7 +84,7 @@ app.get('/search', async (req, res) => {
   for (let id of g.getAllIds()) {
     const lat = g.getVertex(id).lat()
     const lng = g.getVertex(id).lng()
-
+    if (!lat || !lng) continue
     const distToStation = getDistance(
       { latitude: lat, longitude: lng },
       { latitude: officeLat, longitude: officeLng }
