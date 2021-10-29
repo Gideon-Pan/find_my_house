@@ -1,4 +1,4 @@
-const getPtxData = require('../metro-ptx')
+const { getPtxData } = require('../metro-ptx')
 const { insertMany } = require('../model/mongo/mongo-helper')
 
 async function insertBusStations() {

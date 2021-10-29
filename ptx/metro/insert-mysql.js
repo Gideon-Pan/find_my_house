@@ -1,6 +1,7 @@
 const { getMongoData } = require('../model/mongo/mongo-helper')
 const db = require('../model/mysql.js')
 const { makeTimePeriodMap } = require('../bus/insert_mysql')
+const { makeMetroStopIdMap, makeMetroStationIdMap, makeMetroLineMap, makeTimePeriodMap} = require('./metro_map')
 
 async function insertMetroStations() {
   const stations = await getMongoData('metroStationsPosition')
@@ -35,30 +36,6 @@ async function insertMetroLine() {
   console.log('finish inserting metro lines')
 }
 
-async function makeMetroLineMap() {
-  const map = []
-  const [result] = await db.query(
-    'SELECT id, ptx_line_id FROM line WHERE type = "metro"'
-  )
-  result.forEach(({ id, ptx_line_id }) => {
-    map[ptx_line_id] = id
-  })
-  // console.log(map)
-  return map
-}
-
-async function makeMetroStationIdMap() {
-  const map = []
-  // console.log(db)
-  const [result] = await db.query(
-    'SELECT id, ptx_station_id FROM station WHERE type = "metro"'
-  )
-  result.forEach(({ id, ptx_station_id }) => {
-    map[ptx_station_id] = id
-  })
-  // console.log(map)
-  return map
-}
 // makePtxIdMap()
 
 async function insertMetroStops() {
@@ -82,18 +59,6 @@ async function insertMetroStops() {
   // console.log(values.length)
   await db.query(q, [values])
   console.log('finish inserting metro stops')
-}
-
-async function makeMetroStopIdMap() {
-  const map = {}
-  const [result] = await db.query('SELECT id, ptx_stop_id, direction FROM stop')
-  // console.log(result)
-  result.forEach(({ id, ptx_stop_id, direction }) => {
-    // 不同方向的站點為不同stop
-    map[`${ptx_stop_id}-${direction}`] = id
-  })
-  // console.log(map)
-  return map
 }
 
 // makeMetroStopIdMap()

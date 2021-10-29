@@ -1,17 +1,8 @@
 // const { getMongoData } = require('../bus/mongo-helper')
+const { makeTimePeriodMap } = require('../metro/metro_map')
 const { getMongoData } = require('../model/mongo/mongo-helper')
 const db = require('../model/mysql')
-
-async function makeStopStationMap() {
-  const map = {}
-  const stations = await getMongoData('busStations')
-  stations.forEach((station) => {
-    station.Stops.forEach((stop) => {
-      map[stop.StopID] = station.StationID
-    })
-  })
-  return map
-}
+const { makeWaitingTimeMap, makeStopStationMap, makePtxIdMap } = require('./bus_map')
 
 async function insertBusStations() {
   const stations = await getMongoData('busStations')
@@ -185,40 +176,13 @@ async function getTimePeriodId(timePeriodHour, timePeriodMinute) {
   return timePeriodId
 }
 
-async function makeTimePeriodMap() {
-  const map = {}
-  const q = `SELECT id, time_period_hour, time_period_minute FROM time_period`
-  const [result] = await db.query(q)
-  result.forEach(({ id, time_period_hour, time_period_minute }) => {
-    map[`${time_period_hour}-${time_period_minute}`] = id
-  })
-  // console.log(map)
-  return map
-}
+
 
 // makeTimePeriodMap()
 
-async function makePtxIdMap() {
-  const q = `SELECT id, ptx_stop_id FROM stop`
-  // const values = [ptxId]
-  const [result] = await db.query(q)
-  const map = {}
-  result.forEach(({ id, ptx_stop_id }) => {
-    map[ptx_stop_id] = id
-  })
-  return map
-}
 
-async function makeWaitingTimeMap() {
-  const waitingTimeList = await getMongoData('busAvgWaitingTime')
-  const waitingTimeMap = {}
-  waitingTimeList.forEach((waitingTime) => {
-    const { avgWaitingTime, stopId } = waitingTime
-    if (!avgWaitingTime) return
-    waitingTimeMap[stopId] = avgWaitingTime
-  })
-  return waitingTimeMap
-}
+
+
 
 async function insertBusTransfer() {
   const waitingTimeMap = await makeWaitingTimeMap()
@@ -348,6 +312,7 @@ async function insertFirstWaitingTime() {
 // makeStartPoint()
 // insertFirstWaitingTime()
 
-module.exports = {
-  makeTimePeriodMap
-}
+// module.exports = {
+//   makeTimePeriodMap,
+//   makePtxIdMap
+// }

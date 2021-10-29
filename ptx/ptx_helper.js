@@ -43,4 +43,4 @@ async function getPtxData(url) {
 
 // getStationOfLine("https://ptx.transportdata.tw/MOTC/v2/Rail/Metro/StationOfLine/TRTC?$top=1&$format=JSON")
 
-module.exports = getPtxData
+module.exports = {getPtxData}
