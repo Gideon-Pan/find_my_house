@@ -70,17 +70,20 @@ async function makeEdges(g, type) {
       time_period_hour,
       time_period_minute,
       time,
-      
+      distance
     }) => {
       if (!busIdMap[from_stop_id]) {
         console.log(from_stop_id)
         return
       }
+      distance = distance ? distance : 0
+      // console.log(distance)
       const edge = new Edge(
         busIdMap[from_stop_id],
         busIdMap[to_stop_id],
         `${time_period_hour}-${time_period_minute}`,
-        time
+        time,
+        distance
       )
       g.addEdge(edge)
     }

@@ -27,11 +27,12 @@ class Vertex {
 }
 
 class Edge {
-  constructor(fromId, toId, timePeriod, time) {
+  constructor(fromId, toId, timePeriod, time, distance) {
     this._fromId = fromId
     this._toId = toId
     this._timePeriod = timePeriod
     this._time = time
+    this._distance = distance
   }
   to() {
     return this._toId
@@ -42,6 +43,9 @@ class Edge {
   time() {
     return this._time
   }
+  distance() {
+    return this._distance
+  }
 }
 
 class Graph {
@@ -50,6 +54,7 @@ class Graph {
     // this._edges = {}
     this._adjacent = {}
     this._vertexMap = {}
+    this._edgeMap = {}
     // this._nameMap = {}
   }
   addVertex(vertex) {
@@ -76,6 +81,7 @@ class Graph {
       // console.log(this._adjacent[edge._fromId])
       
       this._adjacent[edge._fromId].push(edge)
+      this._edgeMap[`${edge._fromId}-${edge._toId}`] = edge
       // console.log(edge._fromId)
     } catch(e) {
       console.log(e)
@@ -93,6 +99,12 @@ class Graph {
   }
   getVertex(id) {
     return this._vertexMap[id]
+  }
+  getEdge(fromId, toId) {
+    // console.log(this._edgeMap)
+    // console.log(this._edgeMap[`${fromId}-${toId}`])
+    // console.log(fromId)
+    return this._edgeMap[`${fromId}-${toId}`]
   }
   // getIdsByName(name) {
   //   return this._nameMap[name]

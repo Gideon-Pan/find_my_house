@@ -150,7 +150,7 @@ app.get('/search', async (req, res) => {
   console.log("reachable station count:", reachableStations.length)
 
   reachableStations.forEach((reachableStation) => {
-    const { id, startStationId, timeSpent } = reachableStation
+    const { id, startStationId, timeSpent, walkDistance } = reachableStation
 
     // if (id === '16911') {
     //   console.log(reachableStation)
@@ -159,7 +159,7 @@ app.get('/search', async (req, res) => {
     // console.log('id: ', id);
     // const totalTimeSpent =
     // console.log(timeSpent)
-    let distanceLeft = (commuteTime - timeSpent) * walkVelocity
+    let distanceLeft = (commuteTime - timeSpent) * walkVelocity - walkDistance
 
     // console.log('commuteTime: ', commuteTime);
     // console.log('timeSpent: ', timeSpent);
@@ -176,8 +176,9 @@ app.get('/search', async (req, res) => {
     // distanceLeft = distanceLeft - distToStationMap[startStationId]
     // console.log(distanceLeft)
     if (distanceLeft < 0) {
-      console.log('fuck')
-      return console.log(req.query)
+      // console.log('fuck')
+      // return console.log(req.query)
+      return
     }
     // office point
     if (id == '-2') distanceLeft = maxWalkDistance

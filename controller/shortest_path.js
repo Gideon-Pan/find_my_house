@@ -5,6 +5,7 @@ function getShortestPath(g, fromId, timeLeft) {
   const ids = g.getAllIds()
   const pq = new PQ()
   const timeTo = {}
+  const walkDistance = {}
   for (let i = 0; i < ids.length; i++) {
     if (ids[i] === fromId) {
       pq.enqueue(ids[i], 0)
@@ -80,12 +81,26 @@ function getShortestPath(g, fromId, timeLeft) {
     let route = [reachableStationId]
     while (edgeTo[currentId]) {
       route.push(edgeTo[currentId])
+      const edge = g.getEdge(edgeTo[currentId], currentId)
+      // if (edge._distance && edge._distance !== 0) console.log(edge)
+      
       currentId = edgeTo[currentId]
+      if (!walkDistance[reachableStationId]) {
+        walkDistance[reachableStationId] = 0
+      }
+      if (!edge.distance()) {
+        // console.log(edge)
+        continue
+      }
+      walkDistance[reachableStationId] += edge.distance()
+
+      // console.log(distance)
     }
     reachableStations.push({
       id: reachableStationId,
       startStationId: route[route.length - 2],
-      timeSpent: timeTo[reachableStationId]
+      timeSpent: timeTo[reachableStationId],
+      walkDistance: walkDistance[reachableStationId]
     })
     if (reachableStationId === '16911') {
       console.log(route)
