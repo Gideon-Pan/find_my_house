@@ -59,32 +59,47 @@ async function insertMetroWaitingTime() {
   routeFrequencyList.forEach(({LineID, RouteID, ServiceDay, Headways}) => {
     if (RouteID.split('-')[1] !== '1') return
     let serviceType = ServiceDay.ServiceTag
-    serviceType = serviceType === '平日' ? 'weekDay' : 'weekEnd'
+    // serviceType = serviceType === '平日' ? 'weekdays' : 'weekend'
     const stationIds = lineStationsMap[LineID]
     // console.log(routeFrequency)
+    // const stopWaitingTime =  {}
     stationIds.forEach(stationId => {
       // if (stationId === 'G01') console.log(Headways)
       // const overlapCount = overlapCountMap[stationId]
-      if (!stationsWaitingTimeMap[stationId]) {
-        stationsWaitingTimeMap[stationId] = {stationId}
-      }
+      
       // const stopWaitingTime = 
-      const stopWaitingTimes = Headways.map(period => ({
-        peakFlag: period.PeakFlag,
-        startTime: period.StartTime,
-        endTime: period.EndTime,
+      
+      Headways.forEach((periodData, i) => {
+        let period
+        // console.log(periodData.StartTime)
+        if (ServiceDay.ServiceTag === "假日" && periodData.StartTime === "06:00") {
+          period = "weekend"
+        } else if (periodData.StartTime === "06:00") {
+          period = "weekDays"
+        } else if (periodData.PeakFlag === "1") {
+          period = "weekDaysPeak"
+        } else {
+          return
+        }
+        // peakFlag: period.PeakFlag,
+        // startTime: period.StartTime,
+        // endTime: period.EndTime,
         // average waiting time =  headwaytime / 2
         // 考慮路線重疊，等車時間減半
-        waitingTimeSeconds: (period.MinHeadwayMins + period.MaxHeadwayMins) / 2 / 2 / overlapCountMap[stationId] * 60
-      }))
+        waitingTimeSeconds = (periodData.MinHeadwayMins + periodData.MaxHeadwayMins) / 2 / 2 / overlapCountMap[stationId] * 60
+        if (!stationsWaitingTimeMap[stationId]) {
+          stationsWaitingTimeMap[stationId] = {stationId, waitingTimes: {}}
+        }
+        stationsWaitingTimeMap[stationId].waitingTimes[period] = waitingTimeSeconds
+      })
       // if (stationId === 'G01') {
       //   console.log(serviceType)
       //   console.log(stopWaitingTimes.length)
       // }
-      if (!stationsWaitingTimeMap[stationId][serviceType]) {
-        stationsWaitingTimeMap[stationId][serviceType] = stopWaitingTimes
-      }
-      stationsWaitingTimeMap[stationId][serviceType] = stopWaitingTimes
+      // if (!stationsWaitingTimeMap[stationId][serviceType]) {
+      //   stationsWaitingTimeMap[stationId][serviceType] = stopWaitingTimes
+      // }
+      // stationsWaitingTimeMap[stationId][serviceType] = stopWaitingTimes
     })
     // metroWaitingTimeMap[LineID].push()
   })
@@ -114,7 +129,11 @@ async function insertMetroWaitingTime() {
   // for (let )
   // console.log('stationsWaitingTimeMap: ', stationsWaitingTimeMap);
   // console.log(Object.values(stationsWaitingTimeMap))
+
+
   const stationsWaitingTimes = Object.values(stationsWaitingTimeMap)
+
+
   // console.log('stationsWaitingTimes: ', stationsWaitingTimes);
   await insertMany("metroStationWaitingTime", stationsWaitingTimes)
 }
@@ -133,7 +152,7 @@ async function insertMetroWaitingTime() {
 //   })
 // }
 
-insertMetroWaitingTime()
+// insertMetroWaitingTime()
 
 // insertMetroTransferTime()
 // insertMetroStationPosition()

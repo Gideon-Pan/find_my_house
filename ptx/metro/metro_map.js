@@ -89,27 +89,37 @@ async function makeLineStationsMap() {
   return lineStationsMap
 }
 
-// makeLineStationsMap()
+// version 1 (複雜結構版)
+// async function makeMetroWaitingTimeMap() {
+//   const metroWaitingTimeMap = {}
+//   const metroWaitingTimes = await getMongoData("metroStationWaitingTime")
+//   metroWaitingTimes.forEach((station) => {
+//     // console.log(station)
+//     for (let i = 0; i < station.weekDay.length; i++) {
+//       let {peakFlag, waitingTimeSeconds} = station.weekDay[i]
+//       // console.log(station.weekDay[i])
+//       if (peakFlag === '1') {
+//         waitingTimeSeconds = waitingTimeSeconds ? waitingTimeSeconds : 420
+//         metroWaitingTimeMap[station.stationId] = waitingTimeSeconds
+//         break
+//       }
+//     }
+//   })
+//   // console.log(metroWaitingTimeMap)
+//   return metroWaitingTimeMap
+// }
+
 async function makeMetroWaitingTimeMap() {
   const metroWaitingTimeMap = {}
-  const metroWaitingTimes = await getMongoData("metroStationWaitingTime")
-  metroWaitingTimes.forEach((station) => {
-    // console.log(station)
-    for (let i = 0; i < station.weekDay.length; i++) {
-      let {peakFlag, waitingTimeSeconds} = station.weekDay[i]
-      // console.log(station.weekDay[i])
-      if (peakFlag === '1') {
-        waitingTimeSeconds = waitingTimeSeconds ? waitingTimeSeconds : 420
-        metroWaitingTimeMap[station.stationId] = waitingTimeSeconds
-        break
-      }
-    }
+  const metroWaitingTimes =  await getMongoData("metroStationWaitingTime")
+  metroWaitingTimes.forEach(({stationId, waitingTimes}) => {
+    metroWaitingTimeMap[stationId] = waitingTimes
   })
   // console.log(metroWaitingTimeMap)
   return metroWaitingTimeMap
 }
 
-makeMetroWaitingTimeMap()
+// makeMetroWaitingTimeMap()
 
 module.exports = {
   makeMetroStopIdMap,

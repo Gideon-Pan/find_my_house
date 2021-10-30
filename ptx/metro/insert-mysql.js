@@ -156,9 +156,39 @@ async function insertMetroTransferTime() {
   console.log('finish inserting metro transfer time')
 }
 
-insertMetroTransferTime()
+// insertMetroTransferTime()
+async function insertFirstWaitingTime() {
+  const timePeriodMap = await makeTimePeriodMap()
+  // return console.log(timePeriodMap)
+  const waitingTimeMap = await makeWaitingTimeMap()
+  const [result1] = await db.query(
+    'SELECT id, ptx_stop_id FROM stop WHERE ptx_stop_id = -1'
+  )
+  const startId = result1[0].id
+  // console.log(startId)
+  const [result2] = await db.query(
+    'SELECT id, ptx_stop_id FROM stop WHERE ptx_stop_id != 1'
+  )
+  const q =
+    'INSERT INTO time_between_stop (from_stop_id, to_stop_id, time_period_id, time) VALUES ?'
+  const values = []
+  result2.forEach(({ id, ptx_stop_id }) => {
+    const fromStopId = startId
+    const toStopId = id
+    // console.log(ptx_stop_id)
+    // console.log(waitingTimeMap)
+    const timePeriodId = timePeriodMap['9-0']
+    const waitingTime = waitingTimeMap[ptx_stop_id]
+    values.push([fromStopId, toStopId, timePeriodId, waitingTime])
+  })
+  // return console.log(values)
+  await db.query(q, [values])
+  console.log('finish inserting first waiting time')
+}
 
-async function insertMetroWaitingTime() {}
+async function insertMetroWaitingTime() {
+
+}
 
 async function insertTimeBetweenStopMetro() {
   await insertMetroIntervalTime()

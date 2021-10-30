@@ -1,15 +1,8 @@
 const  { get591MongoData, getMongoData, insertMany } = require("../../model/db/mongodb/mongo_helper")
 const { getDistance } = require('geolib')
+const { makePostionMap } = require("./bus_map")
 
-async function makePostionMap() {
-  const map = {}
-  const busStops = await getMongoData('busStops')
-  busStops.forEach(stop => {
-    map[stop.StopID] = stop.StopPosition
-  })
-  // console.log(map)
-  return map
-}
+
 
 // makePostionMap()
 async function deleteLackInfoStops(routes) {
@@ -75,3 +68,7 @@ async function insertBusStopIntervalDistance() {
 }
 
 // insertBusStopIntervalDistance()
+
+async function insertBusStopIntervalDistance() {
+  
+}

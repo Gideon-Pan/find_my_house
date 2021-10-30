@@ -1,5 +1,5 @@
-const { getPtxData } = require('../metro-ptx')
-const { insertMany } = require('../model/mongo/mongo-helper')
+const { getPtxData } = require('../ptx_helper')
+const { insertMany } = require('../../model/db/mongodb/mongo_helper')
 
 async function insertBusStations() {
   const busStationsTPE = await getPtxData(
@@ -103,8 +103,8 @@ async function insertBusWaitingTimeTiny() {
 }
 
 async function insertBusAvgWaitingTime(busAvgWaitingTime) {
-  await insertMany('busAvgWaitingTime', busAvgWaitingTime)
-  console.log('done')
+  // await insertMany('busAvgWaitingTime', busAvgWaitingTime)
+  // console.log('done')
 }
 
 module.exports = {

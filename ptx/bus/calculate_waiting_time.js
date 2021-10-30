@@ -1,6 +1,6 @@
-const getPtxData = require('../metro-ptx')
+// const getPtxData = require('../metro-ptx')
 const { insertBusAvgWaitingTime } = require('./insert_mongo')
-const { insertMany, getMongoData } = require('../model/mongo/mongo-helper')
+const { insertMany, getMongoData } = require('../../model/db/mongodb/mongo_helper')
 
 // const timeStamp = Date.now()
 // console.log(timeStamp)
@@ -33,6 +33,7 @@ function makeWaitingTimeMap(waitingTimeList) {
   return map
 }
 
+
 function makeWaitingTimeMapNew(waitingTimeList) {
   const map = {}
   for (let i = 0; i < waitingTimeList.length; i++) {
@@ -56,6 +57,7 @@ function makeWaitingTimeMapNew(waitingTimeList) {
 
 async function createBusAvgWaitingTime() {
   const waitingTimeList = await getMongoData('busWaitingTime')
+  console.log('finsish fetching data')
   const map = makeWaitingTimeMap(waitingTimeList)
   const avgTimeDataList = Object.values(map).map((stopData) => {
     const { stopId, direction } = stopData[0]
@@ -78,8 +80,12 @@ async function createBusAvgWaitingTime() {
     avgTimeData.dataAmount = validCounter
     return avgTimeData
   })
-  await insertBusAvgWaitingTime(avgTimeDataList)
+  // await insertBusAvgWaitingTime(avgTimeDataList)
+  await insertMany('busAvgWaitingTime_1030', avgTimeDataList)
+  // console.log('done')
 }
+
+// createBusAvgWaitingTime()
 
 async function createBusAvgIntervalTime() {
   const waitingTimeList = await getMongoData('busWaitingTime')
@@ -90,6 +96,7 @@ async function createBusAvgIntervalTime() {
   // console.log(waitingTimeMapNew["170055-0"]);
   // console.log(waitingTimeMapNew["170056-0"])
   const busIntervalTimeMap = {}
+  console.log('finsish fetching data')
   routes.forEach((route) => {
     // const stopTimeMap = {}
     for (let i = 0; i < route.Stops.length - 1; i++) {

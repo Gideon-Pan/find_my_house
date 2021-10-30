@@ -34,8 +34,19 @@ async function makePtxIdMap() {
   return map
 }
 
+async function makePostionMap() {
+  const map = {}
+  const busStops = await getMongoData('busStops')
+  busStops.forEach(stop => {
+    map[stop.StopID] = stop.StopPosition
+  })
+  // console.log(map)
+  return map
+}
+
 module.exports = {
   makePtxIdMap,
   makeStopStationMap,
-  makeWaitingTimeMap
+  makeWaitingTimeMap,
+  makePostionMap
 }
