@@ -1,6 +1,6 @@
 const express = require('express')
 const { getDistance } = require('geolib')
-const { makeGraph, makeWaitingTimeMap } = require('./controller/make_graph')
+const { makeGraphs, makeWaitingTimeMap } = require('./controller/make_graph')
 // const getShortestPathBus = require('./ptx_testing/bus/bus_sp')
 // const { PQ } = require('./controller/priority_queue')
 // const { metro } = require('./ptx_testing/metro_app')
@@ -17,22 +17,27 @@ app.use(express.static(__dirname + '/public'))
 
 const walkVelocity = 1.25 / 1.414
 
-let graphForBus
+let graphsForBus
 let graphForMetro
 let graphForMix
-let waitingTimeMap
+let waitingTimeMaps
+let graphs
 async function main() {
   const time0_0 = Date.now()
-  graphForBus = await makeGraph('bus')
-  graphForMetro = await makeGraph('metro')
-  graphForMix = await makeGraph('mix')
-  waitingTimeMap = await makeWaitingTimeMap()
+  // graphsForBus = await makeGraph('bus', 2)
+  // graphsForMetro = await makeGraph('metro', 2)
+  // graphsForMix = await makeGraph('mix', 2)
+  graphs = await makeGraphs(2)
+  console.log('finish making graph step 0')
+  waitingTimeMaps = await makeWaitingTimeMap(2)
+  // waitingTimeMap = waitingTimeMaps[]
   const time0_1 = Date.now()
   console.log(
     'finish making graph:',
     Math.floor(time0_1 - time0_0) / 1000,
     'seconds'
   )
+  // console.log(waitingTimeMaps)
 }
 main()
 
@@ -49,23 +54,29 @@ app.get('/test', async (req, res) => {
 
 app.get('/search', async (req, res) => {
   // const g = req.query.commuteWay === 'bus' ? graphForBus : graphForMetro
-  let g
-  switch (req.query.commuteWay) {
-    case 'bus':
-      g = graphForBus
-      break
-    case 'metro':
-      g = graphForMetro
-      break
-    case 'mix':
-      g = graphForMix
-  }
+  let { commuteTime, officeLat, officeLng, maxWalkDistance, period, commuteWay } = req.query
+  // console.log(waitingTimeMaps)
+  const waitingTimeMap = waitingTimeMaps[period]
+  // console.log(waitingTimeMap)
+  const g = graphs[commuteWay][period]
+  // console.log(g)
+  // console.log(g._edgeMap)
+  // let g
+  // switch (req.query.commuteWay) {
+  //   case 'bus':
+  //     g = graphsForBus
+  //     break
+  //   case 'metro':
+  //     g = graphsForMetro
+  //     break
+  //   case 'mix':
+  //     g = graphsForMix
+  // }
   // console.log(g)
   
   const start = Date.now()
   console.log('receive')
 
-  let { commuteTime, officeLat, officeLng, maxWalkDistance } = req.query
   officeLat = Number(officeLat)
   officeLng = Number(officeLng)
   maxWalkDistance = Number(maxWalkDistance)
@@ -99,11 +110,15 @@ app.get('/search', async (req, res) => {
       // })
 
       // 走到車站的時間 + 等車時間
+      // console.log(waitingTimeMap)
       const waitingTime = waitingTimeMap[id] || 0
+      // console.log(id)
+      // console.log(waitingTime)
+      // return
       const edge = new Edge(
         '-2',
         id,
-        '9-0',
+        period,
         distToStation / walkVelocity + waitingTime
       )
 
@@ -144,7 +159,7 @@ app.get('/search', async (req, res) => {
 
   // const counter = {}
 
-  const reachableStations = getShortestPath(g, '-2', commuteTime)
+  const reachableStations = getShortestPath(g, '-2', commuteTime, period)
 
   const reachableStationsMap = {}
   console.log("reachable station count:", reachableStations.length)

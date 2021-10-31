@@ -1,7 +1,7 @@
 const { makeGraph } = require('./make_graph')
 const { PQ } = require('./priority_queue')
 
-function getShortestPath(g, fromId, timeLeft) {
+function getShortestPath(g, fromId, timeLeft, period) {
   const ids = g.getAllIds()
   const pq = new PQ()
   const timeTo = {}
@@ -81,13 +81,18 @@ function getShortestPath(g, fromId, timeLeft) {
     let route = [reachableStationId]
     while (edgeTo[currentId]) {
       route.push(edgeTo[currentId])
-      const edge = g.getEdge(edgeTo[currentId], currentId)
+      // console.log
+      const edge = g.getEdge(edgeTo[currentId], currentId, period)
+      // console.log('period: ', period);
+      // console.log('currentId: ', currentId);
+      // console.log('edgeTo[currentId]: ', edgeTo[currentId]);
       // if (edge._distance && edge._distance !== 0) console.log(edge)
       
       currentId = edgeTo[currentId]
       if (!walkDistance[reachableStationId]) {
         walkDistance[reachableStationId] = 0
       }
+      // console.log(edge)
       if (!edge.distance()) {
         // console.log(edge)
         continue

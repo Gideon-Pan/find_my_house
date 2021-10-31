@@ -79,12 +79,12 @@ function initMap() {
 
 async function search() {
   const time1 = Date.now()
-  const startWork = $('#start_work').val()
+  const period = $('#period').val()
   const commuteTime = $('#commute_time').val() * 60
   const commuteWay = $('#commute_way').val()
   const maxWalkDistance = $('#walk_distance').val()
   const budget = $('#budget').val()
-  const url = `/search?startWork=${startWork}&commuteTime=${commuteTime}&commuteWay=${commuteWay}&maxWalkDistance=${maxWalkDistance}&budget=${budget}&officeLat=${officeLat}&officeLng=${officeLng}`
+  const url = `/search?period=${period}&commuteTime=${commuteTime}&commuteWay=${commuteWay}&maxWalkDistance=${maxWalkDistance}&budget=${budget}&officeLat=${officeLat}&officeLng=${officeLng}`
   // const walk_distance = $("walk_distance").val()
 
   console.log(url)
