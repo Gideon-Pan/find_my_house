@@ -75,9 +75,9 @@ async function insertMetroWaitingTime() {
         if (ServiceDay.ServiceTag === "假日" && periodData.StartTime === "06:00") {
           period = "weekend"
         } else if (periodData.StartTime === "06:00") {
-          period = "weekDays"
+          period = "weekdays"
         } else if (periodData.PeakFlag === "1") {
-          period = "weekDaysPeak"
+          period = "weekdaysPeak"
         } else {
           return
         }
@@ -152,7 +152,7 @@ async function insertMetroWaitingTime() {
 //   })
 // }
 
-// insertMetroWaitingTime()
+insertMetroWaitingTime()
 
 // insertMetroTransferTime()
 // insertMetroStationPosition()

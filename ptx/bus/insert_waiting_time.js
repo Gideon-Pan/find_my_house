@@ -4,8 +4,8 @@ const {
   insertbusRoutes,
   insertBusStations,
   insertBusStops
-} = require('./insert-bus-data')
-const { getMongoData } = require('../model/mongo/mongo-helper')
+} = require('./insert_mongo')
+const { getMongoData } = require('../../model/db/mongodb/mongo_helper')
 
 // insertbusRoutes()
 const sleep = (t) => {
@@ -16,10 +16,10 @@ const sleep = (t) => {
   })
 }
 
-async function insertSchedule(sleepSecond) {
+async function insertSchedule(sleepSecond, collection) {
   while (1) {
     try {
-      await insertBusWaitingTime()
+      await insertBusWaitingTime(collection)
       const date = new Date()
       const hour = date.getHours()
       const minute = date.getMinutes()
@@ -38,7 +38,7 @@ async function insertSchedule(sleepSecond) {
 
 async function main() {
   // insertBusStations()
-  await insertSchedule(45)
+  await insertSchedule(245, "busWaitingTimeWeekend")
   // await insertBusWaitingTime()
   // const data = await getMongoData("busStations")
   // let maxLength = 0

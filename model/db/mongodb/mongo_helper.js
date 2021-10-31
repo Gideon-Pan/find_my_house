@@ -30,7 +30,7 @@ async function getMongoData(collection) {
   await client.connect()
   const db = client.db('ptx')
   const data = await db.collection(collection).find({}).toArray()
-  await client.close()
+  // await client.close()
   return data
 }
 

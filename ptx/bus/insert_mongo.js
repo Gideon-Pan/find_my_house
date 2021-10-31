@@ -55,7 +55,7 @@ async function insertbusRoutes() {
   console.log('done')
 }
 
-async function insertBusWaitingTime() {
+async function insertBusWaitingTime(collection) {
   const busWaitingTimeTPE = await getPtxData(
     'https://ptx.transportdata.tw/MOTC/v2/Bus/EstimatedTimeOfArrival/City/Taipei?$top=100000&$format=JSON'
   )
@@ -70,7 +70,7 @@ async function insertBusWaitingTime() {
   // console.log(busStopsAll.length)
   const busWaitingTimeAll = busWaitingTimeTPE.concat(busWaitingTimeNTP)
   console.log(busWaitingTimeAll.length)
-  await insertMany('busWaitingTime', busWaitingTimeAll)
+  await insertMany(collection, busWaitingTimeAll)
   console.log('done')
 }
 

@@ -1,6 +1,6 @@
 const poolPromisified = require('../model/mysql')
 
-async function insertTimePeriod() {
+async function insertTimePeriodOld() {
   for (let i = 0; i < 24; i++) {
     for (let j = 0; j < 60; j = j + 5) {
       await poolPromisified.query(`INSERT INTO time_period (time_period_hour, time_period_minute) 

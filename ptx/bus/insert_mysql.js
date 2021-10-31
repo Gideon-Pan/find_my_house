@@ -1,8 +1,8 @@
 // const { getMongoData } = require('../bus/mongo-helper')
 const { makeTimePeriodMap } = require('../metro/metro_map')
-const { getMongoData } = require('../model/mongo/mongo-helper')
-const db = require('../model/mysql')
-const { makeWaitingTimeMap, makeStopStationMap, makePtxIdMap } = require('./bus_map')
+const { getMongoData } = require('../../model/db/mongodb/mongo_helper')
+const db = require('../../model/db/mysql/mysql')
+const { makeWaitingTimeMap, makeStopStationMap, makePtxIdMap, makeDistanceMap, makeStopRouteMap } = require('./bus_map')
 
 async function insertBusStations() {
   const stations = await getMongoData('busStations')
@@ -109,9 +109,9 @@ async function insertBusStops() {
   console.log('finish insert bus stops')
 }
 
-async function insertTimeBetweenStop() {
+async function insertTimeBetweenStopOld(periodId, version) {
   const data = await getMongoData('busAvgIntervalTime')
-  const timePeriodMap = await makeTimePeriodMap()
+  // const timePeriodMap = await makeTimePeriodMap()
   const busIdMap = await makePtxIdMap()
   const values = []
   for (let i = 0; i < data.length; i++) {
@@ -125,7 +125,7 @@ async function insertTimeBetweenStop() {
     // const values1 = [timePeriodHour, timePeriodMinute]
     // const [result1] = await db.query(q1, values1)
     // const timePeriodId = result1[0].id
-    const timePeriodId = timePeriodMap[`${timePeriodHour}-${timePeriodMinute}`]
+    // const timePeriodId = timePeriodMap[`${timePeriodHour}-${timePeriodMinute}`]
 
     // const q2 = `SELECT id FROM stop WHERE ptx_stop_id = ?`
     // const values2 = [fromStopId]
@@ -150,7 +150,7 @@ async function insertTimeBetweenStop() {
     // return
 
     // const values = [[fromStopId, toStopId, timePeriodId, avgIntervalTime]]
-    values.push([fromStopId, toStopId, timePeriodId, avgIntervalTime])
+    values.push([fromStopId, toStopId, periodId, avgIntervalTime, version])
     // try {
 
     // } catch(e) {
@@ -161,12 +161,35 @@ async function insertTimeBetweenStop() {
     // }
   }
   const q =
-    'INSERT INTO time_between_stop (from_stop_id, to_stop_id, time_period_id, time) VALUES ?'
+    'INSERT INTO time_between_stop (from_stop_id, to_stop_id, time_period_id, time, version) VALUES ?'
   await db.query(q, [values])
   // console.log(i)
   console.log('finish insert time between station')
   // temporory method for single time_period
 }
+
+async function insertTimeBetweenStop(periodId, busVelocity, version) {
+  // const distanceMap = await makeDistanceMap()
+  // const values = distanceMap
+  // const values = []
+  const ptxIdMap = await makePtxIdMap()
+  const distanceList = await getMongoData('busStopIntervalDistance')
+  const q = 'INSERT INTO time_between_stop (from_stop_id, to_stop_id, time_period_id, time, version) VALUES ?'
+  const values = distanceList.map(({fromStopId, toStopId, distance}) => {
+    // if (ptxIdMap[fromStopId] === 165011 && ptxIdMap[toStopId] === 165012) {
+    //   console.log('toStopIdPtx: ', toStopId);
+    //   console.log('fromStopIdPtx: ', fromStopId);
+    //   console.log('111111111')
+    //   // console.log(waitingTimeMap[toStopId])
+      
+    // }
+    return [ptxIdMap[fromStopId], ptxIdMap[toStopId], periodId, distance / busVelocity + 20, version]
+  })
+  // console.log(values)
+  await db.query(q, [values])
+  console.log('finish inserting stop interval time for bus')
+}
+// insertTimeBetweenStop()
 
 async function getTimePeriodId(timePeriodHour, timePeriodMinute) {
   const q1 = `SELECT id FROM time_period WHERE time_period_hour = ? AND time_period_minute = ?`
@@ -184,14 +207,17 @@ async function getTimePeriodId(timePeriodHour, timePeriodMinute) {
 
 
 
-async function insertBusTransfer() {
+async function insertBusTransfer(periodId, version) {
   const waitingTimeMap = await makeWaitingTimeMap()
 
   const stopIdMap = await makePtxIdMap()
+  const stopRouteMap = await makeStopRouteMap()
   // console.log(waitingTimeMap)
   const stations = await getMongoData('busStations')
-  const timePeriodId = await getTimePeriodId(9, 0)
+  // const timePeriodId = await getTimePeriodId(9, 0)
   let values = []
+  const map = {}
+  let counter = 0
   for (let i = 0; i < stations.length; i++) {
     const station = stations[i]
     const stops = station.Stops
@@ -216,19 +242,62 @@ async function insertBusTransfer() {
 
     // console.log(stopIdMap)
     // return
-
+    
     for (let i = 0; i < stops.length; i++) {
       for (let j = 0; j < stops.length; j++) {
         if (i === j) continue
+        if (stopRouteMap[stops[i].StopID] === stopRouteMap[stops[j].StopID]) {
+          counter++
+          continue
+          console.log('got it')
+          // console.log(stops[i].StopID)
+          console.log('stops[i].StopID: ', stops[i].StopID);
+          // stops[j].StopID
+          console.log('stops[j].StopID: ', stops[j].StopID);
+          // stopRouteMap[stops[i].StopID
+          console.log('route id: ', stopRouteMap[stops[i].StopID]);
+        }
+        // console.log(stops[i])
+        // if (stops[i].StopName.Zh_tw !== stops[j].StopName.Zh_tw) {
+        //   console.log(i)
+        //   console.log(j)
+        //   console.log(station.StationID)
+        //   continue
+        // }
+
+        // test 
+        
 
         const fromStopIdPtx = stops[i].StopID
         const toStopIdPtx = stops[j].StopID
+        // if (!waitingTimeMap[toStopIdPtx]) {
+        //   console.log(toStopIdPtx)
+        //   return
+        // }
         values.push([
           stopIdMap[fromStopIdPtx],
           stopIdMap[toStopIdPtx],
-          timePeriodId,
-          waitingTimeMap[toStopIdPtx]
+          periodId,
+          waitingTimeMap[toStopIdPtx],
+          version
         ])
+        // console.log(waitingTimeMap[toStopIdPtx])
+        if (stopIdMap[fromStopIdPtx] === 165011 && stopIdMap[toStopIdPtx] === 165012) {
+          console.log('transfer bug')
+          console.log('toStopIdPtx: ', toStopIdPtx);
+          console.log('fromStopIdPtx: ', fromStopIdPtx);
+          console.log('111111111')
+          console.log(waitingTimeMap[toStopIdPtx])
+          console.log(station.StationID)
+          console.log(stopRouteMap[fromStopIdPtx])
+          console.log(stopRouteMap[toStopIdPtx])
+          
+        }
+        // if (map[`${fromStopIdPtx}-${toStopIdPtx}-${periodId}`]) {
+        //   console.log('`${fromStopIdPtx}-${toStopIdPtx}-${periodId}`: ', `${fromStopIdPtx}-${toStopIdPtx}-${periodId}`);
+        //   return console.log('QQQQ')
+        // }
+        // map[`${fromStopIdPtx}-${toStopIdPtx}-${periodId}`] = true
         // console.log(stopIdMap)
         // console.log(fromStopIdPtx)
         // console.log("stop id:", stopIdMap[fromStopIdPtx])
@@ -245,10 +314,14 @@ async function insertBusTransfer() {
     // if (i === 2) {
     //   console.log(values)
     // }
+    // return
+    
+    // continue
     if (i % 1000 === 0 || i === stations.length - 1) {
-      const q = `INSERT INTO time_between_stop (from_stop_id, to_stop_id, time_period_id, time) 
+      const q = `INSERT INTO time_between_stop (from_stop_id, to_stop_id, time_period_id, time, version) 
           VALUES ?`
-
+      // console.log(values)
+      // return
       await db.query(q, [values])
       console.log(`finish inserting ${i + 1} stations`)
       while (values.length !== 0) {
@@ -258,6 +331,7 @@ async function insertBusTransfer() {
     }
   }
   console.log('finish inserting bus transfer time')
+  // console.log('filter', counter)
 }
 
 async function makeStartPoint() {
@@ -276,8 +350,8 @@ async function makeStartPoint() {
   console.log('finish making start point')
 }
 
-async function insertFirstWaitingTime() {
-  const timePeriodMap = await makeTimePeriodMap()
+async function insertFirstWaitingTime(periodId, version) {
+  // const timePeriodMap = await makeTimePeriodMap()
   // return console.log(timePeriodMap)
   const waitingTimeMap = await makeWaitingTimeMap()
   const [result1] = await db.query(
@@ -286,19 +360,25 @@ async function insertFirstWaitingTime() {
   const startId = result1[0].id
   // console.log(startId)
   const [result2] = await db.query(
-    'SELECT id, ptx_stop_id FROM stop WHERE ptx_stop_id != 1'
+    `
+    SELECT stop.id, ptx_stop_id FROM stop 
+    JOIN station
+      ON station.id = stop.station_id
+    WHERE ptx_stop_id != 1
+      AND type = 'bus'
+    `
   )
   const q =
-    'INSERT INTO time_between_stop (from_stop_id, to_stop_id, time_period_id, time) VALUES ?'
+    'INSERT INTO time_between_stop (from_stop_id, to_stop_id, time_period_id, time, version) VALUES ?'
   const values = []
   result2.forEach(({ id, ptx_stop_id }) => {
     const fromStopId = startId
     const toStopId = id
     // console.log(ptx_stop_id)
     // console.log(waitingTimeMap)
-    const timePeriodId = timePeriodMap['9-0']
+    // const timePeriodId = timePeriodMap['9-0']
     const waitingTime = waitingTimeMap[ptx_stop_id]
-    values.push([fromStopId, toStopId, timePeriodId, waitingTime])
+    values.push([fromStopId, toStopId, periodId, waitingTime, version])
   })
   // return console.log(values)
   await db.query(q, [values])
@@ -312,7 +392,8 @@ async function insertFirstWaitingTime() {
 // makeStartPoint()
 // insertFirstWaitingTime()
 
-// module.exports = {
-//   makeTimePeriodMap,
-//   makePtxIdMap
-// }
+module.exports = {
+  insertTimeBetweenStop,
+  insertBusTransfer,
+  insertFirstWaitingTime
+}

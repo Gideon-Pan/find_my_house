@@ -44,9 +44,41 @@ async function makePostionMap() {
   return map
 }
 
+async function makeDistanceMap() {
+  const distanceMap = {}
+  const distanceList = await getMongoData('busStopIntervalDistance')
+  distanceList.forEach(({fromStopId, toStopId, distance}) => {
+    distanceMap[`${fromStopId}-${toStopId}`] = distance
+  })
+  // console.log(distanceMap)
+  return distanceMap
+}
+
+// makeDistanceMap()
+async function makeStopRouteMap() {
+  const stopRouteMap = {}
+  const routes = await getMongoData('busRoutes')
+  routes.forEach(route => {
+    route.Stops.forEach((stop, i) => {
+      // console.log(stop.StopID)
+      // if (stop.StopID === "161601") {
+      //   console.log(route.RouteID)
+      //   console.log(route.Direction)
+      //   console.log(i)
+      // }
+      stopRouteMap[stop.StopID] = route.RouteID
+    })
+  })
+  // console.log(stopRouteMap)
+  return stopRouteMap
+}
+
+
 module.exports = {
   makePtxIdMap,
   makeStopStationMap,
   makeWaitingTimeMap,
-  makePostionMap
+  makePostionMap,
+  makeDistanceMap,
+  makeStopRouteMap
 }

@@ -1,4 +1,4 @@
-const { getMongoData } = require('../bus/mongo-helper')
+const { getMongoData } = require('../../model/db/mongodb/mongo_helper')
 
 async function countStops() {
   const routes = await getMongoData('busRoutes')
@@ -55,7 +55,27 @@ async function checkStopAndStation() {
   console.log('total stops of stations:', counter)
 }
 
-checkStopAndStation()
+// checkStopAndStation()
+
+async function checkRoute() {
+  const routes = await getMongoData('busRoutes')
+  routes.forEach(route => {
+    route.Stops.forEach((stop, i) => {
+      // console.log(stop.StopID)
+      if (stop.StopID === "161601") {
+        console.log(route.RouteID)
+        console.log(route.Direction)
+        console.log(i)
+      }
+    })
+  })
+}
+
+// checkRoute()
+
+// toStopIdPtx:  161601
+// fromStopIdPtx:  161600
+// station : 71427
 
 // main()
 // countStops()
