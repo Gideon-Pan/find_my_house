@@ -5,7 +5,6 @@
     <script src="https://polyfill.io/v3/polyfill.min.js?features=default"></script>
     <link rel="stylesheet" type="text/css" href="./style.css" />
     <link rel="stylesheet" type="text/css" href="./info_window.css" />
-
   </head>
   <body>
     <div class="filters">
@@ -30,11 +29,10 @@
 
       <select name="commute_way" id="commute_way">
         <!-- <option value="">交通方式</option> -->
-        
+
         <option value="metro">捷運</option>
         <option value="bus">公車</option>
         <option value="mix">公車+捷運</option>
-        
       </select>
 
       <select name="walk_distance" id="walk_distance">
@@ -45,13 +43,25 @@
         <option value="400">400m</option>
         <option value="500">500m</option>
         <option value="1000">1km</option>
-      >
+        >
         <!-- <option value="10000000000000000">不限</option> -->
+      </select>
+
+      <select name="house-type" id="house-type">
+        <!-- <option value="">預算</option> -->
+        <option value="">房型不限</option>
+        <option value="shared-suite">分租套房</option>
+        <option value="independant-suite">獨立套房</option>
+        <option value="studio">雅房</option>
       </select>
 
       <select name="budget" id="budget">
         <!-- <option value="">預算</option> -->
-        <option value="12000">12000</option>
+        <option value="">預算不限</option>
+        <option value="5000">5000</option>
+        <option value="10000">10000</option>
+        <option value="15000">15000</option>
+        <option value="20000">20000</option>
       </select>
 
       <!-- <select name="start_work" id="start_work">
@@ -63,18 +73,18 @@
     <div id="map"></div>
 
     <!-- Async script executes immediately and must be after any DOM elements used in callback. -->
-   
+
     <script
-    src="https://code.jquery.com/jquery-3.6.0.js"
-    integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk="
-    crossorigin="anonymous"
-  ></script>
-  <script src="https://unpkg.com/@googlemaps/markerclusterer/dist/index.min.js" ></script>
-  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js" ></script>
-  <script src="./index.js" ></script>
-  <script
-  src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAelfKdFaiuBDDl6dsiN9c0e4R0rmGkCHs&callback=initMap&v=weekly&language=zh-TW&region=JP"
-  async
-></script>
+      src="https://code.jquery.com/jquery-3.6.0.js"
+      integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk="
+      crossorigin="anonymous"
+    ></script>
+    <script src="https://unpkg.com/@googlemaps/markerclusterer/dist/index.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="./index.js"></script>
+    <script
+      src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAelfKdFaiuBDDl6dsiN9c0e4R0rmGkCHs&callback=initMap&v=weekly&language=zh-TW&region=JP"
+      async
+    ></script>
   </body>
 </html>

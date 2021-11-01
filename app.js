@@ -54,7 +54,7 @@ app.get('/test', async (req, res) => {
 
 app.get('/search', async (req, res) => {
   // const g = req.query.commuteWay === 'bus' ? graphForBus : graphForMetro
-  let { commuteTime, officeLat, officeLng, maxWalkDistance, period, commuteWay } = req.query
+  let { commuteTime, officeLat, officeLng, maxWalkDistance, period, commuteWay, budget, houseType } = req.query
   // console.log(waitingTimeMaps)
   const waitingTimeMap = waitingTimeMaps[period]
   // console.log(waitingTimeMap)
@@ -214,8 +214,16 @@ app.get('/search', async (req, res) => {
     }
   })
   const positionData = Object.values(reachableStationsMap)
-
-  const houseData = await getHousesInRange(positionData)
+  console.log(budget)
+  const  houses = await getHousesInBudget(budget, houseType)
+  // console.log(houses)
+  let houseData
+  if (houses.length !== 0) {
+    houseData = await getHousesInRange(positionData, houses)
+  } else {
+    houseData = houses
+  }
+  
   // console.log(positionData)
   // console.log(respondData.length)
   const end = Date.now()
@@ -233,13 +241,41 @@ app.listen(3000, () => {
   console.log('Listening on port 3000')
 })
 
-async function getHousesInRange(positionData) {
+async function getHousesInBudget(budget, houseType) {
+  console.log(houseType)
+  switch (houseType) {
+    case 'shared-suite':
+      houseType = '分租套房'
+      break
+    case 'independant-suite':
+      houseType = '獨立套房'
+      break
+    case 'studio':
+      houseType = '雅房'
+      break
+    default:
+      break
+  }
+  console.log(houseType)
+  // const condition = budget ? `WHERE price <= ${budget}` : ''
   const q = `SELECT * FROM house 
   WHERE latitude IS NOT NULL 
-    AND longitude IS NOT NULL 
+    AND longitude IS NOT NULL
+    ${budget ? `AND price <= ${budget}` : ''}
+    ${houseType ? `AND category = '${houseType}'` : ''}
   `
   // console.log(db)
   const [houses] = await db.query(q)
+  return houses
+}
+
+async function getHousesInRange(positionData, houses) {
+  // const q = `SELECT * FROM house 
+  // WHERE latitude IS NOT NULL 
+  //   AND longitude IS NOT NULL
+  // `
+  // // console.log(db)
+  // const [houses] = await db.query(q)
   const houseData = houses.filter(house => {
     const {latitude, longitude} = house
     for (let i = 0; i < positionData.length; i++) {

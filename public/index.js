@@ -84,7 +84,8 @@ async function search() {
   const commuteWay = $('#commute_way').val()
   const maxWalkDistance = $('#walk_distance').val()
   const budget = $('#budget').val()
-  const url = `/search?period=${period}&commuteTime=${commuteTime}&commuteWay=${commuteWay}&maxWalkDistance=${maxWalkDistance}&budget=${budget}&officeLat=${officeLat}&officeLng=${officeLng}`
+  const houseType = $('#house-type').val()
+  const url = `/search?period=${period}&commuteTime=${commuteTime}&commuteWay=${commuteWay}&maxWalkDistance=${maxWalkDistance}&budget=${budget}&officeLat=${officeLat}&officeLng=${officeLng}&houseType=${houseType}`
   // const walk_distance = $("walk_distance").val()
 
   console.log(url)

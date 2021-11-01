@@ -38,7 +38,7 @@ async function insertSchedule(sleepSecond, collection) {
 
 async function main() {
   // insertBusStations()
-  await insertSchedule(245, "busWaitingTimeWeekend")
+  await insertSchedule(275, "busWaitingTimeWeekdays")
   // await insertBusWaitingTime()
   // const data = await getMongoData("busStations")
   // let maxLength = 0
