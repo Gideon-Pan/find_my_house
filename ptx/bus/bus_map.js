@@ -12,6 +12,34 @@ async function makeWaitingTimeMap() {
   return waitingTimeMap
 }
 
+function makeWaitingTimeMapNew(waitingTimeList) {
+  const map = {}
+  for (let i = 0; i < waitingTimeList.length; i++) {
+    const waitingTime = waitingTimeList[i]
+
+    if (map[`${waitingTime.StopID}-${waitingTime.Direction}`]) {
+      map[`${waitingTime.StopID}-${waitingTime.Direction}`].push({
+        stopId: waitingTime.StopID,
+        direction: waitingTime.Direction,
+        dataTime: waitingTime.UpdateTime,
+        waitingTime: waitingTime.EstimateTime,
+        stopStatus: waitingTime.StopStatus
+      })
+      continue
+    }
+    map[`${waitingTime.StopID}-${waitingTime.Direction}`] = [
+      {
+        stopId: waitingTime.StopID,
+        direction: waitingTime.Direction,
+        dataTime: waitingTime.UpdateTime,
+        waitingTime: waitingTime.EstimateTime,
+        stopStatus: waitingTime.StopStatus
+      }
+    ]
+  }
+  return map
+}
+
 async function makeStopStationMap() {
   const map = {}
   const stations = await getMongoData('busStations')
@@ -80,5 +108,6 @@ module.exports = {
   makeWaitingTimeMap,
   makePostionMap,
   makeDistanceMap,
-  makeStopRouteMap
+  makeStopRouteMap,
+  makeWaitingTimeMapNew
 }

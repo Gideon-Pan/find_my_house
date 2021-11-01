@@ -49,7 +49,7 @@ async function insertTimeBetweenStop(version) {
   console.log('finish insert all for version', version)
 }
 
-insertTimeBetweenStop(2)
+// insertTimeBetweenStop(2)
 
 
 // follwing is for testing, keep it untill productionr

@@ -55,7 +55,7 @@ async function main() {
   // console.log(data)
 }
 
-main()
+// main()
 
 // insertBusStations()
 // insertBusStops()

@@ -236,7 +236,7 @@ async function makeEdges(version) {
       AND to_stop_id IS NOT NULL
       AND time IS NOT NULL
       AND version = ${version}
-
+      AND type = 'metro'
     `
   const [data] = await db.query(q)
   data.forEach(

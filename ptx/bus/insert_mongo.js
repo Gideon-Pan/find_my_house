@@ -1,5 +1,7 @@
 const { getPtxData } = require('../ptx_helper')
-const { insertMany } = require('../../model/db/mongodb/mongo_helper')
+const { insertMany, getMongoData } = require('../../model/db/mongodb/mongo_helper')
+const { makeWaitingTimeMap } = require('../../controller/make_graph')
+const { makeWaitingTimeMapNew } = require('./bus_map')
 
 async function insertBusStations() {
   const busStationsTPE = await getPtxData(
@@ -102,10 +104,59 @@ async function insertBusWaitingTimeTiny() {
   console.log('finsish insert bus waiting time data')
 }
 
-async function insertBusAvgWaitingTime(busAvgWaitingTime) {
-  // await insertMany('busAvgWaitingTime', busAvgWaitingTime)
+async function insertBusAvgWaitingTime(fromCollection, period) {
+  const waitingTimes = await getMongoData(fromCollection)
+  // waitingTimesWeekdays.forEach
+  // console.log(waitingTimesWeekdays)
+  // const waitingTimesWeekdaysPeak = await getMongoData('busWaitingTimeWeekdaysPeak')
+  // console.log('waitingTimesWeekdaysPeak: ', waitingTimesWeekdaysPeak);
+  // return
+  // const waitingTimesWeekend = await getMongoData('busWaitingTimeWeekend')
+  // console.log('waitingTimesWeekend: ', waitingTimesWeekend);
+  // return 
+  console.log('finsish fetching data')
+  const waitingTimeMap = makeWaitingTimeMapNew(waitingTimes)
+  const avgTimeDataList = Object.values(waitingTimeMap).map((stopData) => {
+    const { stopId, direction } = stopData[0]
+    const avgTimeData = {
+      stopId,
+      // direction
+    }
+    let totalTime = 0
+    let validCounter = 0
+    for (let i = 0; i < stopData.length; i++) {
+      const { stopId, direction, dataTime, waitingTime, stopStatus } =
+        stopData[i]
+      if (waitingTime) {
+        totalTime += waitingTime
+        validCounter++
+      }
+    }
+    const avgWaitingTime = totalTime / validCounter
+    avgTimeData.period = period
+    avgTimeData.avgWaitingTime = avgWaitingTime
+    avgTimeData.dataAmount = validCounter
+    return avgTimeData
+  })
+  // console.log('avgTimeDataList: ', avgTimeDataList);
+  
+  await insertMany('busAvgWaitingTimeV2', avgTimeDataList)
   // console.log('done')
 }
+
+// insertBusAvgWaitingTime('busWaitingTimeWeekend', 'weekdays')
+
+async function insertBusAvgWaitingTimeAll() {
+  const collections = ['busWaitingTimeWeekdays', 'busWaitingTimeWeekdaysPeak', 'busWaitingTimeWeekend']
+  const periods = ['weekdays', 'weekdaysPeak', 'weekend']
+  for (let i = 0; i < periods.length; i++) {
+    console.log('start period', periods[i])
+    await insertBusAvgWaitingTime(collections[i], periods[i])
+    console.log('finish period', periods[i])
+  }
+}
+
+insertBusAvgWaitingTimeAll()
 
 module.exports = {
   insertBusStations,
