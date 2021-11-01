@@ -1,0 +1,71 @@
+header {
+  width: 100vw;
+  position: fixed;
+  z-index: 2;
+}
+
+.logo {
+  margin-left: 60px;
+  margin-right: 100px;
+}
+
+.header {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  height: 50px;
+  /* width: 100vw; */
+  /* position: fixed; */
+  border-bottom: 40px;
+  background-color: white;
+}
+
+
+#black {
+  background-color: black;
+  height: 40px;
+}
+
+.nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.nav a {
+  margin: 15px;
+  font-size: 20px;
+  letter-spacing: 30px;
+}
+
+.tagline {
+  /* margin-left: 5px; */
+  margin-right: 20px;
+}
+
+.tag {
+  text-decoration: none;
+}
+
+.space {
+  flex-grow: 1;
+}
+
+.desktop-header > .search {
+  /* outline: none; */
+  /* flex-grow: 1; */
+  height: 40px;
+  border-radius: 20px;
+  background-image: url(../images/search.png);
+  background-repeat: no-repeat;
+  background-position: right center;
+  margin: 30px;
+}
+
+.cart {
+  margin: 30px;
+}
+
+.member {
+  margin: 30px;
+}

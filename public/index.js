@@ -43,6 +43,7 @@ function hideCircles() {
 }
 
 function initMap() {
+  // console.log('fuc')
   const myLatlng = { lat: 25.03746, lng: 121.532558 }
   // console.log(google)
   map = new google.maps.Map(document.getElementById('map'), {
@@ -78,6 +79,8 @@ function initMap() {
 }
 
 async function search() {
+  // const test = $('#test').val()
+  // console.log(test)
   const time1 = Date.now()
   const period = $('#period').val()
   const commuteTime = $('#commute_time').val() * 60
