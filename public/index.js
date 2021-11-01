@@ -4,8 +4,10 @@ let houseMarkers = []
 let houseInfowindow
 let houseInfowindows = []
 let circles = []
+let markerCluster
 const polygons = []
 let walkVelocity = 1.25
+
 
 // const Justin = {
 //   lat: 25.00921512991647,
@@ -57,7 +59,7 @@ function initMap() {
     origin: new google.maps.Point(0, 0), // origin
     anchor: new google.maps.Point(15, 20) // anchor
   }
-  const marker = new google.maps.Marker({
+  const officeMarker = new google.maps.Marker({
     // position: { lat: 25.042482379737326, lng: 121.5647583475222 },
     position: Justin,
     map: map,
@@ -66,7 +68,7 @@ function initMap() {
     zIndex: 99999999
   })
 
-  marker.addListener('dragend', (mapsMouseEvent) => {
+  officeMarker.addListener('dragend', (mapsMouseEvent) => {
     officeLat = mapsMouseEvent.latLng.toJSON().lat
     officeLng = mapsMouseEvent.latLng.toJSON().lng
     search()
@@ -131,6 +133,10 @@ function clearHouses() {
 
 // here
 function renderHouses(houses) {
+  while (markers.length !== 0) {
+    markers.pop()
+  }
+  // markerClusterer.clearMarkers();
   houses.forEach((house, i) => {
     // console.log('a')
     const {
@@ -154,7 +160,7 @@ function renderHouses(houses) {
       anchor: new google.maps.Point(15, 20) // anchor
       // anchor: new google.maps.Point(15, 20) // anchor
     }
-    const houseMarker = new google.maps.Marker({
+    const marker = new google.maps.Marker({
       // position: { lat: 25.042482379737326, lng: 121.5647583475222 },
       position: {
         lat: latitude,
@@ -180,9 +186,9 @@ function renderHouses(houses) {
       var test = $('.test')
       // test.html('test')
     })
-    houseMarker.addListener('click', () => {
+    marker.addListener('click', () => {
       houseInfowindow.open({
-        anchor: houseMarker,
+        anchor: marker,
         map,
         shouldFocus: false
       })
@@ -201,7 +207,7 @@ function renderHouses(houses) {
     // })
     // }
     google.maps.event.addListener(
-      houseMarker,
+      marker,
       'click',
       (function (marker, content, infowindow) {
         lastOpenedInfoWindow = false
@@ -211,7 +217,7 @@ function renderHouses(houses) {
           infowindow.open(map, marker)
           lastOpenedInfoWindow = infowindow
         }
-      })(houseMarker, contentString, houseInfowindow)
+      })(marker, contentString, houseInfowindow)
     )
 
     function closeLastOpenedInfoWindow() {
@@ -220,13 +226,42 @@ function renderHouses(houses) {
       }
     }
 
-    houseMarkers.push(houseMarker)
+    markers.push(marker)
     // houseInfowindows.push(houseInfowindow)
   })
   // Add a marker clusterer to manage the markers.
-  console.log(houseMarkers)
+  // console.log(markers)
   // new markerClusterer.MarkerClusterer({ houseMarkers, map })
-  new markerClusterer.MarkerClusterer(map, houseMarkers)
+  // new markerClusterer.MarkerClusterer(map, markers)
+  mcOptions = {styles: [{
+    height: 53,
+    // url: "http://google-maps-utility-library-v3.googlecode.com/svn/trunk/markerclusterer/images/m1.png",
+    width: 53
+    },
+    {
+    height: 56,
+    // url: "https://github.com/googlemaps/js-marker-clusterer/tree/gh-pages/images/m2.png",
+    width: 56
+    },
+    {
+    height: 66,
+    // url: "https://github.com/googlemaps/js-marker-clusterer/tree/gh-pages/images/m3.png",
+    width: 66
+    },
+    {
+    height: 78,
+    // url: "https://github.com/googlemaps/js-marker-clusterer/tree/gh-pages/images/m4.png",
+    width: 78
+    },
+    {
+    height: 90,
+    // url: "https://github.com/googlemaps/js-marker-clusterer/tree/gh-pages/images/m5.png",
+    width: 90
+    }]}
+  if (markerCluster) {
+    markerCluster.clearMarkers();
+  }
+  markerCluster = new markerClusterer.MarkerClusterer({ markers, map });
 }
 
 function drawCircle(point, radius, dir) {
