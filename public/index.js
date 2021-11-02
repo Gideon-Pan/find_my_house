@@ -13,9 +13,21 @@ let walkVelocity = 1.25
 //   lat: 25.00921512991647,
 //   lng: 121.52107052708763
 // }
+// const Justin = {
+//   lat: 25.00252559374069,
+//   lng: 121.52802281285423
+// }
+
+// 板橋
+// const Justin = {
+//   lat: 25.035230849112928,
+//   lng: 121.47554807568687
+// }
+
+// 學校
 const Justin = {
-  lat: 25.00252559374069,
-  lng: 121.52802281285423
+  lat: 25.04222965263713,
+  lng: 121.5648119917025
 }
 let officeLat = Justin.lat
 let officeLng = Justin.lng
@@ -55,9 +67,9 @@ function initMap() {
 
   const icon = {
     url: './assets/office-place.png', // url
-    scaledSize: new google.maps.Size(30, 30), // scaled size
+    scaledSize: new google.maps.Size(45, 45), // scaled size
     origin: new google.maps.Point(0, 0), // origin
-    anchor: new google.maps.Point(15, 20) // anchor
+    anchor: new google.maps.Point(20, 25) // anchor
   }
   const officeMarker = new google.maps.Marker({
     // position: { lat: 25.042482379737326, lng: 121.5647583475222 },
