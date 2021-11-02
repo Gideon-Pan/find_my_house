@@ -4,7 +4,7 @@
 html,
 body {
   /* height: 100%; */
-  height: calc(100vh - 60px) ;
+  height: calc(100vh - 50px) ;
   width: 100%;
   margin: 0;
   padding: 0;
@@ -24,7 +24,7 @@ body {
   display: flex;
   justify-content: space-around;
   align-items: center;
-  height: 60px;
+  height: 50px;
   /* width: 100vw; */
   /* position: fixed; */
   border-bottom: 40px;
@@ -67,10 +67,11 @@ main {
 
 .search-field {
   height: 100px;
-  width: 65%;
+  width: 80%;
   display: flex;
   /* flex-wrap: wrap; */
-  margin: 0 auto;
+  /* margin: 0 auto; */
+  margin: 10px;
   justify-content: space-between;
   align-items: center;
   border: #ccc;
@@ -93,8 +94,8 @@ main {
   /* height: 50px;
   width: 70%; */
   display: flex;
-  flex-wrap: wrap;
-  margin: 20px 0 auto 20px;
+  /* flex-wrap: wrap; */
+  margin: 10px 0 auto 20px;
   justify-content: space-around;
   align-items: center;
   /* border: #ccc; */
@@ -116,7 +117,8 @@ main {
 }
 
 .selects select {
-  width: 150px;
+  width: 120px;
+  /* height: 35px; */
   /* height: 100%; */
   /* margin: 0 10px; */
   border-radius: 25px;
@@ -130,7 +132,7 @@ main {
 
 .checks {
   display: flex;
-  margin: 20px auto 10px;
+  margin: 10px auto 10px;
   /* justify-content: space-between; */
   justify-content: center;
   align-items: center;
@@ -173,7 +175,7 @@ main {
   width: 80%;
   /* margin: 10px auto; */
   /* margin:  auto; */
-  /* margin-bottom: 50px; */
+  margin-bottom: 15px;
 }
 
 /* Optional: Makes the sample page fill the window. */
