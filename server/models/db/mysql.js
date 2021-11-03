@@ -1,5 +1,5 @@
 const mysql = require('mysql2')
-const { getMongoData } = require('../mongodb/mongo_helper')
+const { getMongoData } = require('./mongo')
 require('dotenv').config()
 // console.log(process.env.MYSQL_HOST)
 

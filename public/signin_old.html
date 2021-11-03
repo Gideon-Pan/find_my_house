@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <script src="components/header.js"></script>
+    <script src="components/footer.js"></script>
+    <link rel="stylesheet" href="./css/reset.css" />
+    <!-- <link rel="stylesheet" href="./css/header-component.css" />
+    <link rel="stylesheet" href="./css/footer-component.css" /> -->
+    <link rel="stylesheet" href="./css/signin.css" />
+    <script
+      src="https://code.jquery.com/jquery-3.6.0.js"
+      integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk="
+      crossorigin="anonymous"
+    ></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script
+      async
+      defer
+      crossorigin="anonymous"
+      src="https://connect.facebook.net/en_US/sdk.js"
+    ></script>
+    <!-- <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+      integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
+      crossorigin="anonymous"
+    /> -->
+  </head>
+  <body>
+    
+    <!-- <header-component></header-component> -->
+    <main>
+      <form>
+        <div class="form__item">
+          <label>信箱</label>
+          <input id="email" />
+        </div>
+
+        <div class="form__item">
+          <label>密碼</label>
+          <input type="password" id="password" />
+        </div>
+        <div>
+          <button class="form__button" type="button">登入</button>
+          <a href="/signup.html">點這裡註冊</a>
+        </div>
+
+      </form>
+      <fb:login-button
+        scope="public_profile,email"
+        onlogin="checkLoginState();"
+      >
+      </fb:login-button>
+    </main>
+    <footer-component></footer-component>
+    <script src="javascript/signin.js"></script>
+  </body>
+</html>

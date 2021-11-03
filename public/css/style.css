@@ -34,7 +34,7 @@ body {
 .logo {
   display: flex;
   /* margin-right: 500px; */
-  flex-grow: 1;
+  
   margin-left: 100px;
 }
 
@@ -47,6 +47,10 @@ body {
   font-size: 20px;
 }
 
+.blank {
+  flex-grow: 1;
+}
+
 .nav {
   margin-right: 50px;
 }
@@ -54,6 +58,11 @@ body {
 
 .nav a:hover {
   color: gray;
+}
+
+.nav div:hover {
+  color: gray;
+  cursor: pointer;
 }
 
 main {

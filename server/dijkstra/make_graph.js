@@ -1,5 +1,5 @@
 const { Vertex, Edge, Graph } = require('./graph')
-const db = require('../model/db/mysql/mysql')
+const db = require('../models/db/mysql')
 
 async function makeVerticeOld(g, type) {
   let condition

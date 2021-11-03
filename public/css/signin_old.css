@@ -1,0 +1,49 @@
+main {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+form label {
+  font-size: 20px;
+}
+
+.form__item {
+  margin-top: 20px;
+}
+
+.form__item input {
+  margin-left: 10px;
+}
+
+form button {
+  margin-top: 20px;
+  color: white;
+  background-color: var(--charcoal-grey);
+  width: 60px;
+  height: 30px;
+  margin-left: calc(50% - 30px);
+  cursor: pointer;
+  font-size: 20px;
+  margin-bottom: 20px;
+}
+
+form a {
+  font-size: 10px;
+  color: #1a73e8;
+  margin-left: 20px;
+  cursor: pointer;
+}
+
+/* .panel-heading {
+  color: white;
+  background-color: var(--charcoal-grey);
+} */
+
+.fb-login-button {
+  margin-top: 20px;
+  margin-left: calc(50% - 100px);
+  z-index: 10;
+}
