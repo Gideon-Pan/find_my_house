@@ -171,7 +171,8 @@ app.get('/search', async (req, res) => {
         distanceLeft: maxWalkDistance
       }
     ]
-    const houseData = await getHousesInRange(positionData)
+    const houses = await getHousesInBudget()
+    const houseData = await getHousesInRange(positionData, houses)
     return res.send({
       positionData,
       houseData
@@ -235,15 +236,23 @@ app.get('/search', async (req, res) => {
     }
   })
   const positionData = Object.values(reachableStationsMap)
-  console.log(budget)
+  // console.log(budget)
+  const time1 = Date.now()
   const  houses = await getHousesInBudget(budget, houseType)
+  const time2 = Date.now()
+  console.log((time2 - time1) / 1000)
   // console.log(houses)
   let houseData
+  console.log(houses.length)
   if (houses.length !== 0) {
+    // console.log(houses.lastIndexOf)
     houseData = await getHousesInRange(positionData, houses)
+    // console.log(houseData)
   } else {
     houseData = houses
   }
+  const time3 = Date.now()
+  console.log((time3 - time2) / 1000)
   
   // console.log(positionData)
   // console.log(respondData.length)
@@ -279,11 +288,13 @@ async function getHousesInBudget(budget, houseType) {
   }
   console.log(houseType)
   // const condition = budget ? `WHERE price <= ${budget}` : ''
-  const q = `SELECT * FROM house 
-  WHERE latitude IS NOT NULL 
-    AND longitude IS NOT NULL
-    ${budget ? `AND price <= ${budget}` : ''}
-    ${houseType ? `AND category = '${houseType}'` : ''}
+  const q = `SELECT title, price, link, image, address, latitude, longitude, category.name AS category FROM house 
+    JOIN category
+      ON house.category_id = category.id
+    WHERE latitude IS NOT NULL 
+      AND longitude IS NOT NULL
+      ${budget ? `AND price <= ${budget}` : ''}
+      ${houseType ? `AND category.name = '${houseType}'` : "AND category.name = '獨立套房' OR category.name = '分租套房' OR category.name = '雅房'"}
   `
   // console.log(db)
   const [houses] = await db.query(q)
