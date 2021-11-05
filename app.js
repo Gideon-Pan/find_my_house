@@ -60,7 +60,7 @@ async function main() {
   // console.log(waitingTimeMaps)
 }
 
-// main()
+main()
 
 app.get('/test', async (req, res) => {
   const q = `SELECT * FROM house 

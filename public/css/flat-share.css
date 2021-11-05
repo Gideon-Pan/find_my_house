@@ -1,0 +1,29 @@
+/* body {
+  display: none;
+} */
+
+main {
+  margin: 0 auto;
+  width: 60%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+/* textarea {
+  width: 200px;
+  height: 100px;
+  display: none;
+} */
+
+.text {
+  height: 300px;
+  width: 300px;
+}
+
+button {
+  margin-top: 10px;
+  flex-grow: 0;
+}

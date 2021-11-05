@@ -18,12 +18,36 @@ async function createCollection(collectionName) {
   await client.close()
 }
 
+async function insertMongo(database, collection, data) {
+  await client.connect()
+  const db = client.db(database)
+  await db.collection(collection).insertMany(data)
+  console.log(`finishing insert data into ${collection} Collection`)
+  await client.close()
+}
+
 async function insertMany(collection, data) {
   await client.connect()
   const db = client.db('ptx')
   await db.collection(collection).insertMany(data)
   console.log(`finishing insert data into ${collection} Collection`)
   await client.close()
+}
+
+async function getMongo(database, collection) {
+  await client.connect()
+  const db = client.db(database)
+  const data = await db.collection(collection).find({}).toArray()
+  // await client.close()
+  return data
+}
+
+async function getMongoOne(database, collection) {
+  await client.connect()
+  const db = client.db(database)
+  const data = await db.collection(collection).findOne({})
+  // await client.close()
+  return data
 }
 
 async function getMongoData(collection) {
@@ -64,5 +88,8 @@ module.exports = {
   insertMany,
   getMongoData,
   get591MongoData,
-  insertMany591
+  insertMany591,
+  insertMongo,
+  getMongo,
+  getMongoOne
 }

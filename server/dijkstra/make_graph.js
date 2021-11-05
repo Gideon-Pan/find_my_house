@@ -1,5 +1,6 @@
 const { Vertex, Edge, Graph } = require('./graph')
 const db = require('../models/db/mysql')
+const process = require('process'); 
 
 async function makeVerticeOld(g, type) {
   let condition
@@ -222,6 +223,7 @@ async function makeVertice(g, stops) {
 }
 
 async function makeEdges(version) {
+  // console.log(process.argv[2])
   // console.log(version)
   const edges = []
   const busIdMap = await makeBusIdMap()
@@ -236,7 +238,7 @@ async function makeEdges(version) {
       AND to_stop_id IS NOT NULL
       AND time IS NOT NULL
       AND version = ${version}
-
+      ${process.argv[2] === 'metro' ? 'AND type = "metro"' : ''}
     `
   const [data] = await db.query(q)
   data.forEach(
@@ -278,13 +280,16 @@ async function makeWaitingTimeMap(version) {
   const q = `SELECT to_stop_id, time_period_hour, time_period_minute, time, period FROM time_between_stop
   JOIN time_period
     ON time_between_stop.time_period_id = time_period.id
-  JOIN stop
-    ON stop.id = time_between_stop.from_stop_id
+  JOIN stop s
+    ON s.id = time_between_stop.from_stop_id
+  JOIN stop t
+    ON t.id = time_between_stop.to_stop_id
   JOIN station
-    ON station.id = stop.station_id
-  WHERE ptx_stop_id = -1
+    ON station.id = t.station_id
+  WHERE s.ptx_stop_id = -1
     AND time IS NOT NULL
     AND version = ${version}
+    ${process.argv[2] === 'metro' ? 'AND type = "metro"' : ''}
   `
   // console.log(q)
   const [waitingTimeList] = await db.query(q)

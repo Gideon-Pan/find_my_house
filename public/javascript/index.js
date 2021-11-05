@@ -189,6 +189,7 @@ function renderHouses(houses) {
       <p>價格：${price}元/月</p>
       <p>地址：${address}</p>
       <a href="${link}" target="_blank">查看更多</a>
+      <a href="flat-share.html" target="_blank">徵室友</a>
     </div>
   `
     // const houseInfowindow = new google.maps.InfoWindow({
@@ -364,7 +365,6 @@ async function testHouse() {
 }
 
 // testHouse()
-
 
 async function init() {
   const access_token = window.localStorage.getItem('access_token')

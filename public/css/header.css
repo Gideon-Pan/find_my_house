@@ -1,12 +1,20 @@
-header {
-  width: 100vw;
-  position: fixed;
-  z-index: 2;
+html,
+body {
+  /* height: 100%; */
+  height: calc(100vh - 50px) ;
+  width: 100%;
+  margin: 0;
+  padding: 0;
 }
 
-.logo {
-  margin-left: 60px;
-  margin-right: 100px;
+body {
+  /* background-image: url('./assets/background.jfif'); */
+  /* background-color: bisque; */
+  background-color: aliceblue; 
+  /* display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  align-items: center; */
 }
 
 .header {
@@ -21,51 +29,36 @@ header {
 }
 
 
-#black {
-  background-color: black;
-  height: 40px;
-}
-
-.nav {
+.logo {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  /* margin-right: 500px; */
+  
+  margin-left: 100px;
 }
 
-.nav a {
-  margin: 15px;
+.logo:hover {
+  color: black;
+}
+
+.logo p {
+  margin-top: 14px;
   font-size: 20px;
-  letter-spacing: 30px;
 }
 
-.tagline {
-  /* margin-left: 5px; */
-  margin-right: 20px;
-}
-
-.tag {
-  text-decoration: none;
-}
-
-.space {
+.blank {
   flex-grow: 1;
 }
 
-.desktop-header > .search {
-  /* outline: none; */
-  /* flex-grow: 1; */
-  height: 40px;
-  border-radius: 20px;
-  background-image: url(../images/search.png);
-  background-repeat: no-repeat;
-  background-position: right center;
-  margin: 30px;
+.nav {
+  margin-right: 50px;
 }
 
-.cart {
-  margin: 30px;
+
+.nav a:hover {
+  color: gray;
 }
 
-.member {
-  margin: 30px;
+.nav div:hover {
+  color: gray;
+  cursor: pointer;
 }
