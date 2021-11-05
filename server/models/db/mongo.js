@@ -46,15 +46,15 @@ async function getMongoOne(database, collection) {
   await client.connect()
   const db = client.db(database)
   const data = await db.collection(collection).findOne({})
-  // await client.close()
-  return data
+  await client.close()
+  return [data]
 }
 
 async function getMongoData(collection) {
   await client.connect()
   const db = client.db('ptx')
   const data = await db.collection(collection).find({}).toArray()
-  // await client.close()
+  await client.close()
   return data
 }
 
