@@ -87,7 +87,8 @@ def getPrices(soup):
 
 
 def getData(url):
-    driver = webdriver.Chrome('./chromedriver')  # 開啟chrome瀏覽器
+    chrome = 'chromedriver'
+    driver = webdriver.Chrome(chrome)  # 開啟chrome瀏覽器
     driver.get(url)  # 開啟連結
     time.sleep(2)
     soup = BeautifulSoup(driver.page_source, 'html.parser')
@@ -158,3 +159,4 @@ def getDataOfRegion(region):
 # 1 for Teipei
 # 2 for New Taipei
 getDataOfRegion(1)
+
