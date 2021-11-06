@@ -39,6 +39,9 @@ async function makeLifeFunctionMap() {
   const q = 'SELECT id, name, latitude, longitude FROM life_function'
   const [result] = await pool.query(q)
   result.forEach(({id, name, latitude, longitude}) => {
+    // console.log(typeof latitude)
+    // if (name === '三重社區大學') console.log(`${name}-${latitude}-${longitude}`)
+    
     map[`${name}-${latitude}-${longitude}`] = id
   })
   // console.log(subtypeMap)

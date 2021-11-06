@@ -23,7 +23,8 @@ app.use(express.static(__dirname + '/public'))
 app.use('/api/' + API_VERSION,
     // rateLimiterRoute,
     [
-      require('./server/routes/user_route')
+      require('./server/routes/user_route'),
+      require('./server/routes/house_route')
         // require('./server/routes/admin_route'),
         // require('./server/routes/product_route'),
         // require('./server/routes/marketing_route'),
@@ -31,6 +32,12 @@ app.use('/api/' + API_VERSION,
         // require('./server/routes/order_route'),
     ]
 );
+
+// app.get('/house/life-function', async (req, res) => {
+//   // console.log('qhhq')
+//   // console.log(req.query)
+  
+// })
 
 
 
@@ -288,7 +295,7 @@ async function getHousesInBudget(budget, houseType) {
   }
   console.log(houseType)
   // const condition = budget ? `WHERE price <= ${budget}` : ''
-  const q = `SELECT title, price, link, image, address, latitude, longitude, category.name AS category FROM house 
+  const q = `SELECT house.id, title, price, link, image, house.address, house.latitude, house.longitude, category.name AS category FROM house 
     JOIN category
       ON house.category_id = category.id
     WHERE latitude IS NOT NULL 
@@ -298,6 +305,7 @@ async function getHousesInBudget(budget, houseType) {
   `
   // console.log(db)
   const [houses] = await db.query(q)
+  console.log(houses)
   return houses
 }
 

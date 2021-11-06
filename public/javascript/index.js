@@ -7,7 +7,10 @@ let circles = []
 let markerCluster
 const polygons = []
 let walkVelocity = 1.25
-
+let currentId
+let houseLat
+let houseLng
+let lines = []
 
 // const Justin = {
 //   lat: 25.00921512991647,
@@ -159,8 +162,10 @@ function renderHouses(houses) {
       price,
       address,
       latitude,
-      longitude
+      longitude,
+      id
     } = house
+    // currentId = id
     const houseIcon = {
       // url: './assets/renting.png', // url
       // url: './assets/renting-house.jpg',
@@ -179,7 +184,7 @@ function renderHouses(houses) {
         lng: longitude
       },
       map: map,
-      icon: houseIcon,
+      icon: houseIcon
       // label: `${i}`
     })
     const contentString = `  
@@ -229,9 +234,88 @@ function renderHouses(houses) {
           infowindow.setContent(content)
           infowindow.open(map, marker)
           lastOpenedInfoWindow = infowindow
+          // console.log('hi')
+          // console.log(id)
+          // currentId = id
         }
       })(marker, contentString, houseInfowindow)
     )
+
+    google.maps.event.addListener(
+      marker,
+      'click',
+      (function (id) {
+        return async function () {
+          removeLines()
+          const { data } = await axios.get(
+            `/api/1.0/house/life-function?id=${id}`
+          )
+          console.log(data)
+          const { coordinate } = data
+          const houseCoordinate = {
+            lat: coordinate.latitude,
+            lng: coordinate.longitude
+          }
+          const stations = data['交通']['捷運']
+          // const currentId
+          stations.forEach((station) => {
+            const { id, name, latitude, longitude, distance, subtype, type } =
+              station
+            // coordinates.push({lat: latitude, lng: longitude})
+            const spotCoordinate = { lat: latitude, lng: longitude }
+            const flightPath = new google.maps.Polyline({
+              path: [houseCoordinate, spotCoordinate],
+              geodesic: true,
+              strokeColor: '#FF0000',
+              strokeOpacity: 1.0,
+              strokeWeight: 2
+            })
+
+            flightPath.setMap(map)
+            lines.push(flightPath)
+            console.log('here')
+          })
+          // const flightPlanCoordinates = [
+          //   { lat: 37.772, lng: -122.214 },
+          //   { lat: 21.291, lng: -157.821 },
+          //   { lat: -18.142, lng: 178.431 },
+          //   { lat: -27.467, lng: 153.027 },
+          // ];
+        }
+      })(id)
+    )
+
+    // google.maps.event.addListener(marker, 'click', async () => {
+    //   // console.log(currentId)
+    //   const {data} = await axios.get(`/api/1.0/house/life-function?id=${currentId}`)
+    //   console.log(data)
+    //   const  {coordinate} = data
+    //   const houseCoordinate = {lat: coordinate.latitude, lng: coordinate.longitude}
+    //   const stations = data['交通']['捷運']
+    //   // const currentId
+    //   stations.forEach(station => {
+    //     const {id, name, latitude, longitude, distance, subtype, type} = station
+    //     // coordinates.push({lat: latitude, lng: longitude})
+    //     const spotCoordinate = {lat: latitude, lng: longitude}
+    //     const flightPath = new google.maps.Polyline({
+    //       path: [houseCoordinate, spotCoordinate],
+    //       geodesic: true,
+    //       strokeColor: "#FF0000",
+    //       strokeOpacity: 1.0,
+    //       strokeWeight: 2,
+    //     });
+
+    //     flightPath.setMap(map);
+    //     console.log('here')
+    //   })
+    //   // const flightPlanCoordinates = [
+    //   //   { lat: 37.772, lng: -122.214 },
+    //   //   { lat: 21.291, lng: -157.821 },
+    //   //   { lat: -18.142, lng: 178.431 },
+    //   //   { lat: -27.467, lng: 153.027 },
+    //   // ];
+
+    // })
 
     function closeLastOpenedInfoWindow() {
       if (lastOpenedInfoWindow) {
@@ -246,35 +330,46 @@ function renderHouses(houses) {
   // console.log(markers)
   // new markerClusterer.MarkerClusterer({ houseMarkers, map })
   // new markerClusterer.MarkerClusterer(map, markers)
-  mcOptions = {styles: [{
-    height: 53,
-    // url: "http://google-maps-utility-library-v3.googlecode.com/svn/trunk/markerclusterer/images/m1.png",
-    width: 53
-    },
-    {
-    height: 56,
-    // url: "https://github.com/googlemaps/js-marker-clusterer/tree/gh-pages/images/m2.png",
-    width: 56
-    },
-    {
-    height: 66,
-    // url: "https://github.com/googlemaps/js-marker-clusterer/tree/gh-pages/images/m3.png",
-    width: 66
-    },
-    {
-    height: 78,
-    // url: "https://github.com/googlemaps/js-marker-clusterer/tree/gh-pages/images/m4.png",
-    width: 78
-    },
-    {
-    height: 90,
-    // url: "https://github.com/googlemaps/js-marker-clusterer/tree/gh-pages/images/m5.png",
-    width: 90
-    }]}
-  if (markerCluster) {
-    markerCluster.clearMarkers();
+  mcOptions = {
+    styles: [
+      {
+        height: 53,
+        // url: "http://google-maps-utility-library-v3.googlecode.com/svn/trunk/markerclusterer/images/m1.png",
+        width: 53
+      },
+      {
+        height: 56,
+        // url: "https://github.com/googlemaps/js-marker-clusterer/tree/gh-pages/images/m2.png",
+        width: 56
+      },
+      {
+        height: 66,
+        // url: "https://github.com/googlemaps/js-marker-clusterer/tree/gh-pages/images/m3.png",
+        width: 66
+      },
+      {
+        height: 78,
+        // url: "https://github.com/googlemaps/js-marker-clusterer/tree/gh-pages/images/m4.png",
+        width: 78
+      },
+      {
+        height: 90,
+        // url: "https://github.com/googlemaps/js-marker-clusterer/tree/gh-pages/images/m5.png",
+        width: 90
+      }
+    ]
   }
-  markerCluster = new markerClusterer.MarkerClusterer({ markers, map });
+  if (markerCluster) {
+    markerCluster.clearMarkers()
+  }
+  markerCluster = new markerClusterer.MarkerClusterer({ markers, map })
+}
+
+function removeLines() {
+  lines.forEach(line => {
+    line.setMap(null)
+  })
+  lines = []
 }
 
 function drawCircle(point, radius, dir) {
@@ -369,14 +464,13 @@ async function testHouse() {
 async function init() {
   const access_token = window.localStorage.getItem('access_token')
   try {
-    const {data} = await axios.get('/api/1.0/user/checkAuth', {
+    const { data } = await axios.get('/api/1.0/user/checkAuth', {
       headers: {
         Authorization: `Bearer ${access_token}`
       }
     })
     console.log('authenticated')
     $('.signout').html('<div onclick="signout()">登出</div>')
-
   } catch {
     console.log('not authenticated')
     $('.signout').html('<a href="/signin.html">登入</div>')

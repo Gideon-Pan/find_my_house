@@ -124,7 +124,8 @@ def get_house_info(id):
     # time.sleep(0.5)
     return web_content
     
-        
+content = get_house_info(11582361)
+print(content)
 
 # get_house_info(11599895)
 
@@ -191,6 +192,6 @@ def insert_data_by_region(region):
         # insert_data_by_region(i)
         # print('finish insert region' + str(i))
 
-# main()
-insert_data_by_region(1)
-print('finish insert region' + str(1))
+# # main()
+# insert_data_by_region(1)
+# print('finish insert region' + str(1))
