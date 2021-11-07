@@ -5,5 +5,5 @@ chromedriver.exe
 591/geckodriver.log
 package-lock.json
 dump/
-public/assets
+# public/assets
 bus_velocity.json
