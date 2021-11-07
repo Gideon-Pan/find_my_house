@@ -11,6 +11,7 @@ let currentId
 let houseLat
 let houseLng
 let lines = []
+let lifeFunctions = []
 
 // const Justin = {
 //   lat: 25.00921512991647,
@@ -105,7 +106,36 @@ async function search() {
   const maxWalkDistance = $('#walk_distance').val()
   const budget = $('#budget').val()
   const houseType = $('#house-type').val()
-  const url = `/search?period=${period}&commuteTime=${commuteTime}&commuteWay=${commuteWay}&maxWalkDistance=${maxWalkDistance}&budget=${budget}&officeLat=${officeLat}&officeLng=${officeLng}&houseType=${houseType}`
+  // const fire = $('#fire').val()
+  const fire = document.querySelector('#fire').checked;
+  // console.log(fire)
+  const shortRent = document.querySelector('#short-rent').checked;
+  // console.log(shortRent)
+  const directRent = document.querySelector('#direct-rent').checked;
+  // console.log(directRent)
+  const pet = document.querySelector('#pet').checked;
+  // console.log(pet)
+  const newItem = document.querySelector('#new-item').checked;
+  // console.log(newItem)
+  // const tags = 
+  
+  if (period === null) {
+    alert('請選擇通勤時段')
+    return
+  }
+  if (commuteTime === null) {
+    alert('請選擇通勤時間')
+    return
+  }
+  if (commuteWay === null) {
+    alert('請選擇交通方式')
+    return
+  }
+  if (maxWalkDistance === null) {
+    alert('請選擇步行距離')
+    return
+  }
+  const url = `/search?period=${period}&commuteTime=${commuteTime}&commuteWay=${commuteWay}&maxWalkDistance=${maxWalkDistance}&budget=${budget}&officeLat=${officeLat}&officeLng=${officeLng}&houseType=${houseType}&fire=${fire}&shortRent=${shortRent}&directRent=${directRent}&pet=${pet}&newItem=${newItem}`
   // const walk_distance = $("walk_distance").val()
 
   console.log(url)
@@ -115,6 +145,8 @@ async function search() {
 
   hideCircles()
   circles = []
+  removeLines()
+  clearLifeFunction()
   removeReachableArea()
   clearHouses()
   renderHouses(houseData)
@@ -146,6 +178,13 @@ function clearHouses() {
   houseMarkers = []
 }
 
+function clearLifeFunction() {
+  for (let lifeFunction of lifeFunctions) {
+    lifeFunction.setMap(null)
+  }
+  lifeFunctions = []
+}
+
 // here
 function renderHouses(houses) {
   while (markers.length !== 0) {
@@ -154,8 +193,9 @@ function renderHouses(houses) {
   // markerClusterer.clearMarkers();
   houses.forEach((house, i) => {
     // console.log('a')
-    const {
+    let {
       title,
+      area,
       link,
       category,
       image,
@@ -166,6 +206,10 @@ function renderHouses(houses) {
       id
     } = house
     // currentId = id
+    if (area % 1 !== 0) {
+      area = area.toFixed(1)
+    }
+    
     const houseIcon = {
       // url: './assets/renting.png', // url
       // url: './assets/renting-house.jpg',
@@ -190,13 +234,13 @@ function renderHouses(houses) {
     const contentString = `  
   <div class="house-info">
       <img src=${image} width="125" height="100" />
-      <p>房型：${category}</p>
+      <p>房型：${category}, ${area}坪</p>
       <p>價格：${price}元/月</p>
       <p>地址：${address}</p>
       <a href="${link}" target="_blank">查看更多</a>
-      <a href="flat-share.html" target="_blank">徵室友</a>
     </div>
   `
+  // <a href="flat-share.html" target="_blank">徵室友</a>
     // const houseInfowindow = new google.maps.InfoWindow({
     //   content: contentString
     // })
@@ -246,12 +290,15 @@ function renderHouses(houses) {
       'click',
       (function (id) {
         return async function () {
+          clearLifeFunction()
           removeLines()
+          console.log(id)
           const { data } = await axios.get(
             `/api/1.0/house/life-function?id=${id}`
           )
           console.log(data)
           const { coordinate } = data
+          
           const houseCoordinate = {
             lat: coordinate.latitude,
             lng: coordinate.longitude
@@ -262,18 +309,28 @@ function renderHouses(houses) {
             const { id, name, latitude, longitude, distance, subtype, type } =
               station
             // coordinates.push({lat: latitude, lng: longitude})
+
+            // make line
             const spotCoordinate = { lat: latitude, lng: longitude }
-            const flightPath = new google.maps.Polyline({
+            const line = new google.maps.Polyline({
               path: [houseCoordinate, spotCoordinate],
               geodesic: true,
-              strokeColor: '#FF0000',
+              strokeColor: '#000000',
               strokeOpacity: 1.0,
               strokeWeight: 2
             })
 
-            flightPath.setMap(map)
-            lines.push(flightPath)
-            console.log('here')
+            line.setMap(map)
+            lines.push(line)
+
+            // make marker
+            const lifeFunction = new google.maps.Marker({
+              position: spotCoordinate,
+              label: name,
+              map: map,
+            });
+            lifeFunctions.push(lifeFunction)
+            // console.log('here')
           })
           // const flightPlanCoordinates = [
           //   { lat: 37.772, lng: -122.214 },

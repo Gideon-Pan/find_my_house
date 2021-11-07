@@ -18,6 +18,7 @@ async function getLifeFunction(id) {
   const [result] = await pool.query(q)
 
   const idMap = {}
+  if (result.length === 0) return {}
   const lifeFunctionMap = {
     coordinate: {
       latitude: result[0].house_lat,

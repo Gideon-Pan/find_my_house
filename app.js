@@ -39,9 +39,6 @@ app.use('/api/' + API_VERSION,
   
 // })
 
-
-
-
 const walkVelocity = 1.25 / 1.414
 
 let graphsForBus
@@ -293,19 +290,19 @@ async function getHousesInBudget(budget, houseType) {
     default:
       break
   }
-  console.log(houseType)
+  // console.log(houseType)
   // const condition = budget ? `WHERE price <= ${budget}` : ''
-  const q = `SELECT house.id, title, price, link, image, house.address, house.latitude, house.longitude, category.name AS category FROM house 
+  const q = `SELECT house.id, title, price, area, link, image, house.address, house.latitude, house.longitude, category.name AS category FROM house 
     JOIN category
       ON house.category_id = category.id
-    WHERE latitude IS NOT NULL 
+    WHERE latitude IS NOT NULL
       AND longitude IS NOT NULL
       ${budget ? `AND price <= ${budget}` : ''}
       ${houseType ? `AND category.name = '${houseType}'` : "AND category.name = '獨立套房' OR category.name = '分租套房' OR category.name = '雅房'"}
   `
   // console.log(db)
   const [houses] = await db.query(q)
-  console.log(houses)
+  // console.log(houses)
   return houses
 }
 
