@@ -2,11 +2,12 @@ require('dotenv').config();
 const bcrypt = require('bcrypt');
 // const got = require('got');
 // const {pool} = require('./mysqlcon');
+const axios  = require('axios')
 const pool = require('./db/mysql')
 const salt = parseInt(process.env.BCRYPT_SALT);
 const {TOKEN_EXPIRE, TOKEN_SECRET} = process.env; // 30 days by seconds
 const jwt = require('jsonwebtoken');
-const { default: axios } = require('axios');
+// const { default: axios } = require('axios');
 
 const USER_ROLE = {
     ALL: -1,
