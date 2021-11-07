@@ -1,11 +1,12 @@
 require('dotenv').config();
 const bcrypt = require('bcrypt');
-const got = require('got');
+// const got = require('got');
 // const {pool} = require('./mysqlcon');
 const pool = require('./db/mysql')
 const salt = parseInt(process.env.BCRYPT_SALT);
 const {TOKEN_EXPIRE, TOKEN_SECRET} = process.env; // 30 days by seconds
 const jwt = require('jsonwebtoken');
+const { default: axios } = require('axios');
 
 const USER_ROLE = {
     ALL: -1,
@@ -160,7 +161,7 @@ const getUserDetail = async (email, roleId) => {
 
 const getFacebookProfile = async function(accessToken){
     try {
-        let res = await got('https://graph.facebook.com/me?fields=id,name,email&access_token=' + accessToken, {
+        let res = await axios.get('https://graph.facebook.com/me?fields=id,name,email&access_token=' + accessToken, {
             responseType: 'json'
         });
         return res.body;

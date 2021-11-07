@@ -302,7 +302,7 @@ async function getHousesInBudget(budget, houseType) {
   `
   // console.log(db)
   const [houses] = await db.query(q)
-  // console.log(houses)
+  console.log(houses.length)
   return houses
 }
 
@@ -313,11 +313,13 @@ async function getHousesInRange(positionData, houses) {
   // `
   // // console.log(db)
   // const [houses] = await db.query(q)
+  let counter = 0
   const houseData = houses.filter(house => {
     const {latitude, longitude} = house
     for (let i = 0; i < positionData.length; i++) {
       const position = positionData[i]
       const radius = position.distanceLeft
+      counter++
       if (getDistance({latitude, longitude}, {latitude: position.lat, longitude: position.lng}) < radius) {
         return true
       }
@@ -325,5 +327,6 @@ async function getHousesInRange(positionData, houses) {
     // console.log('waht')
     return false
   })
+  console.log(`computing ${counter} times`)
   return houseData
 }
