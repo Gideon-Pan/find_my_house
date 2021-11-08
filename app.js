@@ -91,7 +91,16 @@ app.get('/test', async (req, res) => {
 
 app.get('/search', async (req, res) => {
   // const g = req.query.commuteWay === 'bus' ? graphForBus : graphForMetro
-  let { commuteTime, officeLat, officeLng, maxWalkDistance, period, commuteWay, budget, houseType } = req.query
+  let { commuteTime, officeLat, officeLng, maxWalkDistance, period, commuteWay, budget, houseType, fire, shortRent, directRent, pet, newItem } = req.query
+  const tags = []
+  if (fire === 'true') tags.push(7)
+  // if (fire === 'true') console.log(fire)
+  if (shortRent === 'true') tags.push(5)
+  if (directRent === 'true') tags.push(1)
+  if (pet === 'true') tags.push(13)
+  if (newItem === 'true') tags.push(12)
+  // console.log(tags)
+  // return
   // console.log(waitingTimeMaps)
   const waitingTimeMap = waitingTimeMaps[period]
   // console.log(waitingTimeMap)
@@ -187,7 +196,7 @@ app.get('/search', async (req, res) => {
         distanceLeft: maxWalkDistance
       }
     ]
-    const houses = await getHousesInBudget()
+    const houses = await getHousesInBudget(budget, houseType, tags)
     const houseData = await getHousesInRange(positionData, houses)
     return res.send({
       positionData,
@@ -254,7 +263,7 @@ app.get('/search', async (req, res) => {
   const positionData = Object.values(reachableStationsMap)
   // console.log(budget)
   const time1 = Date.now()
-  const  houses = await getHousesInBudget(budget, houseType)
+  const  houses = await getHousesInBudget(budget, houseType, tags)
   const time2 = Date.now()
   console.log((time2 - time1) / 1000)
   // console.log(houses)
@@ -287,8 +296,9 @@ app.listen(3000, () => {
   console.log('Listening on port 3000')
 })
 
-async function getHousesInBudget(budget, houseType) {
+async function getHousesInBudget(budget, houseType, validTags) {
   console.log(houseType)
+  console.log(validTags)
   switch (houseType) {
     case 'shared-suite':
       houseType = '分租套房'
@@ -304,17 +314,50 @@ async function getHousesInBudget(budget, houseType) {
   }
   // console.log(houseType)
   // const condition = budget ? `WHERE price <= ${budget}` : ''
-  const q = `SELECT house.id, title, price, area, link, image, house.address, house.latitude, house.longitude, category.name AS category FROM house 
+  const q = `SELECT house.id, title, price, area, link, image, house.address, house.latitude, house.longitude, category.name AS category, tag.id AS tag FROM house 
     JOIN category
       ON house.category_id = category.id
+    JOIN house_tag
+      ON house.id = house_tag.house_id
+    JOIN tag
+      ON tag.id = house_tag.tag_id
     WHERE latitude IS NOT NULL
       AND longitude IS NOT NULL
       ${budget ? `AND price <= ${budget}` : ''}
       ${houseType ? `AND category.name = '${houseType}'` : "AND category.name = '獨立套房' OR category.name = '分租套房' OR category.name = '雅房'"}
   `
+
   // console.log(db)
-  const [houses] = await db.query(q)
+  const [result] = await db.query(q)
+  const houseMap = {}
+  // const validTags =
+  const timet1 = Date.now()
+  result.forEach(house => {
+    // if (!validTags.includes(house.tag)) return
+    // if (house.tag in )
+    if (!houseMap[house.id]) {
+      houseMap[house.id] = house
+      houseMap[house.id].tags = []
+      houseMap[house.id].counter = 0
+    }
+    // console.log(house.tag)
+    houseMap[house.id].tags.push(house.tag)
+    if (validTags.includes(house.tag)) {
+      houseMap[house.id].counter++
+    }
+  })
+  const houses = Object.values(houseMap).filter(house => {
+    // console.log(house.counter)
+    // console.log(validTags.length)
+    // console.log('~~~')
+    return house.counter === validTags.length
+  })
+  // Object.values(houseMap).forEach(house => {
+  //   console.log(house)
+  // })
   console.log(houses.length)
+  const timet2 = Date.now()
+  console.log((timet2 - timet1) / 1000, 'seconds for filtering tags')
   return houses
 }
 
