@@ -12,6 +12,8 @@ let houseLat
 let houseLng
 let lines = []
 let lifeFunctions = []
+let currentData
+let currentLifeFunctionType
 
 // const Justin = {
 //   lat: 25.00921512991647,
@@ -107,18 +109,18 @@ async function search() {
   const budget = $('#budget').val()
   const houseType = $('#house-type').val()
   // const fire = $('#fire').val()
-  const fire = document.querySelector('#fire').checked;
+  const fire = document.querySelector('#fire').checked
   // console.log(fire)
-  const shortRent = document.querySelector('#short-rent').checked;
+  const shortRent = document.querySelector('#short-rent').checked
   // console.log(shortRent)
-  const directRent = document.querySelector('#direct-rent').checked;
+  const directRent = document.querySelector('#direct-rent').checked
   // console.log(directRent)
-  const pet = document.querySelector('#pet').checked;
+  const pet = document.querySelector('#pet').checked
   // console.log(pet)
-  const newItem = document.querySelector('#new-item').checked;
+  const newItem = document.querySelector('#new-item').checked
   // console.log(newItem)
-  // const tags = 
-  
+  // const tags =
+
   if (period === null) {
     alert('請選擇通勤時段')
     return
@@ -146,6 +148,7 @@ async function search() {
   hideCircles()
   circles = []
   removeLines()
+  removeRadio()
   clearLifeFunction()
   removeReachableArea()
   clearHouses()
@@ -209,13 +212,13 @@ function renderHouses(houses) {
     if (area % 1 !== 0) {
       area = area.toFixed(1)
     }
-    
+
     const houseIcon = {
       // url: './assets/renting.png', // url
       // url: './assets/renting-house.jpg',
       // url: './assets/icon.jfif',
       // 2, 4 works
-      url: './assets/2.png',
+      url: './assets/4.png',
       scaledSize: new google.maps.Size(30, 30), // scaled size
       origin: new google.maps.Point(0, 0), // origin
       anchor: new google.maps.Point(15, 20) // anchor
@@ -240,7 +243,7 @@ function renderHouses(houses) {
       <a href="${link}" target="_blank">查看更多</a>
     </div>
   `
-  // <a href="flat-share.html" target="_blank">徵室友</a>
+    // <a href="flat-share.html" target="_blank">徵室友</a>
     // const houseInfowindow = new google.maps.InfoWindow({
     //   content: contentString
     // })
@@ -296,42 +299,71 @@ function renderHouses(houses) {
           const { data } = await axios.get(
             `/api/1.0/house/life-function?id=${id}`
           )
-          console.log(data)
-          const { coordinate } = data
-          
-          const houseCoordinate = {
-            lat: coordinate.latitude,
-            lng: coordinate.longitude
+          document
+            .querySelector('.radio')
+            .setAttribute('style', 'display: inline;')
+          // console.log($('.radio').attr("display"))
+
+
+          if (!currentLifeFunctionType) {
+            currentLifeFunctionType = 'traffic'
           }
-          const stations = data['交通']['捷運']
-          // const currentId
-          stations.forEach((station) => {
-            const { id, name, latitude, longitude, distance, subtype, type } =
-              station
-            // coordinates.push({lat: latitude, lng: longitude})
 
-            // make line
-            const spotCoordinate = { lat: latitude, lng: longitude }
-            const line = new google.maps.Polyline({
-              path: [houseCoordinate, spotCoordinate],
-              geodesic: true,
-              strokeColor: '#000000',
-              strokeOpacity: 1.0,
-              strokeWeight: 2
-            })
+          currentData = data
+          switch(currentLifeFunctionType) {
+            case 'traffic':
+              getTraffic()
+              break
+            case 'life':
+              getLife()
+              break
+            case 'food':
+              getFood()
+              break
+            default:
+              console.log('what')
+          }
 
-            line.setMap(map)
-            lines.push(line)
+          
+          // console.log(data)
+          // const { coordinate } = data
 
-            // make marker
-            const lifeFunction = new google.maps.Marker({
-              position: spotCoordinate,
-              label: name,
-              map: map,
-            });
-            lifeFunctions.push(lifeFunction)
-            // console.log('here')
-          })
+          // const houseCoordinate = {
+          //   lat: coordinate.latitude,
+          //   lng: coordinate.longitude
+          // }
+          // const stations = data['交通']['捷運']
+          // // const currentId
+          // stations.forEach((station) => {
+          //   const { id, name, latitude, longitude, distance, subtype, type } =
+          //     station
+          //   // coordinates.push({lat: latitude, lng: longitude})
+
+          //   // make line
+          //   const spotCoordinate = { lat: latitude, lng: longitude }
+          //   const line = new google.maps.Polyline({
+          //     path: [houseCoordinate, spotCoordinate],
+          //     geodesic: true,
+          //     strokeColor: '#000000',
+          //     strokeOpacity: 1.0,
+          //     strokeWeight: 5,
+          //     'z-index': 2
+          //   })
+
+          //   line.setMap(map)
+          //   lines.push(line)
+
+          //   // make marker
+          //   const lifeFunction = new google.maps.Marker({
+          //     position: spotCoordinate,
+          //     label: name,
+          //     map: map
+          //   })
+          //   lifeFunctions.push(lifeFunction)
+          //   // console.log('here')
+          // })
+
+
           // const flightPlanCoordinates = [
           //   { lat: 37.772, lng: -122.214 },
           //   { lat: 21.291, lng: -157.821 },
@@ -423,7 +455,7 @@ function renderHouses(houses) {
 }
 
 function removeLines() {
-  lines.forEach(line => {
+  lines.forEach((line) => {
     line.setMap(null)
   })
   lines = []
@@ -518,6 +550,10 @@ async function testHouse() {
 
 // testHouse()
 
+function removeRadio() {
+  document.querySelector('.radio').setAttribute('style', 'display: none;')
+}
+
 async function init() {
   const access_token = window.localStorage.getItem('access_token')
   try {
@@ -538,6 +574,62 @@ async function init() {
 function signout() {
   window.localStorage.removeItem('access_token')
   location.href = '/'
+}
+
+function showLifeFunction(type, subtype) {
+  clearLifeFunction()
+  removeLines()
+  // removeRadio()
+  const { coordinate } = currentData
+
+  const houseCoordinate = {
+    lat: coordinate.latitude,
+    lng: coordinate.longitude
+  }
+  const stations = currentData[type][subtype]
+  // const currentId
+  stations.forEach((station) => {
+    const { id, name, latitude, longitude, distance, subtype, type } = station
+    // coordinates.push({lat: latitude, lng: longitude})
+
+    // make line
+    const spotCoordinate = { lat: latitude, lng: longitude }
+    const line = new google.maps.Polyline({
+      path: [houseCoordinate, spotCoordinate],
+      geodesic: true,
+      strokeColor: '#000000',
+      strokeOpacity: 1.0,
+      strokeWeight: 5,
+      'z-index': 2
+    })
+
+    line.setMap(map)
+    lines.push(line)
+
+    // make marker
+    const lifeFunction = new google.maps.Marker({
+      position: spotCoordinate,
+      label: name,
+      map: map
+    })
+    lifeFunctions.push(lifeFunction)
+    // console.log('here')
+  })
+}
+
+function getTraffic() {
+  currentLifeFunctionType = 'traffic'
+  showLifeFunction('交通', '捷運')
+}
+
+function getLife() {
+  currentLifeFunctionType = 'life'
+  showLifeFunction('生活', '購物')
+}
+
+function getFood() {
+  currentLifeFunctionType = 'food'
+  showLifeFunction('生活', '餐飲')
 }
 
 init()

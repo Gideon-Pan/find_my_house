@@ -188,3 +188,19 @@ main {
 }
 
 /* Optional: Makes the sample page fill the window. */
+
+.radio {
+  /* display: none; */
+  position: absolute;
+  top: 200px;
+  z-index: 3;
+  /* background-color: #EFC2CE; */
+  /* background-color: #85A4B3; */
+  background-color: #AECED2;
+  border-radius: 300px;
+  padding: 10px 10px 10px 20px;
+}
+
+.radio label {
+  margin-top: 3px;
+}
