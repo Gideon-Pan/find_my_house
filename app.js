@@ -10,6 +10,7 @@ const { getShortestPath } = require('./server/dijkstra/shortest_path')
 // const { Edge } = require('./graph')
 // const { makeGraph } = require('./makeGraph')
 const db = require('./server/models/db/mysql')
+const { makeStopHouseDistanceMap } = require('./server/models/house_model')
 // console.log(makeGraph)
 const {API_VERSION} = process.env
 // console.log(API_VERSION)
@@ -46,6 +47,7 @@ let graphForMetro
 let graphForMix
 let waitingTimeMaps
 let graphs
+let stopHouseDistanceMap
 async function main() {
   const time0_0 = Date.now()
   // graphsForBus = await makeGraph('bus', 2)
@@ -61,6 +63,15 @@ async function main() {
     Math.floor(time0_1 - time0_0) / 1000,
     'seconds'
   )
+  
+  // const map = await makeStopHouseDistanceMap()
+  // // console.log(map)
+  // const time0_2 = Date.now()
+  // console.log(
+  //   'finish calculating stop house distance:',
+  //   Math.floor(time0_2 - time0_1) / 1000,
+  //   'seconds'
+  // )
   // console.log(waitingTimeMaps)
 }
 

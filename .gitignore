@@ -7,3 +7,4 @@ package-lock.json
 dump/
 # public/assets
 bus_velocity.json
+.env.ec2
