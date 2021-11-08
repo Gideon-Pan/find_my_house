@@ -5,29 +5,50 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">    
     <!-- Bootstrap CSS -->
+    
+    <link rel="stylesheet" type="text/css" href="./css/reset2.css" />
     <link rel="stylesheet" href="https://www.markuptag.com/bootstrap/5/css/bootstrap.min.css">
+    <link rel="stylesheet" href="./css/header.css">
+    <link rel="stylesheet" href="./css/sign.css">
 </head>
 <body>
-
+    <header>
+        <div class="header">
+          <a class="logo" href="/">
+            <img src="assets/logo.png" height="48" />
+            <p>好屋好屋</p>
+          </a>
+          <div class="blank"></div>
+          <!-- <div class="nav">
+            <a href="/">我的聊天</a>
+          </div> -->
+          <div class="nav signout">
+            <!-- <div onclick="signout()">登出</div> -->
+          </div>
+          <div class="nav avator">
+            <img src="assets/member.png" />
+          </div>
+        </div>
+      </header>
     <div class="container">
         <div class="row">
             <div class="col-md-4 offset-md-4">
                 <div class="login-form bg-light mt-4 p-4">
                     <form action="" method="" class="row g-3">
-                        <h4>Welcome Back</h4>
+                        <h4>歡迎回來</h4>
                         <div class="col-12">
-                          <label>Email</label>
+                          <label>信箱</label>
                           <input
                             type="text"
                             name="email"
                             id="email"
                             class="form-control"
-                            placeholder="Email"
+                            placeholder="信箱"
                           />
                         </div>
                         <div class="col-12">
-                            <label>Password</label>
-                            <input type="password" name="password" id="password" class="form-control" placeholder="Password">
+                            <label>密碼</label>
+                            <input type="password" name="password" id="password" class="form-control" placeholder="密碼">
                         </div>
                         <!-- <div class="col-12">
                             <div class="form-check">
@@ -36,12 +57,12 @@
                             </div>
                         </div> -->
                         <div class="col-12">
-                            <button type="button" class="btn btn-dark float-end">Login</button>
+                            <button type="button" class="btn btn-dark float-end">登入</button>
                         </div>
                     </form>
                     <hr class="mt-4">
                     <div class="col-12">
-                        <p class="text-center mb-0">Have not account yet? <a href="/signup.html">Signup</a></p>
+                        <p class="text-center mb-0">還沒有帳號嗎？ <a href="/signup.html">點這裡註冊</a></p>
                     </div>
                 </div>
             </div>

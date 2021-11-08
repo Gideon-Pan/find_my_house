@@ -2,6 +2,8 @@ const { MongoClient } = require('mongodb')
 // const getPtxData = require('../../../ptx_testing/metro-ptx');
 const { MONGO_PASSWORD, MONGO_DATABASE } = process.env
 
+// console.log(MONGO_PASSWORD)
+
 const uri = MONGO_PASSWORD
   ? `mongodb+srv://Gideon:${MONGO_PASSWORD}@cluster0.0fwjx.mongodb.net/${MONGO_DATABASE}?retryWrites=true&w=majority`
   : 'mongodb://127.0.0.1:27017'

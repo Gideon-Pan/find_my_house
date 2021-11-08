@@ -39,7 +39,7 @@ $('button').on('click', async (e) => {
     location.href = '/'
   } catch {
     console.log('signup fail')
-    alert('登入失敗')
+    alert('註冊失敗')
     // console.log('email has been used')
     // alert('信箱已被使用或信箱錯誤')
   }

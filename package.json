@@ -4,8 +4,10 @@
   "description": "",
   "main": "ask.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
+    "dev": "webpack-dev-server  --inline --progress --config build/webpack.dev.conf.js",
+    "start": "node --max_old_space_size=3000 app.js ",
+    "build": "node --max_old_space_size=4000 build/build.js"
+},
   "keywords": [],
   "author": "",
   "license": "ISC",

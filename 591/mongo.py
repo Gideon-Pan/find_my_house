@@ -5,9 +5,13 @@ import os
 # import dnspython
 password = os.environ.get("MONGO_PASSWORD")
 database = os.environ.get("MONGO_DATABASE")
+host = os.environ.get("MONGO_HOST")
 
 # client = pymongo.MongoClient("mongodb+srv://Gideon:" + password + "@cluster0.0fwjx.mongodb.net/" + database + "?retryWrites=true&w=majority")
-client = pymongo.MongoClient("mongodb://127.0.0.1:27017")
+# client = pymongo.MongoClient("mongodb://" + host + ":27017")
+# print("mongodb://mongouser:" + password + '@' + host + ":27017")
+client = pymongo.MongoClient("mongodb://mongouser:" + password + "@3.145.22.184:27017/?authSource=admin&readPreference=primary&appname=MongoDB%20Compass&ssl=false")
+# client = pymongo.MongoClient("mongodb://mongouser:" + password + "@" + host)
 
 db = client["591_data"]
 # post = {"author": "13",

@@ -10,7 +10,7 @@ const { getShortestPath } = require('./server/dijkstra/shortest_path')
 // const { Edge } = require('./graph')
 // const { makeGraph } = require('./makeGraph')
 const db = require('./server/models/db/mysql')
-const { makeStopHouseDistanceMap } = require('./server/models/house_model')
+const { makeHouseStopDistanceMap } = require('./server/models/house_model')
 // console.log(makeGraph)
 const {API_VERSION} = process.env
 // console.log(API_VERSION)
@@ -47,7 +47,7 @@ let graphForMetro
 let graphForMix
 let waitingTimeMaps
 let graphs
-let stopHouseDistanceMap
+let houseStopDistanceMap
 async function main() {
   const time0_0 = Date.now()
   // graphsForBus = await makeGraph('bus', 2)
@@ -64,7 +64,8 @@ async function main() {
     'seconds'
   )
   
-  // const map = await makeStopHouseDistanceMap()
+  // houseStopDistanceMap = await makeHouseStopDistanceMap()
+
   // // console.log(map)
   // const time0_2 = Date.now()
   // console.log(
@@ -334,6 +335,14 @@ async function getHousesInRange(positionData, houses) {
       if (getDistance({latitude, longitude}, {latitude: position.lat, longitude: position.lng}) < radius) {
         return true
       }
+      // if (houseStopDistanceMap[house.id] && houseStopDistanceMap[house.id][positionData[i].stationId] < radius) {
+      //   // console.log(house.id)
+      //   // console.log(positionData[i].stationId)
+      //   // console.log('houseStopDistanceMap[house.id][positionData[i].stationId]: ', houseStopDistanceMap[house.id][positionData[i].stationId]);
+      //   // console.log('radius: ', radius);
+      //   // console.log('~~~')
+      //   return true
+      // }
     }
     // console.log('waht')
     return false
