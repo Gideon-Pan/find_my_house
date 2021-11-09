@@ -68,7 +68,8 @@ function initMap() {
   // console.log(google)
   map = new google.maps.Map(document.getElementById('map'), {
     zoom: 13,
-    center: myLatlng
+    center: myLatlng,
+    scaleControl: true
   })
 
   const icon = {
