@@ -1,6 +1,7 @@
 const { getMongo, getMongoOne } = require("../../../server/models/db/mongo")
 const pool = require('../../../server/models/db/mysql')
 const { makeCategoryToIdMap, makeTagMap, makeLifeFunctionMap, makeSubypeToIdMap } = require("./map")
+const {today, yesterday} = require('../time')
 
 async function insertHouseFirstTime() {
   const houseMap = {}
@@ -127,13 +128,15 @@ async function insertHouse(houses) {
   console.log('finish inserting all houses')
 }
 
+// async function
+
 async function getHousesToInsert(cleansedDataOld, cleansedDataNew) {
   const q = 'SELECT id FROM house'
   // const [oldHouses] = await pool.query(q)
-  const oldHouses = await getMongo("591_data", cleansedDataOld)
+  const oldHouses = await getMongo("591_cleansed", cleansedDataOld)
   console.log('finish fetch old data')
   // console.log(cleansedData)
-  const newHouses = await getMongo("591_data", cleansedDataNew)
+  const newHouses = await getMongo("591_cleansed", cleansedDataNew)
   console.log('finish fetch new data')
 
   const oldHouseIdMap = {}
@@ -164,8 +167,85 @@ async function getHousesToInsert(cleansedDataOld, cleansedDataNew) {
   const housesToInsert = houseIdsToInsert.map(id => {
     return houseMap[id]
   })
+  console.log(houseIdsToInsert.length)
   return housesToInsert
 }
+
+// getHousesToInsert(`${yesterday}houseDatacleansed`, `${today}houseDatacleansed`)
+
+async function getHouseIdsToDelete(cleansedDataOld, cleansedDataNew) {
+  const oldHouses = await getMongo("591_cleansed", cleansedDataOld)
+  console.log('fetch old data')
+  const newHouses = await getMongo("591_cleansed", cleansedDataNew)
+  console.log('fetch new data')
+  const oldHouseIdMap = {}
+  const newHouseIdMap = {}
+  const houseMap = {}
+  const houseIdsToDelete = []
+  const houseIdsToInsert = []
+
+  oldHouses.forEach(({id}) => {
+    oldHouseIdMap[id] = true
+  })
+  newHouses.forEach((house) => {
+    newHouseIdMap[house.id] = true
+    houseMap[house.id] = house
+  })
+  // console.log(oldHouseIdMap)
+  // console.log(newHouseIdMap)
+  oldHouses.forEach(({id}) => {
+    if (!newHouseIdMap[id]) {
+      houseIdsToDelete.push(id)
+    }
+  })
+  // console.log(houseIdsToDelete)
+  // console.log(houseIdsToDelete.length)
+  return houseIdsToDelete
+}
+// const date = new Date()
+// const day = date.getDate()
+// const month = date.getMonth()
+// const year = date.getFullYear()
+// const todayDate = `${year}-${month + 1}-${day}`
+
+// const yesterday =date.setDate(date.getDate()+1);
+// dateTime=new Date(yesterday)
+// console.log(yesterday)
+// console.log(today)
+
+// getHouseIdsToDelete(`${yesterday}houseDatacleansed`, `${today}houseDatacleansed`)
+
+async function deleteHouse(cleansedDataOld, cleansedDataNew) {
+  const houseIdsToDelete = await getHouseIdsToDelete(cleansedDataOld, cleansedDataNew)
+  console.log(idsToDelete.length)
+  const q = `DELETE FROM house
+    WHERE id in (`+ pool.escape(houseIdsToDelete)+ `)
+    ORDER BY id
+    LIMIT 100`
+  let affectedRows = 1
+  let counter = 0
+  while (affectedRows) {
+    const [result] = await pool.query(q)
+    affectedRows = result.affectedRows
+    counter += affectedRows
+    console.log(`finish delete ${counter} house`)
+  }
+  console.log('finish delete all houses needed')
+}
+
+// deleteHouse(`${yesterday}houseDatacleansed`, `${today}houseDatacleansed`)
+
+async function test() {
+  // const q = `DELETE FROM station_house_distance limit 2`
+  // const [result] = await pool.query(q)
+  // console.log(result.affectedRows)
+  // if (!0) {
+  //   console.log(go)
+  // }
+}
+test()
+
+// deleteHouse(`${yesterday}houseDatacleansed`, `${today}houseDatacleansed`)
 
 async function updateHouse(cleansedData) {
   const q = 'SELECT id FROM house'
@@ -231,6 +311,44 @@ async function updateHouse(cleansedData) {
   // console.log(whereIn)
   // await pool.query("DELETE from hosue where id in ?", [houseIdsToDelete])
   console.log('finish')
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 }
 
 // updateHouse("cleansedHouseDataAutomated")
@@ -443,10 +561,10 @@ async function dumpMysqlToMongo() {
   console.log(result[0])
 }
 
-dumpMysqlToMongo()
+// dumpMysqlToMongo()
 
-module.exports = {
-  insertHouseFirstTime,
-  insertHouseTag,
-  insertHouseLifeFunction
-}
+// module.exports = {
+//   insertHouseFirstTime,
+//   insertHouseTag,
+//   insertHouseLifeFunction
+// }
