@@ -1,10 +1,21 @@
 const pool = require('../../../server/models/db/mysql')
+const { sleep } = require('../sleep')
 
-async function main() {
-  const [result] = await pool.query('SELECT COUNT(*) AS count FROM station_house_distance')
-  // console.log(count)
-  const dataAmount = result[0].count
-  // for (let i = 0; i < )
+async function deleteTable(tableName, bulkNum) {
+  const q =
+    `DELETE FROM ${tableName}
+  ORDER BY id
+  LIMIT ${bulkNum}`
+  let affectedRows = 1
+  let counter = 0
+  while (affectedRows) {
+    const [result] = await pool.query(q)
+    affectedRows = result.affectedRows
+    counter += affectedRows
+    console.log(`finish delete ${counter} of ${tableName}`)
+    await sleep(2)
+  }
+  console.log('finish')
 }
 
-main()
+deleteTable('house_tag', 10000)
