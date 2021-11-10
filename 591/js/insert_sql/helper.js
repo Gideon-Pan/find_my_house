@@ -2,6 +2,7 @@ const { getMongo, getMongoOne } = require("../../../server/models/db/mongo")
 const pool = require('../../../server/models/db/mysql')
 const { makeCategoryToIdMap, makeTagMap, makeLifeFunctionMap, makeSubypeToIdMap } = require("./map")
 const {today, yesterday} = require('../time')
+const { sleep } = require("../sleep")
 
 async function insertHouseFirstTime() {
   const houseMap = {}
@@ -229,6 +230,7 @@ async function deleteHouse(cleansedDataOld, cleansedDataNew) {
     affectedRows = result.affectedRows
     counter += affectedRows
     console.log(`finish delete ${counter} house`)
+    await sleep(2)
   }
   console.log('finish delete all houses needed')
 }
