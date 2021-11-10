@@ -42,10 +42,7 @@ async function main() {
       })
     })
   })
-  // console.log(values)
-  // console.log(lifeFunctionMap)
-  // return
-  // return
+
   const q = 'INSERT INTO house_life_function (house_id, life_function_id, distance) VALUES ?'
   // const values = Object.values(lifeFunctionMap)
   // console.log(values)
@@ -70,4 +67,3 @@ async function main() {
   console.log('finish inserting house life functions')
 }
 
-main()

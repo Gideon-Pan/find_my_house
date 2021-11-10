@@ -1,31 +1,44 @@
 // const { getMongoData } = require("../../server/models/db/mongo")
 
-const { getMongo, getMongoOne, insertMongo } = require("../../server/models/db/mongo")
+const {
+  getMongo,
+  getMongoOne,
+  insertMongo
+} = require('../../server/models/db/mongo')
 
-
-
-async function main() {
-  let houses = await getMongo("591_data", "houseDataRawNew")
+async function cleanseData(rawDataCollection) {
+  let houses = await getMongo('591_data', rawDataCollection)
   // console.log(houses.length)
   // return console.log(houses)
   // houses = [houses]
   console.log('finish fetching data')
   const housesData = []
   const map = {}
-  houses.forEach(house => {
+  houses.forEach((house) => {
     if (!house.data.shareInfo) {
       // return console.log(house)
       return
     }
-    map[house.data.shareInfo.url] = house
+    // map[house.data.shareInfo.url] = house
+    map[house.id] = house
   })
   // console.log(Object.keys(map).length)
-  for (let [key, house] of Object.entries(map)){
+  for (let [key, house] of Object.entries(map)) {
     // console.log('he')
     // console.log(house)
-    let {breadcrumb, title, shareInfo, tags, price, info, positionRound, service, favData} = house.data
+    let {
+      breadcrumb,
+      title,
+      shareInfo,
+      tags,
+      price,
+      info,
+      positionRound,
+      service,
+      favData
+    } = house.data
     // console.log(breadcrumb)
-    // price = 
+    // price =
     // const link
     // const category
     // const size
@@ -33,16 +46,16 @@ async function main() {
     // const address
     // const latitude
     // const longitude
-    const tagsData = tags.map(({value}) => {
+    const tagsData = tags.map(({ value }) => {
       return value
     })
     const infoMap = {}
-    info.forEach(({value, key}) => {
+    info.forEach(({ value, key }) => {
       infoMap[key] = value
     })
     // const facilitymap = {}
     const facilities = []
-    service.facility.forEach(({key, name, active}) => {
+    service.facility.forEach(({ key, name, active }) => {
       // facilitymap[key] = {
       //   name,
       //   active
@@ -54,7 +67,7 @@ async function main() {
     })
 
     const breadcrumbMap = {}
-    breadcrumb.forEach(({name, query}) => {
+    breadcrumb.forEach(({ name, query }) => {
       breadcrumbMap[query] = name
     })
 
@@ -83,7 +96,7 @@ async function main() {
       // breadcrumb,
       facilities,
       tags: tagsData,
-      region:  breadcrumbMap.region,
+      region: breadcrumbMap.region,
       section: breadcrumbMap.section
     }
     // console.log(houseData)
@@ -92,9 +105,21 @@ async function main() {
     // return
   }
   console.log('start inserting')
-  // console.log(housesData)
 
-  await insertMongo("591_data", "cleansedHouseDataNew", housesData)
+  const date = new Date()
+  // console.log(data.getDay())
+  const day = date.getDate()
+  // console.log('day: ', day);
+  const month = date.getMonth()
+  // console.log('month: ', month);
+  const year = date.getFullYear()
+  // console.log('year: ', year);
+  const finalDate = `${year}-${month + 1}-${day}`
+  await insertMongo('591_cleansed', `${finalDate}houseDatacleansed`, housesData)
 }
 
-main()
+// cleanseData("houseDataRawAutomated")
+
+module.exports = {
+  cleanseData
+}

@@ -2,7 +2,7 @@ const { getMongo, getMongoOne } = require("../../server/models/db/mongo")
 const pool = require('../../server/models/db/mysql')
 const { makeCategoryToIdMap } = require("./map")
 
-async function main() {
+async function insertHouse() {
   const houseMap = {}
   const map = {}
   const categoryMap = await makeCategoryToIdMap()
@@ -57,4 +57,6 @@ async function main() {
   console.log('finish inserting all houses')
 }
 
-main()
+module.exports = {
+  insertHouse
+}

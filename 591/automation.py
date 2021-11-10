@@ -6,6 +6,7 @@ import math
 from mongo import db
 import requests
 import json
+from datetime import date
 
 HEADERS2 = {
     'Accept': '*/*',
@@ -111,7 +112,10 @@ def insertData(url):
             # pprint(housesData)
         # return
         # print(id)
-    insertMongo("houseDataRawAutomated", housesData)
+    today = date.today()
+    print("Today's date:", today)
+    # insertMongo("houseDataRaw11-10" , housesData)
+    insertMongo("houseDataRaw" + str(today), housesData)
         
         # print(id)
     # print('finish inserting page' + str(0))
