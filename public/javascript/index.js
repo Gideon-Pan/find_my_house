@@ -595,22 +595,21 @@ function showLifeFunction(type, subtype) {
 
     // make line
     const spotCoordinate = { lat: latitude, lng: longitude }
-    const line = new google.maps.Polyline({
-      path: [houseCoordinate, spotCoordinate],
-      geodesic: true,
-      strokeColor: '#000000',
-      strokeOpacity: 1.0,
-      strokeWeight: 5,
-      'z-index': 2
-    })
-
-    line.setMap(map)
-    lines.push(line)
+    // const line = new google.maps.Polyline({
+    //   path: [houseCoordinate, spotCoordinate],
+    //   geodesic: true,
+    //   strokeColor: '#000000',
+    //   strokeOpacity: 1.0,
+    //   strokeWeight: 5,
+    //   'z-index': 2
+    // })
+    // line.setMap(map)
+    // lines.push(line)
 
     // make marker
     const lifeFunction = new google.maps.Marker({
       position: spotCoordinate,
-      label: name,
+      // label: name,
       map: map
     })
     lifeFunctions.push(lifeFunction)
