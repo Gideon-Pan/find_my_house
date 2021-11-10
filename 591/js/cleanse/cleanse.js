@@ -4,10 +4,10 @@ const {
   getMongo,
   getMongoOne,
   insertMongo
-} = require('../../server/models/db/mongo')
+} = require('../../../server/models/db/mongo')
 
 async function cleanseData(rawDataCollection) {
-  let houses = await getMongo('591_data', rawDataCollection)
+  let houses = await getMongo('591_raw', rawDataCollection)
   // console.log(houses.length)
   // return console.log(houses)
   // houses = [houses]

@@ -11,7 +11,7 @@ const url = 'https://rent.591.com.tw/'
 
 const sleep = (t) => {
   return new Promise((resolve, reject) => {
-    setTimeout(()=> {
+    setTimeout(() => {
       resolve()
     }, t * 1000)
   })
@@ -28,7 +28,7 @@ async function getAll() {
   const content = await page.content()
   const $ = cheerio.load(content)
   console.log($('div .item-price-text').html())
-  
+
   // $.root().html()
   // console.log('$.root().html(): ', $.root().html());
   await browser.close()

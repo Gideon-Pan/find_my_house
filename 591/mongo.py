@@ -1,7 +1,7 @@
+import os
 import pymongo
 from dotenv import load_dotenv
 load_dotenv()
-import os
 # import dnspython
 password = os.environ.get("MONGO_PASSWORD")
 database = os.environ.get("MONGO_DATABASE")
@@ -15,7 +15,7 @@ client = pymongo.MongoClient('localhost', 27017)
 # client = pymongo.MongoClient("mongodb://mongouser:" + password + "@" + host)
 
 
-db = client["591_data"]
+db = client["591_raw"]
 # post = {"author": "13",
 #          "text": "My first blog post!",
 #          "tags": ["mongodb", "python", "pymongo"],

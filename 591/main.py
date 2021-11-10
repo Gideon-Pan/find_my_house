@@ -81,16 +81,21 @@ HEADERS2 = {
     'X-CSRF-TOKEN': 'fT2rZUhpZNQU8Jx3a7ladraOG727JXNBwRIRTXOR',
 }
 
+
 def insertData(collection, houseData):
-  houses = db[collection]
-  if (len(houseData) == 0):
-    return
-  houses.insert_many(houseData)
+    houses = db[collection]
+    if (len(houseData) == 0):
+        return
+    houses.insert_many(houseData)
+
 
 regions = [1, 3]
+
+
 def getDataAmount(region):
-    url = f"https://rent.591.com.tw/home/search/rsList?is_format_data=1&is_new_list=1&type=1&region=" + str(region)
-    
+    url = f"https://rent.591.com.tw/home/search/rsList?is_format_data=1&is_new_list=1&type=1&region=" + \
+        str(region)
+
     # print(url)
     r = requests.get(url, headers=HEADERS1)
     print(r)
@@ -104,6 +109,7 @@ def getDataAmount(region):
 
 # getDataAmount(3)
 
+
 def get_house_info(id):
     url = f"https://bff.591.com.tw/v1/house/rent/detail?id=" + str(id)
     # print("URL:", url)
@@ -115,22 +121,25 @@ def get_house_info(id):
     web_content = json.loads(web_content)
     # print(web_content)
     # print(web_content['data']['positionRound']['mapData'])
-    
+
     # data = web_content['data']['positionRound']['mapData']
     # traffic = data[0]
     # living = data[1]
     # education = data[2]
-        # print(traffic)
+    # print(traffic)
     # time.sleep(0.5)
     return web_content
-    
+
+
 content = get_house_info(11582361)
 print(content)
 
 # get_house_info(11599895)
 
+
 def get_ids(region, page):
-    url = f"https://rent.591.com.tw/home/search/rsList?is_format_data=1&is_new_list=1&type=1&region=" + str(region) + "&firstRow=" + str(page * 30)
+    url = f"https://rent.591.com.tw/home/search/rsList?is_format_data=1&is_new_list=1&type=1&region=" + \
+        str(region) + "&firstRow=" + str(page * 30)
     # print("URL", url)
     r = requests.get(url, headers=HEADERS1)
     web_content = r.text
@@ -156,6 +165,7 @@ def get_ids(region, page):
 
 # get_url(123)
 # insertData("houseDataNew", [{'name': 'gideon'}])
+
 
 def insert_data_by_region(region):
     # get data amount of the region
@@ -184,7 +194,6 @@ def insert_data_by_region(region):
         insertData("houseDataRawAutomated", housesData)
         print('finish inserting page' + str(page))
         # time.sleep(2)
-
 
 
 # def main():

@@ -29,12 +29,13 @@ HEADERS2 = {
     'X-CSRF-TOKEN': 'fT2rZUhpZNQU8Jx3a7ladraOG727JXNBwRIRTXOR',
 }
 
-def insertData(collection, houseData):
-  houses = db[collection]
-  if (len(houseData) == 0):
-    return
 
-  houses.insert_many(houseData)
+def insertData(collection, houseData):
+    houses = db[collection]
+    if (len(houseData) == 0):
+        return
+
+    houses.insert_many(houseData)
 
 # print(soup)
 # sections = soup.find_all("section", class_="vue-list-rent-item")
@@ -59,6 +60,7 @@ def getIds(soup):
         ids.append(linkHtml.get('href').split("-")[2].split(".")[0])
     return ids
 
+
 def get_house_info(id):
     url = f"https://bff.591.com.tw/v1/house/rent/detail?id=" + str(id)
     # print("URL:", url)
@@ -70,20 +72,22 @@ def get_house_info(id):
     web_content = json.loads(web_content)
     # print(web_content)
     # print(web_content['data']['positionRound']['mapData'])
-    
+
     # data = web_content['data']['positionRound']['mapData']
     # traffic = data[0]
     # living = data[1]
     # education = data[2]
-        # print(traffic)
+    # print(traffic)
     # time.sleep(0.5)
     return web_content
 
+
 def insertMongo(collection, houseData):
-  houses = db[collection]
-  if (len(houseData) == 0):
-    return
-  houses.insert_many(houseData)
+    houses = db[collection]
+    if (len(houseData) == 0):
+        return
+    houses.insert_many(houseData)
+
 
 def insertData(url):
     chrome = 'chromedriver'
@@ -99,31 +103,30 @@ def insertData(url):
     # print(ids)
     # return
     housesData = []
-        # print(ids)
+    # print(ids)
     for id in ids:
         houseData = get_house_info(id)
         ts = time.time()
         houseData['timestamp'] = ts
         houseData['id'] = id
-            # pprint(houseData)
+        # pprint(houseData)
         housesData.append(houseData)
-            # print('finish fetching data of id:' + str(id))
-            # print(housesData[0])
-            # pprint(housesData)
+        # print('finish fetching data of id:' + str(id))
+        # print(housesData[0])
+        # pprint(housesData)
         # return
         # print(id)
     today = date.today()
     print("Today's date:", today)
     # insertMongo("houseDataRaw11-10" , housesData)
     insertMongo("houseDataRaw" + str(today), housesData)
-        
-        # print(id)
+
+    # print(id)
     # print('finish inserting page' + str(0))
-    
+
     return
 
 # insertData('https://rent.591.com.tw/?region=3')
-
 
 
 def getDataAmount(firstPageUrl):
@@ -133,36 +136,38 @@ def getDataAmount(firstPageUrl):
     soup = BeautifulSoup(driver.page_source, 'html.parser')
     # print(soup.select_one('div.item-area span'))
     # print(soup.select_one('div.switch-amount span'))
-    dataAmount = soup.select_one('div.switch-amount span').decode_contents().replace(',', '')
+    dataAmount = soup.select_one(
+        'div.switch-amount span').decode_contents().replace(',', '')
     return int(dataAmount)
 
 # getAll()
 
-def insertDataOfRegion(region):
-  firstPageUrl = "https://rent.591.com.tw/?region=" + str(region)
-  dataAmount = getDataAmount(firstPageUrl)
-  print(dataAmount)
 
-  DataPerPage = 30
-  page = math.floor(dataAmount / DataPerPage)
-  for i in range (page):
-    try:
-        houseData = insertData('https://rent.591.com.tw/?region=' + str(region) + '&firstRow=' + str(i * DataPerPage))
-        # print(i)
-        # print('https://rent.591.com.tw/?region=' + str(region) + '&firstRow=' + str(i * DataPerPage))
-        print('finish inserting page ' + str(i))
-        time.sleep(2)
-        # insertData("houseData", houseData)
-    except:
-        print('page ' + str(i) + 'fail')
-        continue
+def insertDataOfRegion(region):
+    firstPageUrl = "https://rent.591.com.tw/?region=" + str(region)
+    dataAmount = getDataAmount(firstPageUrl)
+    print(dataAmount)
+
+    DataPerPage = 30
+    page = math.floor(dataAmount / DataPerPage)
+    for i in range(page):
+        try:
+            houseData = insertData(
+                'https://rent.591.com.tw/?region=' + str(region) + '&firstRow=' + str(i * DataPerPage))
+            # print(i)
+            # print('https://rent.591.com.tw/?region=' + str(region) + '&firstRow=' + str(i * DataPerPage))
+            print('finish inserting page ' + str(i))
+            time.sleep(2)
+            # insertData("houseData", houseData)
+        except:
+            print('page ' + str(i) + 'fail')
+            continue
 
 # getData('https://rent.591.com.tw/')
+
 
 # 1 for Teipei
 # 3 for New Taipei
 regions = [1, 3]
 for region in regions:
     insertDataOfRegion(region)
-
-

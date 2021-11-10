@@ -31,9 +31,8 @@ async function main() {
       housesFilteredMap[title] = house
       // houseMap[title] = house
     }
-    
   })
-  while(houses.length !== 0) {
+  while (houses.length !== 0) {
     houses.pop()
   }
   // console.log(Object.keys(houseMap).length)
@@ -41,19 +40,19 @@ async function main() {
   let housesFiltered = Object.values(housesFilteredMap)
   console.log(housesFiltered.length)
   housesFiltered = housesFiltered.slice(50 * 22)
-// tmp
-// const values = []
-//   console.log('start insert data')
-//   const q = 'INSERT INTO house (title, link, category, image, price, address) VALUES ?'
-//   housesFiltered.forEach(house => {
-//     const {title, link, houseType, image, price, address} = house
-//     values.push([title, link, houseType, image, price, address])
-//   })
-//   // console.log(values)
-//   const print = values.slice(0, 50)
-//   // console.log(print)
-//   await db.query(q, [values])
-//   console.log(`finish inserting ${housesInserting.length} houses into mysql`)
+  // tmp
+  // const values = []
+  //   console.log('start insert data')
+  //   const q = 'INSERT INTO house (title, link, category, image, price, address) VALUES ?'
+  //   housesFiltered.forEach(house => {
+  //     const {title, link, houseType, image, price, address} = house
+  //     values.push([title, link, houseType, image, price, address])
+  //   })
+  //   // console.log(values)
+  //   const print = values.slice(0, 50)
+  //   // console.log(print)
+  //   await db.query(q, [values])
+  //   console.log(`finish inserting ${housesInserting.length} houses into mysql`)
 
   // return
   const insertTimes = Math.floor(housesFiltered.length / 50) + 1
@@ -67,19 +66,18 @@ async function main() {
     // const housesInserting = housesFiltered.splice(i, i + 50)
     // console.log(housesInserting)
     await addGeoInfo(housesInserting)
-    console.log("finish add geo info first", i + 1 ,"times")
+    console.log('finish add geo info first', i + 1, 'times')
     await insertHouse(housesInserting)
-    console.log("finish inserting", i + 1, "times (each time 50 items)")
+    console.log('finish inserting', i + 1, 'times (each time 50 items)')
   }
   console.log('finish inserting all data')
 
   // console.log(testHouses)
   // const insertData = []
   // let counter  = 0
-  
+
   // console.log(housesInserting)
-  
-  
+
   // const {data} = await axios.get(`https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(address)}&key=${GOOGLE_MAP_KEY}`)
   // console.log(data.results[0])
 }
@@ -91,8 +89,8 @@ async function addGeoInfo(housesInserting) {
     // console.log(counter)
     const geometry = data.results[0].geometry
     // console.log(geometry.location_type)
-    const {location, location_type} = geometry
-    const {lat, lng} = location
+    const { location, location_type } = geometry
+    const { lat, lng } = location
     // console.log(lat)
     // console.log(lng)
     if (location_type == 'ROOFTOP') {
@@ -110,10 +108,29 @@ async function addGeoInfo(housesInserting) {
 async function insertHouse(housesInserting) {
   const values = []
   console.log('start insert data')
-  const q = 'INSERT INTO house (title, link, category, image, price, address, latitude, longitude) VALUES ?'
-  housesInserting.forEach(house => {
-    const {title, link, houseType, image, price, address, latitude, longitude} = house
-    values.push([title, link, houseType, image, price, address, latitude, longitude])
+  const q =
+    'INSERT INTO house (title, link, category, image, price, address, latitude, longitude) VALUES ?'
+  housesInserting.forEach((house) => {
+    const {
+      title,
+      link,
+      houseType,
+      image,
+      price,
+      address,
+      latitude,
+      longitude
+    } = house
+    values.push([
+      title,
+      link,
+      houseType,
+      image,
+      price,
+      address,
+      latitude,
+      longitude
+    ])
   })
   // console.log(values)
   await db.query(q, [values])
@@ -135,7 +152,6 @@ async function getGeoPostition(address) {
 
 // getGeoPostition()
 
-
 // data.results[0].geometry
 const data = {
   location: { lat: 25.0253117, lng: 121.4125682 },
@@ -145,7 +161,6 @@ const data = {
     southwest: { lat: 25.0239627197085, lng: 121.4112192197085 }
   }
 }
-
 
 const datas = {
   address_components: [

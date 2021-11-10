@@ -1,8 +1,13 @@
-const { getMongo, getMongoOne } = require("../../../server/models/db/mongo")
+const { getMongo, getMongoOne } = require('../../../server/models/db/mongo')
 const pool = require('../../../server/models/db/mysql')
-const { makeCategoryToIdMap, makeTagMap, makeLifeFunctionMap, makeSubypeToIdMap } = require("./map")
-const {today, yesterday} = require('../time')
-const { sleep } = require("../sleep")
+const {
+  makeCategoryToIdMap,
+  makeTagMap,
+  makeLifeFunctionMap,
+  makeSubypeToIdMap
+} = require('./map')
+const { today, yesterday } = require('../time')
+const { sleep } = require('../sleep')
 
 async function insertHouseFirstTime() {
   const houseMap = {}
@@ -10,20 +15,55 @@ async function insertHouseFirstTime() {
   const categoryMap = await makeCategoryToIdMap()
   const houses = await getMongo('591_data', 'cleansedHouseDataNew')
   console.log(houses.length)
-  houses.forEach(house => {
-    const {title, latitude, longitude, id} = house
+  houses.forEach((house) => {
+    const { title, latitude, longitude, id } = house
 
-      houseMap[id] = house
-      // map[id] = house
+    houseMap[id] = house
+    // map[id] = house
     // })
   })
   // console.log(houseMap)
-  const houseData = Object.values(houseMap).map(({id, title, area, category, price, layout, floor, shape, link, image, address, latitude, longitude, region, section}) => {
-    area = area.replace('坪', '')
-    return [id, title, categoryMap[category], area, price, layout, floor, shape, link, image, address, latitude, longitude, region, section]
-  })
+  const houseData = Object.values(houseMap).map(
+    ({
+      id,
+      title,
+      area,
+      category,
+      price,
+      layout,
+      floor,
+      shape,
+      link,
+      image,
+      address,
+      latitude,
+      longitude,
+      region,
+      section
+    }) => {
+      area = area.replace('坪', '')
+      return [
+        id,
+        title,
+        categoryMap[category],
+        area,
+        price,
+        layout,
+        floor,
+        shape,
+        link,
+        image,
+        address,
+        latitude,
+        longitude,
+        region,
+        section
+      ]
+    }
+  )
 
-  const q = 'INSERT INTO house (id, title, category_id, area, price, layout, floor, shape, link, image, address, latitude, longitude, region, section) VALUES ?'
+  const q =
+    'INSERT INTO house (id, title, category_id, area, price, layout, floor, shape, link, image, address, latitude, longitude, region, section) VALUES ?'
   // const values = Object.values(houseMap).map(house => [house])
   // console.log(values)
   let values = []
@@ -32,13 +72,15 @@ async function insertHouseFirstTime() {
   for (let i = 0; i < insertTimes; i++) {
     if (i === insertTimes - 1) {
       await pool.query(q, [houseData.slice(i * bulkNum, houseData.length - 1)])
-      console.log(`finish inserting house ${i * bulkNum} to ${houseData.length - 1}`)
+      console.log(
+        `finish inserting house ${i * bulkNum} to ${houseData.length - 1}`
+      )
       break
     }
     await pool.query(q, [houseData.slice(i * bulkNum, (i + 1) * bulkNum)])
     console.log(`finish inserting house ${i * bulkNum} to ${(i + 1) * bulkNum}`)
   }
-  
+
   console.log('finish inserting all houses')
 }
 
@@ -49,16 +91,16 @@ async function insertHouseTagFirstTime() {
   // const categoryMap = await makeCategoryToIdMap()
   const houses = await getMongo('591_data', 'cleansedHouseDataNew')
   // console.log(houses.length)
-  houses.forEach(house => {
-    const {title, latitude, longitude, id} = house
-      houseMap[`${title}-${latitude}-${longitude}`] = house
-      // map[id] = house
+  houses.forEach((house) => {
+    const { title, latitude, longitude, id } = house
+    houseMap[`${title}-${latitude}-${longitude}`] = house
+    // map[id] = house
     // })
   })
   // console.log(houseMap)
   const houseData = []
-  Object.values(houseMap).forEach(({id, tags}) => {
-    tags.forEach(tag => {
+  Object.values(houseMap).forEach(({ id, tags }) => {
+    tags.forEach((tag) => {
       // console.log(tag)
       houseData.push([id, tagMap[tag]])
     })
@@ -77,38 +119,79 @@ async function insertHouseTagFirstTime() {
       console.log(insertTimes)
       console.log(houseData.slice(i * bulkNum, houseData.length - 1))
       await pool.query(q, [houseData.slice(i * bulkNum, houseData.length - 1)])
-      console.log(`finish inserting house ${i * bulkNum} to ${houseData.length - 1}`)
+      console.log(
+        `finish inserting house ${i * bulkNum} to ${houseData.length - 1}`
+      )
       break
     }
     try {
       await pool.query(q, [houseData.slice(i * bulkNum, (i + 1) * bulkNum)])
-    console.log(`finish inserting house ${i * bulkNum} to ${(i + 1) * bulkNum}`)
-    } catch(e) {
-      console.log(`finish inserting house ${i * bulkNum} to ${(i + 1) * bulkNum} fail~~~~~~~`)
+      console.log(
+        `finish inserting house ${i * bulkNum} to ${(i + 1) * bulkNum}`
+      )
+    } catch (e) {
+      console.log(
+        `finish inserting house ${i * bulkNum} to ${
+          (i + 1) * bulkNum
+        } fail~~~~~~~`
+      )
     }
   }
   console.log('finish inserting all houses tags')
 }
 
 async function insertHouse(houses) {
-  
   const houseMap = {}
   const map = {}
   const categoryMap = await makeCategoryToIdMap()
   // const houses = await getMongo('591_data', 'cleansedHouseDataNew')
   console.log(houses.length)
-  houses.forEach(house => {
-    const {title, latitude, longitude, id} = house
-  
-      houseMap[id] = house
-      // map[id] = house
+  houses.forEach((house) => {
+    const { title, latitude, longitude, id } = house
+
+    houseMap[id] = house
+    // map[id] = house
     // })
   })
   // console.log(houseMap)
-  const houseData = Object.values(houseMap).map(({id, title, area, category, price, layout, floor, shape, link, image, address, latitude, longitude, region, section}) => {
-    area = area.replace('坪', '')
-    return [id, title, categoryMap[category], area, price, layout, floor, shape, link, image, address, latitude, longitude, region, section]
-  })
+  const houseData = Object.values(houseMap).map(
+    ({
+      id,
+      title,
+      area,
+      category,
+      price,
+      layout,
+      floor,
+      shape,
+      link,
+      image,
+      address,
+      latitude,
+      longitude,
+      region,
+      section
+    }) => {
+      area = area.replace('坪', '')
+      return [
+        id,
+        title,
+        categoryMap[category],
+        area,
+        price,
+        layout,
+        floor,
+        shape,
+        link,
+        image,
+        address,
+        latitude,
+        longitude,
+        region,
+        section
+      ]
+    }
+  )
 
   const q = `INSERT INTO house (id, title, category_id, area, price, layout, floor, shape, link, image, address, latitude, longitude, region, section) VALUES ?
     ON DUPLICATE KEY UPDATE title = VALUES(title), category_id = VALUES(category_id), area = VALUES(area), price = VALUES(price), link=VALUES(link), address= VALUES(address), latitude = VALUES(latitude), longitude=VALUES(longitude)`
@@ -121,26 +204,25 @@ async function insertHouse(houses) {
     if (i === insertTimes - 1) {
       console.log()
       await pool.query(q, [houseData.slice(i * bulkNum, houseData.length)])
-      console.log(`finish inserting house ${i * bulkNum} to ${houseData.length}`)
+      console.log(
+        `finish inserting house ${i * bulkNum} to ${houseData.length}`
+      )
       break
     }
     await pool.query(q, [houseData.slice(i * bulkNum, (i + 1) * bulkNum)])
     console.log(`finish inserting house ${i * bulkNum} to ${(i + 1) * bulkNum}`)
   }
-  
+
   console.log('finish inserting all houses')
 }
-
-
-// async function
 
 async function getHousesToInsert(cleansedDataOld, cleansedDataNew) {
   // const q = 'SELECT id FROM house'
   // const [oldHouses] = await pool.query(q)
-  const oldHouses = await getMongo("591_cleansed", cleansedDataOld)
+  const oldHouses = await getMongo('591_cleansed', cleansedDataOld)
   console.log('finish fetch old data')
   // console.log(cleansedData)
-  const newHouses = await getMongo("591_cleansed", cleansedDataNew)
+  const newHouses = await getMongo('591_cleansed', cleansedDataNew)
   console.log('finish fetch new data')
 
   const oldHouseIdMap = {}
@@ -149,7 +231,7 @@ async function getHousesToInsert(cleansedDataOld, cleansedDataNew) {
   const houseIdsToDelete = []
   const houseIdsToInsert = []
 
-  oldHouses.forEach(({id}) => {
+  oldHouses.forEach(({ id }) => {
     oldHouseIdMap[id] = true
   })
   newHouses.forEach((house) => {
@@ -158,17 +240,17 @@ async function getHousesToInsert(cleansedDataOld, cleansedDataNew) {
   })
   // console.log(oldHouseIdMap)
   // console.log(newHouseIdMap)
-  oldHouses.forEach(({id}) => {
+  oldHouses.forEach(({ id }) => {
     if (!newHouseIdMap[id]) {
       houseIdsToDelete.push(id)
     }
   })
-  newHouses.forEach(({id}) => {
+  newHouses.forEach(({ id }) => {
     if (!oldHouseIdMap[id]) {
       houseIdsToInsert.push(id)
     }
   })
-  const housesToInsert = houseIdsToInsert.map(id => {
+  const housesToInsert = houseIdsToInsert.map((id) => {
     return houseMap[id]
   })
   console.log(houseIdsToInsert.length)
@@ -186,9 +268,9 @@ async function getHousesToInsert(cleansedDataOld, cleansedDataNew) {
 // getHousesToInsert(`${yesterday}houseDatacleansed`, `${today}houseDatacleansed`)
 
 async function getHouseIdsToDelete(cleansedDataOld, cleansedDataNew) {
-  const oldHouses = await getMongo("591_cleansed", cleansedDataOld)
+  const oldHouses = await getMongo('591_cleansed', cleansedDataOld)
   console.log('fetch old data')
-  const newHouses = await getMongo("591_cleansed", cleansedDataNew)
+  const newHouses = await getMongo('591_cleansed', cleansedDataNew)
   console.log('fetch new data')
   const oldHouseIdMap = {}
   const newHouseIdMap = {}
@@ -196,7 +278,7 @@ async function getHouseIdsToDelete(cleansedDataOld, cleansedDataNew) {
   const houseIdsToDelete = []
   const houseIdsToInsert = []
 
-  oldHouses.forEach(({id}) => {
+  oldHouses.forEach(({ id }) => {
     oldHouseIdMap[id] = true
   })
   newHouses.forEach((house) => {
@@ -205,7 +287,7 @@ async function getHouseIdsToDelete(cleansedDataOld, cleansedDataNew) {
   })
   // console.log(oldHouseIdMap)
   // console.log(newHouseIdMap)
-  oldHouses.forEach(({id}) => {
+  oldHouses.forEach(({ id }) => {
     if (!newHouseIdMap[id]) {
       houseIdsToDelete.push(id)
     }
@@ -229,10 +311,16 @@ async function getHouseIdsToDelete(cleansedDataOld, cleansedDataNew) {
 // getHouseIdsToDelete(`${yesterday}houseDatacleansed`, `${today}houseDatacleansed`)
 
 async function deleteHouse(cleansedDataOld, cleansedDataNew) {
-  const houseIdsToDelete = await getHouseIdsToDelete(cleansedDataOld, cleansedDataNew)
+  const houseIdsToDelete = await getHouseIdsToDelete(
+    cleansedDataOld,
+    cleansedDataNew
+  )
   console.log(idsToDelete.length)
-  const q = `DELETE FROM house
-    WHERE id in (`+ pool.escape(houseIdsToDelete)+ `)
+  const q =
+    `DELETE FROM house
+    WHERE id in (` +
+    pool.escape(houseIdsToDelete) +
+    `)
     ORDER BY id
     LIMIT 100`
   let affectedRows = 1
@@ -294,7 +382,7 @@ async function test() {
 
 //   // console.log(housesToInsert)
 //   // console.log(houseIdsToInsert.length)
-  
+
 //   // console.log(houseIdsToDelete.length)
 //   // let whereIn = '(';
 //   // for ( let  i in houseIdsToDelete ) {
@@ -302,7 +390,7 @@ async function test() {
 //   //     if ( i != houseIdsToDelete.length - 1 ) {
 //   //         whereIn += "'" + houseIdsToDelete[i] + "',";
 //   //     }else{
-//   //         whereIn += "'" + houseIdsToDelete[i] + "'"; 
+//   //         whereIn += "'" + houseIdsToDelete[i] + "'";
 //   //     }
 //   //  }
 //   // whereIn += ')';
@@ -312,13 +400,13 @@ async function test() {
 
 //   // DELETE
 //   // await pool.query( "DELETE from `house` where `id` IN ("+ pool.escape(houseIdsToDelete)+")");
- 
+
 //   // INSERT
 //   const housesToInsert = houseIdsToInsert.map(id => {
 //     return houseMap[id]
 //   })
 //   await insertHouse(housesToInsert)
-  
+
 //   // console.log(whereIn)
 //   // await pool.query("DELETE from hosue where id in ?", [houseIdsToDelete])
 //   console.log('finish')
@@ -327,7 +415,7 @@ async function test() {
 
 // updateHouse("cleansedHouseDataAutomated")
 async function main(cleansedDataNew) {
-  const houses = await getMongo("591_cleansed", cleansedDataNew)
+  const houses = await getMongo('591_cleansed', cleansedDataNew)
   console.log(houses.length)
   await insertHouse(houses)
   console.log('finish!!!!!')
@@ -342,15 +430,15 @@ async function insertHouseTag(cleansedDataNew) {
   // const categoryMap = await makeCategoryToIdMap()
   // const houses = await getMongo('591_data', 'cleansedHouseDataNew')
   // console.log(houses.length)
-  const houses = await getMongo("591_cleansed", cleansedDataNew)
+  const houses = await getMongo('591_cleansed', cleansedDataNew)
 
   const houseData = []
   houses.forEach((house) => {
-    const {id, tags} = house
+    const { id, tags } = house
     if (id == 11680801) {
       console.log(house)
     }
-    tags.forEach(tag => {
+    tags.forEach((tag) => {
       // console.log(tag)
       houseData.push([id, tagMap[tag]])
     })
@@ -373,20 +461,27 @@ async function insertHouseTag(cleansedDataNew) {
         // console.log(insertTimes)
         // console.log(houseData.slice(i * bulkNum, houseData.length - 1))
         await pool.query(q, [houseData.slice(i * bulkNum, houseData.length)])
-        console.log(`finish inserting house tag ${i * bulkNum} to ${houseData.length}`)
+        console.log(
+          `finish inserting house tag ${i * bulkNum} to ${houseData.length}`
+        )
         break
-      }catch(e) {
-        console.log(`finish inserting house tag ${i * bulkNum} to ${houseData.length} fail~~~~~~~`)
+      } catch (e) {
+        console.log(
+          `finish inserting house tag ${i * bulkNum} to ${
+            houseData.length
+          } fail~~~~~~~`
+        )
         console.log(e)
         break
       }
-      
     }
     try {
       await pool.query(q, [houseData.slice(i * bulkNum, (i + 1) * bulkNum)])
-      
-    console.log(`finish inserting house tag ${i * bulkNum} to ${(i + 1) * bulkNum}`)
-    } catch(e) {
+
+      console.log(
+        `finish inserting house tag ${i * bulkNum} to ${(i + 1) * bulkNum}`
+      )
+    } catch (e) {
       // if (i === 16) {
       //   console.log(e)
       //   const [result] = await pool.query('SELECT id FROM house')
@@ -398,7 +493,11 @@ async function insertHouseTag(cleansedDataNew) {
       //     }
       //   })
       // }
-      console.log(`finish inserting house tag ${i * bulkNum} to ${(i + 1) * bulkNum} fail~~~~~~~`)
+      console.log(
+        `finish inserting house tag ${i * bulkNum} to ${
+          (i + 1) * bulkNum
+        } fail~~~~~~~`
+      )
     }
   }
   console.log('finish inserting all houses tags')
@@ -411,25 +510,25 @@ async function insertNewLifeFunction(cleansedDataNew) {
   const [oldLifeFunction] = await pool.query(q)
   console.log('finish fetch old')
   // console.log(oldLifeFunction)
-  const newHouses = await getMongo("591_cleansed", cleansedDataNew)
+  const newHouses = await getMongo('591_cleansed', cleansedDataNew)
   console.log('finish fetch new')
   const subtypeToIdMap = await makeSubypeToIdMap()
   const oldLifeFunctionMap = {}
   const lifeFuntionToInsertMap = {}
   // const lifeFuntionsToInsert = []
-  oldLifeFunction.forEach(oldLifeFunction => {
-    const {name, latitude, longitude} = oldLifeFunction
+  oldLifeFunction.forEach((oldLifeFunction) => {
+    const { name, latitude, longitude } = oldLifeFunction
     // if (name === '老蔡水煎包 民權店') {
     //   console.log(oldLifeFunction)
     // }
     oldLifeFunctionMap[`${name}-${latitude}-${longitude}`] = oldLifeFunction
   })
-  newHouses.forEach(house => {
-    house.lifeFunction.forEach(type => {
+  newHouses.forEach((house) => {
+    house.lifeFunction.forEach((type) => {
       // const type = type.name
-      type.children.forEach(subtype => {
+      type.children.forEach((subtype) => {
         // const subtype = subtype.name
-        subtype.children.forEach(({name, lat, lng, distance}) => {
+        subtype.children.forEach(({ name, lat, lng, distance }) => {
           // console.log(lifeFunctionMap[`${name}-${lat}-${lng}`])
           // if (!lifeFunctionMap[`${name}-${Number(lat)}-${Number(lng)}`]) {
           //   console.log(name)
@@ -438,8 +537,13 @@ async function insertNewLifeFunction(cleansedDataNew) {
           //   if (name === '三重社區大學') console.log(`${name}-${Number(lat)}-${Number(lng)}`)
           // }
           if (!oldLifeFunctionMap[`${name}-${Number(lat)}-${Number(lng)}`]) {
-            lifeFuntionToInsertMap[`${name}-${Number(lat)}-${Number(lng)}`] = [name, lat, lng, subtypeToIdMap[subtype.name]]
-            
+            lifeFuntionToInsertMap[`${name}-${Number(lat)}-${Number(lng)}`] = [
+              name,
+              lat,
+              lng,
+              subtypeToIdMap[subtype.name]
+            ]
+
             // lifeFuntionsToInsert.push([name, lat, lng, subtypeToIdMap[subtype.name]])
             // if (name === "老蔡水煎包 民權店") {
             //   console.log('老菜')
@@ -451,7 +555,7 @@ async function insertNewLifeFunction(cleansedDataNew) {
           }
           // values.push([house.id, lifeFunctionMap[`${name}-${Number(lat)}-${Number(lng)}`], distance])
           // console.log(distance)
-          // if 
+          // if
           // lifeFunctionMap[`${name}-${lat}-${lng}`] = [name, lat, lng, subtypeToIdMap[subtype.name]]
         })
       })
@@ -460,12 +564,13 @@ async function insertNewLifeFunction(cleansedDataNew) {
   // console.log(lifeFuntionsToInsert)
   const lifeFuntionsToInsert = Object.values(lifeFuntionToInsertMap)
   // console.log(lifeFuntionsToInsert)
-  console.log(lifeFuntionsToInsert.length, "new life functions")
-  if(lifeFuntionsToInsert.length === 0) {
+  console.log(lifeFuntionsToInsert.length, 'new life functions')
+  if (lifeFuntionsToInsert.length === 0) {
     return console.log('No update needed for life function')
   }
   // return
-  const q2 = 'INSERT INTO life_function (name, latitude, longitude, subtype_id) VALUES ?'
+  const q2 =
+    'INSERT INTO life_function (name, latitude, longitude, subtype_id) VALUES ?'
   await pool.query(q2, [lifeFuntionsToInsert])
   console.log('finish insert new life function')
 }
@@ -473,10 +578,10 @@ async function insertNewLifeFunction(cleansedDataNew) {
 // insertNewLifeFunction(`${today}houseDatacleansed`)
 
 async function getLeakHouse(id) {
-  const houses = await getMongo("591_cleansed", `${today}houseDatacleansed`)
+  const houses = await getMongo('591_cleansed', `${today}houseDatacleansed`)
   // console.log(houses)
-  const leakHouse = houses.filter(house => {
-    return (house.id == id)
+  const leakHouse = houses.filter((house) => {
+    return house.id == id
   })
   // console.log(leakHouse)
   console.log('start insert')
@@ -486,13 +591,12 @@ async function getLeakHouse(id) {
 // getLeakHouse(11691486)
 
 async function insertHouseLifeFunctionOld() {
-  
   const [oldIds] = await pool.query('SELECT house_id from house_life_function')
   console.log(oldIds)
   console.log('fetch old id')
   const oldIdMap = {}
   const newIdMap = {}
-  oldIds.forEach(({house_id}) => {
+  oldIds.forEach(({ house_id }) => {
     oldIdMap[house_id] = true
   })
   // console.log(oldIdMap)
@@ -516,32 +620,35 @@ async function insertHouseLifeFunctionOld() {
   // const values = []
   const values = []
   const newHouseLifeFunctionMap = {}
-  newHouses.forEach(house => {
-    house.lifeFunction.forEach(type => {
+  newHouses.forEach((house) => {
+    house.lifeFunction.forEach((type) => {
       // const type = type.name
-      type.children.forEach(subtype => {
+      type.children.forEach((subtype) => {
         // const subtype = subtype.name
-        subtype.children.forEach(({name, lat, lng, distance}) => {
+        subtype.children.forEach(({ name, lat, lng, distance }) => {
           // console.log(lifeFunctionMap[`${name}-${lat}-${lng}`])
           // if (!lifeFunctionMap[`${name}-${Number(lat)}-${Number(lng)}`]) {
           //   console.log(name)
           //   console.log(Number(lat))
           //   console.log(Number(lng))
           //   if (name === '三重社區大學') console.log(`${name}-${Number(lat)}-${Number(lng)}`)
-          // } 
+          // }
           if (!oldIdMap[house.id]) {
             newIdMap[house.id] = house.id
-            values.push([house.id, lifeFunctionMap[`${name}-${Number(lat)}-${Number(lng)}`], distance])
+            values.push([
+              house.id,
+              lifeFunctionMap[`${name}-${Number(lat)}-${Number(lng)}`],
+              distance
+            ])
             // newHouseLifeFunctionMap[`${name}-${Number(lat)}-${Number(lng)}`] = [house.id, lifeFunctionMap[`${name}-${Number(lat)}-${Number(lng)}`], distance]
           }
           // values.push([house.id, lifeFunctionMap[`${name}-${Number(lat)}-${Number(lng)}`], distance])
           // console.log(distance)
-          // if 
+          // if
           // lifeFunctionMap[`${name}-${lat}-${lng}`] = [name, lat, lng, subtypeToIdMap[subtype.name]]
         })
       })
     })
-
   })
   // const values = Object.values(newHouseLifeFunctionMap)
 
@@ -566,11 +673,19 @@ async function insertHouseLifeFunctionOld() {
         if (!value[0]) console.log(value)
       })
       await pool.query(q, [values.slice(i * bulkNum, values.length - 1)])
-      console.log(`finish inserting house life function ${i * bulkNum} to ${values.length - 1}`)
+      console.log(
+        `finish inserting house life function ${i * bulkNum} to ${
+          values.length - 1
+        }`
+      )
       break
     }
     await pool.query(q, [values.slice(i * bulkNum, (i + 1) * bulkNum)])
-    console.log(`finish inserting house life function ${i * bulkNum} to ${(i + 1) * bulkNum}`)
+    console.log(
+      `finish inserting house life function ${i * bulkNum} to ${
+        (i + 1) * bulkNum
+      }`
+    )
   }
   // await pool.query(q, [values])
   console.log('finish inserting house life functions')
@@ -578,39 +693,43 @@ async function insertHouseLifeFunctionOld() {
 
 async function insertHouseLifeFunction(cleansedDataNew) {
   // const housesToInsert = await getHousesToInsert(cleansedDataOld, cleansedDataNew)
-  const houses = await getMongo("591_cleansed", cleansedDataNew)
+  const houses = await getMongo('591_cleansed', cleansedDataNew)
   const lifeFunctionMap = await makeLifeFunctionMap()
   // const houseLifeFunctionsToInsert = []
   const houseLifeFunctionToInsertMap = {}
   // const newHouseLifeFunctionMap = {}
-  houses.forEach(house => {
-    house.lifeFunction.forEach(type => {
+  houses.forEach((house) => {
+    house.lifeFunction.forEach((type) => {
       // const type = type.name
-      type.children.forEach(subtype => {
+      type.children.forEach((subtype) => {
         // const subtype = subtype.name
-        subtype.children.forEach(({name, lat, lng, distance}) => {
+        subtype.children.forEach(({ name, lat, lng, distance }) => {
           // console.log(lifeFunctionMap[`${name}-${lat}-${lng}`])
           // if (!lifeFunctionMap[`${name}-${Number(lat)}-${Number(lng)}`]) {
           //   console.log(name)
           //   console.log(Number(lat))
           //   console.log(Number(lng))
           //   if (name === '三重社區大學') console.log(`${name}-${Number(lat)}-${Number(lng)}`)
-          // } 
+          // }
           // if (!oldIdMap[house.id]) {
           //   newIdMap[house.id] = house.id
-          const lifeFunctionId = lifeFunctionMap[`${name}-${Number(lat)}-${Number(lng)}`]
-          houseLifeFunctionToInsertMap[`${house.id}-${lifeFunctionId}`] = [house.id, lifeFunctionMap[`${name}-${Number(lat)}-${Number(lng)}`], distance]
-            // houseLifeFunctionsToInsert.push([house.id, lifeFunctionMap[`${name}-${Number(lat)}-${Number(lng)}`], distance])
-            // newHouseLifeFunctionMap[`${name}-${Number(lat)}-${Number(lng)}`] = [house.id, lifeFunctionMap[`${name}-${Number(lat)}-${Number(lng)}`], distance]
+          const lifeFunctionId =
+            lifeFunctionMap[`${name}-${Number(lat)}-${Number(lng)}`]
+          houseLifeFunctionToInsertMap[`${house.id}-${lifeFunctionId}`] = [
+            house.id,
+            lifeFunctionMap[`${name}-${Number(lat)}-${Number(lng)}`],
+            distance
+          ]
+          // houseLifeFunctionsToInsert.push([house.id, lifeFunctionMap[`${name}-${Number(lat)}-${Number(lng)}`], distance])
+          // newHouseLifeFunctionMap[`${name}-${Number(lat)}-${Number(lng)}`] = [house.id, lifeFunctionMap[`${name}-${Number(lat)}-${Number(lng)}`], distance]
           // }
           // values.push([house.id, lifeFunctionMap[`${name}-${Number(lat)}-${Number(lng)}`], distance])
           // console.log(distance)
-          // if 
+          // if
           // lifeFunctionMap[`${name}-${lat}-${lng}`] = [name, lat, lng, subtypeToIdMap[subtype.name]]
         })
       })
     })
-
   })
   // const values = Object.values(newHouseLifeFunctionMap)
 
@@ -620,7 +739,7 @@ async function insertHouseLifeFunction(cleansedDataNew) {
   console.log(houses.length)
   console.log(houseLifeFunctionsToInsert.length)
   const values = houseLifeFunctionsToInsert
-  
+
   // return
   const q = `INSERT INTO house_life_function (house_id, life_function_id, distance) VALUES ?
     ON DUPLICATE KEY UPDATE distance = VALUES(distance)`
@@ -637,11 +756,19 @@ async function insertHouseLifeFunction(cleansedDataNew) {
         if (!value[0]) console.log(value)
       })
       await pool.query(q, [values.slice(i * bulkNum, values.length)])
-      console.log(`finish inserting house life function ${i * bulkNum} to ${values.length}`)
+      console.log(
+        `finish inserting house life function ${i * bulkNum} to ${
+          values.length
+        }`
+      )
       break
     }
     await pool.query(q, [values.slice(i * bulkNum, (i + 1) * bulkNum)])
-    console.log(`finish inserting house life function ${i * bulkNum} to ${(i + 1) * bulkNum}`)
+    console.log(
+      `finish inserting house life function ${i * bulkNum} to ${
+        (i + 1) * bulkNum
+      }`
+    )
     sleep(2)
   }
   // await pool.query(q, [values])

@@ -1,10 +1,13 @@
-const { getMongoData, get591MongoData } = require("../../model/db/mongodb/mongo_helper");
+const {
+  getMongoData,
+  get591MongoData
+} = require('../../model/db/mongodb/mongo_helper')
 
 async function checkMaxStringLength(property) {
-  const data = await get591MongoData("houseData")
+  const data = await get591MongoData('houseData')
   let longest = 0
   let longesthouse
-  data.forEach(house => {
+  data.forEach((house) => {
     // console.log(house[property])
     // console.log(house.title.length)
     // console.log(house)
@@ -15,7 +18,7 @@ async function checkMaxStringLength(property) {
       // console.log(longest)
       // console.log('qq')
       longest = house[property].length
-      longesthouse = house 
+      longesthouse = house
       // console.log(longest)
     }
   })
@@ -26,4 +29,4 @@ async function checkMaxStringLength(property) {
   // max link length: 60
 }
 
-checkMaxStringLength("address")
+checkMaxStringLength('address')

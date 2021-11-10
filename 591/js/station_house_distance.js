@@ -52,9 +52,9 @@ async function main() {
     }
     // if (i % 5 === 0) {
     //   // console.log(values)
-      // await pool.query(q3, [values])
-      // values = []
-      // console.log('finish inserting', i + 1, 'times')
+    // await pool.query(q3, [values])
+    // values = []
+    // console.log('finish inserting', i + 1, 'times')
     // }
 
     if (i % 100 === 0) {

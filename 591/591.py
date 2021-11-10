@@ -120,11 +120,13 @@ def getData(url):
     driver.close()  # 關閉連結
     return houseData
 
+
 def insertData(collection, houseData):
-  houses = db[collection]
-  if (len(houseData) == 0):
-    return
-  houses.insert_many(houseData)
+    houses = db[collection]
+    if (len(houseData) == 0):
+        return
+    houses.insert_many(houseData)
+
 
 def getDataAmount(firstPageUrl):
     driver = webdriver.Chrome('./chromedriver')  # 開啟chrome瀏覽器
@@ -133,30 +135,34 @@ def getDataAmount(firstPageUrl):
     soup = BeautifulSoup(driver.page_source, 'html.parser')
     # print(soup.select_one('div.item-area span'))
     # print(soup.select_one('div.switch-amount span'))
-    dataAmount = soup.select_one('div.switch-amount span').decode_contents().replace(',', '')
+    dataAmount = soup.select_one(
+        'div.switch-amount span').decode_contents().replace(',', '')
     return int(dataAmount)
 
 # getAll()
 
-def getDataOfRegion(region):
-  firstPageUrl = "https://rent.591.com.tw/?region=" + str(region)
-  dataAmount = getDataAmount(firstPageUrl)
-  print(dataAmount)
 
-  DataPerPage = 30
-  page = math.floor(dataAmount / DataPerPage)
-  for i in range (page):
-    try:
-        houseData = getData('https://rent.591.com.tw/?region=' + str(region) + '&firstRow=' + str(i * DataPerPage))
-        print(i)
-        print('https://rent.591.com.tw/?region=' + str(region) + '&firstRow=' + str(i * DataPerPage))
-        insertData("houseData", houseData)
-    except:
-        continue
+def getDataOfRegion(region):
+    firstPageUrl = "https://rent.591.com.tw/?region=" + str(region)
+    dataAmount = getDataAmount(firstPageUrl)
+    print(dataAmount)
+
+    DataPerPage = 30
+    page = math.floor(dataAmount / DataPerPage)
+    for i in range(page):
+        try:
+            houseData = getData('https://rent.591.com.tw/?region=' +
+                                str(region) + '&firstRow=' + str(i * DataPerPage))
+            print(i)
+            print('https://rent.591.com.tw/?region=' +
+                  str(region) + '&firstRow=' + str(i * DataPerPage))
+            insertData("houseData", houseData)
+        except:
+            continue
 
 # getData('https://rent.591.com.tw/')
+
 
 # 1 for Teipei
 # 2 for New Taipei
 getDataOfRegion(1)
-
