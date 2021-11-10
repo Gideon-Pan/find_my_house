@@ -11,7 +11,7 @@ def insertMongo(collection, houseData):
         return
     houses.insert_many(houseData)
 
-
+print(today)
 # print("houseDataRaw" + str(today))
-insertMongo("houseDataRaw" + str(today), [{'test': 'hi'}])
+#insertMongo("houseDataRaw" + str(today), [{'test': 'hi'}])
 # insertMongo("houseDataRaw11-10" , [{'test': 'hi'}])

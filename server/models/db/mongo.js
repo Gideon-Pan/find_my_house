@@ -1,12 +1,15 @@
 const { MongoClient } = require('mongodb')
+require('dotenv').config()
 // const getPtxData = require('../../../ptx_testing/metro-ptx');
 const { MONGO_PASSWORD, MONGO_DATABASE } = process.env
 
 // console.log(MONGO_PASSWORD)
-
+//console.log(MONGO_PASSWORD)
+//console.log(process.env.MYSQL_USER)
 const uri = MONGO_PASSWORD
-  ? `mongodb+srv://Gideon:${MONGO_PASSWORD}@cluster0.0fwjx.mongodb.net/${MONGO_DATABASE}?retryWrites=true&w=majority`
+  ? `mongodb://mongouser:${MONGO_PASSWORD}@127.0.0.1:27017/?authSource=admin&readPreference=primary&appname=MongoDB%20Compass&ssl=false`
   : 'mongodb://127.0.0.1:27017'
+//console.log(uri)
 const client = new MongoClient(uri, {
   useNewUrlParser: true,
   useUnifiedTopology: true

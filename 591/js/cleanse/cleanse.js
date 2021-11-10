@@ -7,7 +7,9 @@ const {
 } = require('../../../server/models/db/mongo')
 
 async function cleanseData(rawDataCollection) {
-  let houses = await getMongo('591_raw', rawDataCollection)
+	console.log('q')
+  console.log(rawDataCollection)
+	let houses = await getMongo('591_data', rawDataCollection)
   // console.log(houses.length)
   // return console.log(houses)
   // houses = [houses]
@@ -118,6 +120,17 @@ async function cleanseData(rawDataCollection) {
   await insertMongo('591_cleansed', `${finalDate}houseDatacleansed`, housesData)
 }
 
+const date = new Date()
+  // console.log(data.getDay())
+  const day = date.getDate()
+  // console.log('day: ', day);
+  const month = date.getMonth()
+  // console.log('month: ', month);
+  const year = date.getFullYear()
+  // console.log('year: ', year);
+  const finalDate = `${year}-${month + 1}-${day}`
+  cleanseData(`houseDataRaw${finalDate}`)
+//cleanseData()
 // cleanseData("houseDataRawAutomated")
 
 module.exports = {
