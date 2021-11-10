@@ -1,4 +1,4 @@
-from selenium import webdriver  # import selenium模組
+from selenium import webdriver
 from bs4 import BeautifulSoup
 import time
 import re
@@ -6,18 +6,14 @@ import math
 from mongo import db
 import requests
 import json
-from datetime import date
 from selenium.webdriver.chrome.options import Options
 import sys
-import os
-from dotenv import load_dotenv
-load_dotenv()
-# import dnspython
-ENVIROMENT = os.environ.get("ENVIRONMENT")
 
 chrome_options = Options()
 chrome_options.add_argument('--no-sandbox')
 chrome_options.add_argument('--headless')
+
+
 HEADERS2 = {
     'Accept': '*/*',
     'Accept-Encoding': 'gzip, deflate, br',
@@ -39,13 +35,12 @@ HEADERS2 = {
     'X-CSRF-TOKEN': 'fT2rZUhpZNQU8Jx3a7ladraOG727JXNBwRIRTXOR',
 }
 
-
 def insertData(collection, houseData):
-    houses = db[collection]
-    if (len(houseData) == 0):
-        return
+  houses = db[collection]
+  if (len(houseData) == 0):
+    return
 
-    houses.insert_many(houseData)
+  houses.insert_many(houseData)
 
 # print(soup)
 # sections = soup.find_all("section", class_="vue-list-rent-item")
@@ -70,7 +65,6 @@ def getIds(soup):
         ids.append(linkHtml.get('href').split("-")[2].split(".")[0])
     return ids
 
-
 def get_house_info(id):
     url = f"https://bff.591.com.tw/v1/house/rent/detail?id=" + str(id)
     # print("URL:", url)
@@ -87,24 +81,19 @@ def get_house_info(id):
     # traffic = data[0]
     # living = data[1]
     # education = data[2]
-    # print(traffic)
+        # print(traffic)
     # time.sleep(0.5)
     return web_content
 
-
 def insertMongo(collection, houseData):
-    houses = db[collection]
-    if (len(houseData) == 0):
-        return
-    houses.insert_many(houseData)
-
+  houses = db[collection]
+  if (len(houseData) == 0):
+    return
+  houses.insert_many(houseData)
 
 def insertData(url):
     chrome = 'chromedriver'
-    if (ENVIROMENT == 'local'):
-        driver = webdriver.Chrome('./chromedriver')  # 開啟chrome瀏覽器
-    else:
-        driver = webdriver.Chrome(executable_path='/usr/bin/chromedriver', options=chrome_options)  # 開啟chrome瀏覽器
+    driver = webdriver.Chrome(executable_path='/usr/bin/chromedriver', options=chrome_options)  # 開啟chrome瀏覽器
     driver.get(url)  # 開啟連結
     time.sleep(2)
     soup = BeautifulSoup(driver.page_source, 'html.parser')
@@ -116,25 +105,22 @@ def insertData(url):
     # print(ids)
     # return
     housesData = []
-    # print(ids)
+        # print(ids)
     for id in ids:
         houseData = get_house_info(id)
         ts = time.time()
         houseData['timestamp'] = ts
         houseData['id'] = id
-        # pprint(houseData)
+            # pprint(houseData)
         housesData.append(houseData)
-        # print('finish fetching data of id:' + str(id))
-        # print(housesData[0])
-        # pprint(housesData)
+            # print('finish fetching data of id:' + str(id))
+            # print(housesData[0])
+            # pprint(housesData)
         # return
         # print(id)
-    today = date.today()
-    print("Today's date:", today)
-    insertMongo("houseDataRaw11-999" , housesData)
-    # insertMongo("houseDataRaw" + str(today), housesData)
+    insertMongo("houseDataRaw2021-11-10", housesData)
 
-    # print(id)
+        # print(id)
     # print('finish inserting page' + str(0))
 
     return
@@ -142,46 +128,40 @@ def insertData(url):
 # insertData('https://rent.591.com.tw/?region=3')
 
 
+
 def getDataAmount(firstPageUrl):
-    if (ENVIROMENT == 'local'):
-        driver = webdriver.Chrome('./chromedriver')  # 開啟chrome瀏覽器
-    else:
-        driver = webdriver.Chrome(executable_path='/usr/bin/chromedriver', options=chrome_options)  # 開啟chrome瀏覽器
+    driver = webdriver.Chrome(executable_path='/usr/bin/chromedriver', options=chrome_options)  # 開啟chrome瀏覽器
     driver.get(firstPageUrl)  # 開啟連結
     time.sleep(2)
     soup = BeautifulSoup(driver.page_source, 'html.parser')
     # print(soup.select_one('div.item-area span'))
     # print(soup.select_one('div.switch-amount span'))
-    dataAmount = soup.select_one(
-        'div.switch-amount span').decode_contents().replace(',', '')
+    dataAmount = soup.select_one('div.switch-amount span').decode_contents().replace(',', '')
     return int(dataAmount)
 
 # getAll()
 
-
 def insertDataOfRegion(region):
-    firstPageUrl = "https://rent.591.com.tw/?region=" + str(region)
-    dataAmount = getDataAmount(firstPageUrl)
-    print(dataAmount)
+  firstPageUrl = "https://rent.591.com.tw/?region=" + str(region)
+  dataAmount = getDataAmount(firstPageUrl)
+  print(dataAmount)
 
-    DataPerPage = 30
-    page = math.floor(dataAmount / DataPerPage)
-    for i in range(page):
-        try:
-            houseData = insertData(
-                'https://rent.591.com.tw/?region=' + str(region) + '&firstRow=' + str(i * DataPerPage))
-            # print(i)
-            # print('https://rent.591.com.tw/?region=' + str(region) + '&firstRow=' + str(i * DataPerPage))
-            print('finish inserting page ' + str(i))
-            time.sleep(2)
-            # insertData("houseData", houseData)
-        except:
-            print('page ' + str(i) + 'fail')
-            print("Unexpected error:", sys.exc_info()[0])
-            continue
+  DataPerPage = 30
+  page = math.floor(dataAmount / DataPerPage)
+  for i in range (page):
+    try:
+        houseData = insertData('https://rent.591.com.tw/?region=' + str(region) + '&firstRow=' + str(i * DataPerPage))
+        # print(i)
+        # print('https://rent.591.com.tw/?region=' + str(region) + '&firstRow=' + str(i * DataPerPage))
+        print('finish inserting page ' + str(i))
+        # insertData("houseData", houseData)
+    except:
+        print('page ' + str(i) + 'fail')
+        print("Unexpected error:", sys.exc_info()[0])
+        return
+        continue
 
 # getData('https://rent.591.com.tw/')
-
 
 # 1 for Teipei
 # 3 for New Taipei
