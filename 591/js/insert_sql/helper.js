@@ -132,7 +132,7 @@ async function insertHouse(houses) {
 // async function
 
 async function getHousesToInsert(cleansedDataOld, cleansedDataNew) {
-  const q = 'SELECT id FROM house'
+  // const q = 'SELECT id FROM house'
   // const [oldHouses] = await pool.query(q)
   const oldHouses = await getMongo("591_cleansed", cleansedDataOld)
   console.log('finish fetch old data')
@@ -171,6 +171,14 @@ async function getHousesToInsert(cleansedDataOld, cleansedDataNew) {
   console.log(houseIdsToInsert.length)
   return housesToInsert
 }
+
+async function main() {
+  const houses = await getHousesToInsert(`${yesterday}houseDatacleansed`, `${today}houseDatacleansed`)
+  console.log(houses)
+  console.log(houses.length)
+  await insertHouse(houses)
+}
+main()
 
 // getHousesToInsert(`${yesterday}houseDatacleansed`, `${today}houseDatacleansed`)
 
@@ -245,9 +253,6 @@ async function test() {
   //   console.log(go)
   // }
 }
-test()
-
-// deleteHouse(`${yesterday}houseDatacleansed`, `${today}houseDatacleansed`)
 
 async function updateHouse(cleansedData) {
   const q = 'SELECT id FROM house'
