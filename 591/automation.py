@@ -151,6 +151,7 @@ def insertDataOfRegion(region):
         # print(i)
         # print('https://rent.591.com.tw/?region=' + str(region) + '&firstRow=' + str(i * DataPerPage))
         print('finish inserting page ' + str(i))
+        time.sleep(2)
         # insertData("houseData", houseData)
     except:
         print('page ' + str(i) + 'fail')

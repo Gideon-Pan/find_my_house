@@ -1,11 +1,34 @@
-const {today, yesterday} = require('../time')
+const { getMongo } = require('../../../server/models/db/mongo')
+const { today, yesterday } = require('../time')
+const {
+  deleteHouse,
+  insertHouse,
+  insertHouseTag,
+  insertNewLifeFunction,
+  insertHouseLifeFunction
+} = require('./update_helper')
 
-async function main() {
+async function updateAllTables(cleansedDataOld, cleansedDataNew) {
   // console.log(today)
-  deleteHouse(`${yesterday}houseDatacleansed`, `${today}houseDatacleansed`)
-  const housesToInsert = await getHousesToInsert(`${yesterday}houseDatacleansed`, `${today}houseDatacleansed`)
-  await insertHouse(housesToInsert)
-  await insertHouseTag(`${yesterday}houseDatacleansed`, `${today}houseDatacleansed`)
-  await insertNewLifeFunction(`${today}houseDatacleansed`)
-  
+  const housesOld = await getMongo('591_cleansed', cleansedDataOld)
+  console.log('finish fetch old houses')
+  const housesNew = await getMongo('591_cleansed', cleansedDataNew)
+  console.log('finish fetch new houses')
+  if (housesNew.length / housesOld.length < 0.1) {
+    return console.log('something wrong for new data')
+  }
+  console.log('start deleting houses')
+  deleteHouse(cleansedDataOld, cleansedDataNew)
+  // const housesToInsert = await getMongo('591_cleansed', cleansedDataNew)
+  console.log('start inserting houses')
+  await insertHouse(housesNew)
+  console.log('start inserting house tag')
+  await insertHouseTag(cleansedDataNew)
+  console.log('start insert new life function')
+  await insertNewLifeFunction(cleansedDataNew)
+  console.log('start inserting house life function')
+  await insertHouseLifeFunction(cleansedDataNew)
+  console.log('finish update all house tables')
 }
+
+updateAllTables(`${yesterday}houseDatacleansed`, `${today}houseDatacleansed`)

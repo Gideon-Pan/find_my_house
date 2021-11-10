@@ -115,7 +115,7 @@ async function insertHouse(houses) {
   // const values = Object.values(houseMap).map(house => [house])
   // console.log(values)
   let values = []
-  const bulkNum = 1000
+  const bulkNum = 10000
   const insertTimes = Math.floor(houseData.length / bulkNum) + 1
   for (let i = 0; i < insertTimes; i++) {
     if (i === insertTimes - 1) {
@@ -459,7 +459,11 @@ async function insertNewLifeFunction(cleansedDataNew) {
   })
   // console.log(lifeFuntionsToInsert)
   const lifeFuntionsToInsert = Object.values(lifeFuntionToInsertMap)
+  // console.log(lifeFuntionsToInsert)
   console.log(lifeFuntionsToInsert.length, "new life functions")
+  if(lifeFuntionsToInsert.length === 0) {
+    return console.log('No update needed for life function')
+  }
   // return
   const q2 = 'INSERT INTO life_function (name, latitude, longitude, subtype_id) VALUES ?'
   await pool.query(q2, [lifeFuntionsToInsert])
@@ -644,7 +648,7 @@ async function insertHouseLifeFunction(cleansedDataNew) {
   console.log('finish inserting house life functions')
 }
 
-insertHouseLifeFunction(`${today}houseDatacleansed`)
+// insertHouseLifeFunction(`${today}houseDatacleansed`)
 
 async function dumpMysqlToMongo() {
   const q = `SELECT * from house 
@@ -659,8 +663,10 @@ async function dumpMysqlToMongo() {
 
 // dumpMysqlToMongo()
 
-// module.exports = {
-//   insertHouseFirstTime,
-//   insertHouseTag,
-//   insertHouseLifeFunction
-// }
+module.exports = {
+  deleteHouse,
+  insertHouse,
+  insertHouseTag,
+  insertNewLifeFunction,
+  insertHouseLifeFunction
+}
