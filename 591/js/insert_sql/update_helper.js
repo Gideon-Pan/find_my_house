@@ -300,11 +300,11 @@ async function getHouseIdsToDeleteOld(cleansedDataOld, cleansedDataNew) {
 async function getHouseIdsToDelete(cleansedDataOld, cleansedDataNew) {
   // const oldIds = await getMongo('591_cleansed', cleansedDataOld)
   const oldIds = await getHouseIds('591_cleansed', cleansedDataOld)
-  console.log(oldIds)
+  // console.log(oldIds)
   console.log('fetch old data')
   // const newIds = await getMongo('591_cleansed', cleansedDataNew)
   const newIds = await getHouseIds('591_cleansed', cleansedDataNew)
-  console.log(newIds)
+  // console.log(newIds)
   console.log('fetch new data')
   const oldHouseIdMap = {}
   const newHouseIdMap = {}
@@ -345,13 +345,13 @@ async function getHouseIdsToDelete(cleansedDataOld, cleansedDataNew) {
 // getHouseIdsToDelete(`${yesterday}houseDatacleansed`, `${today}houseDatacleansed`)
 
 async function deleteHouse(cleansedDataOld, cleansedDataNew) {
-  console.log('****************')
+  // console.log('****************')
 	const houseIdsToDelete = await getHouseIdsToDelete(
     cleansedDataOld,
     cleansedDataNew
   )
-  console.log('###')
-	console.log(houseIdsToDelete.length)
+  // console.log('###')
+	console.log(houseIdsToDelete.length, "houses to be deleted")
   const q =
     `DELETE FROM house
     WHERE id in (` +
@@ -361,7 +361,7 @@ async function deleteHouse(cleansedDataOld, cleansedDataNew) {
     LIMIT 100`
   let affectedRows = 1
   let counter = 0
-	console.log('!!!!!')
+	// console.log('!!!!!')
   while (affectedRows) {
     const [result] = await pool.query(q)
     affectedRows = result.affectedRows
@@ -481,7 +481,7 @@ async function insertHouseTag(cleansedDataNew) {
     })
     // return [id, title, categoryMap[category], area, price, layout, floor, shape, link, image, address, latitude, longitude, region, section]
   })
-  console.log(houseData.length)
+  console.log(houseData.length, 'house tags')
   // return
   // return
   const q = `INSERT INTO house_tag (house_id, tag_id) VALUES ?
@@ -773,8 +773,8 @@ async function insertHouseLifeFunction(cleansedDataNew) {
   // console.log(newIds.length)
   // console.log(newHouseLifeFunctions)
   const houseLifeFunctionsToInsert = Object.values(houseLifeFunctionToInsertMap)
-  console.log(houses.length)
-  console.log(houseLifeFunctionsToInsert.length)
+  console.log(houses.length, 'houses')
+  console.log(houseLifeFunctionsToInsert.length, 'house life functions')
   const values = houseLifeFunctionsToInsert
 
   // return

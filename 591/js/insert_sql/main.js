@@ -1,4 +1,5 @@
 const { getMongo } = require('../../../server/models/db/mongo')
+const { cleanseData } = require('../cleanse/cleanse')
 const { today, yesterday } = require('../time')
 const {
   deleteHouse,
@@ -11,6 +12,9 @@ const {
 //deleteHouse(`${yesterday}houseDatacleansed`, `${today}houseDatacleansed`)
 
 async function updateAllTables(cleansedDataOld, cleansedDataNew) {
+  console.log('start cleansing')
+  await cleanseData(`houseDataRaw${today}`)
+  console.log('finish cleansing today data')
   // console.log(today)
   const housesOld = await getMongo('591_cleansed', cleansedDataOld)
   console.log('finish fetch old houses')

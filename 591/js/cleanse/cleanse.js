@@ -130,9 +130,9 @@ const date = new Date()
   const year = date.getFullYear()
   // console.log('year: ', year);
   const finalDate = `${year}-${month + 1}-${day}`
-  cleanseData(`houseDataRaw${finalDate}`)
+  // cleanseData(`houseDataRaw${finalDate}`)
 //cleanseData()
-cleanseData("houseDataRawAutomated")
+// cleanseData("houseDataRawAutomated")
 
 module.exports = {
   cleanseData
