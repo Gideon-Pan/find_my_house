@@ -7,7 +7,7 @@ const { MONGO_PASSWORD, MONGO_DATABASE } = process.env
 //console.log(MONGO_PASSWORD)
 //console.log(process.env.MYSQL_USER)
 const uri = MONGO_PASSWORD
-  ? `mongodb://mongouser:${MONGO_PASSWORD}@127.0.0.1:27017/?authSource=admin&readPreference=primary&appname=MongoDB%20Compass&ssl=false`
+  ? `mongodb://mongouser:${MONGO_PASSWORD}@3.145.22.184:27017/?authSource=admin&readPreference=primary&appname=MongoDB%20Compass&ssl=false`
   : 'mongodb://127.0.0.1:27017'
 //console.log(uri)
 const client = new MongoClient(uri, {

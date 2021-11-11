@@ -8,17 +8,21 @@ const {
   insertHouseLifeFunction
 } = require('./update_helper')
 
+//deleteHouse(`${yesterday}houseDatacleansed`, `${today}houseDatacleansed`)
+
 async function updateAllTables(cleansedDataOld, cleansedDataNew) {
   // console.log(today)
   const housesOld = await getMongo('591_cleansed', cleansedDataOld)
   console.log('finish fetch old houses')
-  const housesNew = await getMongo('591_cleansed', cleansedDataNew)
+  console.log(housesOld.length)
+	const housesNew = await getMongo('591_cleansed', cleansedDataNew)
   console.log('finish fetch new houses')
+	console.log(housesNew.length)
   if (housesNew.length / housesOld.length < 0.1) {
     return console.log('something wrong for new data')
   }
   console.log('start deleting houses')
-  deleteHouse(cleansedDataOld, cleansedDataNew)
+  await deleteHouse(cleansedDataOld, cleansedDataNew)
   // const housesToInsert = await getMongo('591_cleansed', cleansedDataNew)
   console.log('start inserting houses')
   await insertHouse(housesNew)

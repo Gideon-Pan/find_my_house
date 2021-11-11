@@ -8,8 +8,9 @@ const {
 
 async function cleanseData(rawDataCollection) {
 	console.log('q')
-  console.log(rawDataCollection)
-	let houses = await getMongo('591_data', rawDataCollection)
+  console.log('591_raw')
+	console.log(rawDataCollection)
+	let houses = await getMongo('591_raw', rawDataCollection)
   // console.log(houses.length)
   // return console.log(houses)
   // houses = [houses]
@@ -131,7 +132,7 @@ const date = new Date()
   const finalDate = `${year}-${month + 1}-${day}`
   cleanseData(`houseDataRaw${finalDate}`)
 //cleanseData()
-// cleanseData("houseDataRawAutomated")
+cleanseData("houseDataRawAutomated")
 
 module.exports = {
   cleanseData
