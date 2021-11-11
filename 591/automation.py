@@ -75,7 +75,7 @@ def get_house_info(id):
     url = f"https://bff.591.com.tw/v1/house/rent/detail?id=" + str(id)
     # print("URL:", url)
     # try:
-    r = requests.get(url, headers=HEADERS2)
+    r = requests.get(url, headers=HEADERS2, timeout=5)
     # print(r)
     web_content = r.text
     # print(web_content)
