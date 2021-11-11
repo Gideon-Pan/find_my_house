@@ -345,11 +345,13 @@ async function getHouseIdsToDelete(cleansedDataOld, cleansedDataNew) {
 // getHouseIdsToDelete(`${yesterday}houseDatacleansed`, `${today}houseDatacleansed`)
 
 async function deleteHouse(cleansedDataOld, cleansedDataNew) {
-  const houseIdsToDelete = await getHouseIdsToDelete(
+  console.log('****************')
+	const houseIdsToDelete = await getHouseIdsToDelete(
     cleansedDataOld,
     cleansedDataNew
   )
-  console.log(houseIdsToDelete.length)
+  console.log('###')
+	console.log(houseIdsToDelete.length)
   const q =
     `DELETE FROM house
     WHERE id in (` +
@@ -359,6 +361,7 @@ async function deleteHouse(cleansedDataOld, cleansedDataNew) {
     LIMIT 100`
   let affectedRows = 1
   let counter = 0
+	console.log('!!!!!')
   while (affectedRows) {
     const [result] = await pool.query(q)
     affectedRows = result.affectedRows
@@ -369,7 +372,7 @@ async function deleteHouse(cleansedDataOld, cleansedDataNew) {
   console.log('finish delete all houses needed')
 }
 
-// deleteHouse(`${yesterday}houseDatacleansed`, `${today}houseDatacleansed`)
+//deleteHouse(`${yesterday}houseDatacleansed`, `${today}houseDatacleansed`)
 
 async function test() {
   // const q = `DELETE FROM station_house_distance limit 2`
