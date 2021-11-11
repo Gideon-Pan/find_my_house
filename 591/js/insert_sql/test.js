@@ -1,4 +1,6 @@
+const { getHouseIds } = require('../../../server/models/db/mongo')
 const pool = require('../../../server/models/db/mysql')
+const { today, yesterday } = require('../time')
 
 async function test() {
   const [result] = await pool.query('SELECT id FROM house')
@@ -40,6 +42,41 @@ async function bulkUpdate() {
   console.log('finsish')
 }
 
-bulkUpdate()
+
+async function getHouseIdsToDelete(cleansedDataOld, cleansedDataNew) {
+  // const oldIds = await getMongo('591_cleansed', cleansedDataOld)
+  const oldIds = await getHouseIds('591_cleansed', cleansedDataOld)
+  console.log(oldIds)
+  console.log('fetch old data')
+  // const newIds = await getMongo('591_cleansed', cleansedDataNew)
+  const newIds = await getHouseIds('591_cleansed', cleansedDataNew)
+  console.log(newIds)
+  console.log('fetch new data')
+  const oldHouseIdMap = {}
+  const newHouseIdMap = {}
+  const houseMap = {}
+  const houseIdsToDelete = []
+  const houseIdsToInsert = []
+
+  // oldIds.forEach(({ id }) => {
+  //   oldHouseIdMap[id] = true
+  // })
+  newIds.forEach((house) => {
+    newHouseIdMap[house.id] = true
+    // houseMap[house.id] = house
+  })
+  // console.log(oldHouseIdMap)
+  // console.log(newHouseIdMap)
+  oldIds.forEach(({ id }) => {
+    if (!newHouseIdMap[id]) {
+      houseIdsToDelete.push(id)
+    }
+  })
+  // console.log(houseIdsToDelete)
+  console.log(houseIdsToDelete.length)
+  return houseIdsToDelete
+}
+// getHouseIdsToDelete(`${yesterday}houseDatacleansed`, `${today}houseDatacleansed`)
+// bulkUpdate()
 // array()
 // test()

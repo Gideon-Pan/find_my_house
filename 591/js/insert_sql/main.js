@@ -5,7 +5,7 @@ const {
   insertHouse,
   insertHouseTag,
   insertNewLifeFunction,
-  insertHouseLifeFunction
+  insertHouseLifeFunction,
 } = require('./update_helper')
 
 async function updateAllTables(cleansedDataOld, cleansedDataNew) {
@@ -17,8 +17,10 @@ async function updateAllTables(cleansedDataOld, cleansedDataNew) {
   if (housesNew.length / housesOld.length < 0.1) {
     return console.log('something wrong for new data')
   }
+  
   console.log('start deleting houses')
-  deleteHouse(cleansedDataOld, cleansedDataNew)
+  await deleteHouse(cleansedDataOld, cleansedDataNew)
+
   // const housesToInsert = await getMongo('591_cleansed', cleansedDataNew)
   console.log('start inserting houses')
   await insertHouse(housesNew)

@@ -131,8 +131,8 @@ def insertData(url):
         # print(id)
     today = date.today()
     print("Today's date:", today)
-    insertMongo("houseDataRaw11-999" , housesData)
-    # insertMongo("houseDataRaw" + str(today), housesData)
+    # insertMongo("houseDataRaw11-999" , housesData)
+    insertMongo("houseDataRaw" + str(today), housesData)
 
     # print(id)
     # print('finish inserting page' + str(0))

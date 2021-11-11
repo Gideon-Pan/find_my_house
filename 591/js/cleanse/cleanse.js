@@ -9,7 +9,7 @@ const {
 async function cleanseData(rawDataCollection) {
 	console.log('q')
   console.log(rawDataCollection)
-	let houses = await getMongo('591_data', rawDataCollection)
+	let houses = await getMongo('591_raw', rawDataCollection)
   // console.log(houses.length)
   // return console.log(houses)
   // houses = [houses]
