@@ -1,5 +1,7 @@
 // const { default: axios } = require("axios")
 
+// const { getLikes } = require("../../server/controllers/user_controller")
+
 let map
 let markers = []
 let houseMarkers = []
@@ -18,6 +20,7 @@ let currentHouse
 let currentLifeFunctionType
 let lifeFunctionInfowindow
 let selectedHouseId
+let likeMap = {}
 
 // const Justin = {
 //   lat: 25.00921512991647,
@@ -669,4 +672,32 @@ async function dislike() {
   }
 }
 
+async function getLikes() {
+  const access_token = window.localStorage.getItem('access_token')
+  // console.log('here')
+  // console.log(access_token)
+  // console.log(selectedHouseId)
+  try {
+    const { data } = await axios.get(
+      '/api/1.0/user/like',
+      {
+        headers: {
+          Authorization: `Bearer ${access_token}`
+        }
+      }
+    )
+    // console.log('....')
+    console.log(data)
+    data.forEach(houseId => {
+      likeMap[houseId] = true
+    })
+    console.log(likeMap)
+    // console.log('successfully like')
+  } catch (e) {
+    console.log(e)
+    console.log('fail')
+  }
+}
+
 init()
+getLikes()

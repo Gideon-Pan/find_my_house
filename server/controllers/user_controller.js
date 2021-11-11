@@ -168,10 +168,22 @@ async function dislike(req, res) {
 	}
 }
 
+async function getLikes(req, res) {
+	try {
+		const houseIds = await User.getLikesById(req.user.id)
+    console.log(houseIds)
+		res.send(houseIds)
+	} catch(e) {
+		console.log(e)
+		res.status(500).send()
+	}
+}
+
 module.exports = {
   signUp,
   signIn,
   getUserProfile,
   like,
-	dislike
+	dislike,
+	getLikes,
 }

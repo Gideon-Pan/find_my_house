@@ -217,6 +217,16 @@ async function dislike(userId, houseId) {
 	console.log('success dislike')
 }
 
+async function getLikesById(userId) {
+	const q = `SELECT house_id FROM like_table 
+		WHERE user_id = ?
+			AND status = 1`
+	const values = [userId]
+	const [result] = await pool.query(q, values)
+	const houseIds = result.map(({house_id}) => house_id)
+	return houseIds
+}
+
 module.exports = {
   USER_ROLE,
   signUp,
@@ -225,5 +235,6 @@ module.exports = {
   getUserDetail,
   getFacebookProfile,
 	like,
-	dislike
+	dislike,
+	getLikesById
 }
