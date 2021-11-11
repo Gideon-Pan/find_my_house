@@ -14,6 +14,7 @@ let lines = []
 let lifeFunctions = []
 let currentData
 let currentLifeFunctionType
+let lifeFunctionInfowindow
 
 // const Justin = {
 //   lat: 25.00921512991647,
@@ -94,7 +95,9 @@ function initMap() {
   })
 
   houseInfowindow = new google.maps.InfoWindow()
-
+  lifeFunctionInfowindow = new google.maps.InfoWindow()
+  // console.log(houseInfowindow)
+  // console.log(lifeFunctionInfowindow)
   // choose office by click
   // click.js
 }
@@ -237,7 +240,7 @@ function renderHouses(houses) {
     })
     const contentString = `  
   <div class="house-info">
-      <img src=${image} width="125" height="100" />
+      <img src="${image}" onerror="this.src='./assets/no-img.png'" width="125" height="100" />
       <p>房型：${category}, ${area}坪</p>
       <p>價格：${price}元/月</p>
       <p>地址：${address}</p>
@@ -279,6 +282,7 @@ function renderHouses(houses) {
         lastOpenedInfoWindow = false
         return function () {
           closeLastOpenedInfoWindow()
+          // console.log(infowindow)
           infowindow.setContent(content)
           infowindow.open(map, marker)
           lastOpenedInfoWindow = infowindow
@@ -300,18 +304,18 @@ function renderHouses(houses) {
           const { data } = await axios.get(
             `/api/1.0/house/life-function?id=${id}`
           )
+          console.log(data)
           document
             .querySelector('.radio')
             .setAttribute('style', 'display: inline;')
           // console.log($('.radio').attr("display"))
-
 
           if (!currentLifeFunctionType) {
             currentLifeFunctionType = 'traffic'
           }
 
           currentData = data
-          switch(currentLifeFunctionType) {
+          switch (currentLifeFunctionType) {
             case 'traffic':
               getTraffic()
               break
@@ -325,7 +329,6 @@ function renderHouses(houses) {
               console.log('what')
           }
 
-          
           // console.log(data)
           // const { coordinate } = data
 
@@ -363,7 +366,6 @@ function renderHouses(houses) {
           //   lifeFunctions.push(lifeFunction)
           //   // console.log('here')
           // })
-
 
           // const flightPlanCoordinates = [
           //   { lat: 37.772, lng: -122.214 },
@@ -578,7 +580,7 @@ function signout() {
 }
 
 function showLifeFunction(type, subtype) {
-  clearLifeFunction()
+  // clearLifeFunction()
   removeLines()
   // removeRadio()
   const { coordinate } = currentData
@@ -612,22 +614,42 @@ function showLifeFunction(type, subtype) {
       // label: name,
       map: map
     })
+    // console.log(lifeFunctionInfowindow)
+    lifeFunction.addListener(
+      'mouseover',
+      (function (marker, content, infowindow) {
+        return function () {
+          // console.log('hover life function')
+          // console.log(infowindow)
+          infowindow.setContent(content)
+          infowindow.open(map, marker)
+        }
+      })(lifeFunction, `<p>${name}</p>`, lifeFunctionInfowindow)
+    )
+    // assuming you also want to hide the infowindow when user mouses-out
+    lifeFunction.addListener('mouseout', function () {
+      lifeFunctionInfowindow.close()
+    })
     lifeFunctions.push(lifeFunction)
     // console.log('here')
   })
 }
 
 function getTraffic() {
+  clearLifeFunction()
   currentLifeFunctionType = 'traffic'
   showLifeFunction('交通', '捷運')
+  showLifeFunction('交通', '公車')
 }
 
 function getLife() {
+  clearLifeFunction()
   currentLifeFunctionType = 'life'
   showLifeFunction('生活', '購物')
 }
 
 function getFood() {
+  clearLifeFunction()
   currentLifeFunctionType = 'food'
   showLifeFunction('生活', '餐飲')
 }

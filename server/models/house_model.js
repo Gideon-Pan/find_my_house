@@ -35,7 +35,7 @@ async function getLifeFunction(id) {
       lifeFunctionMap[type_name][subtype_name] = []
       // lifeFunctionMap[type_name][subtype_name] = new PQ()
     }
-    if (lifeFunctionMap[type_name][subtype_name].length >= 3) return
+    // if (lifeFunctionMap[type_name][subtype_name].length >= 3) return
     lifeFunctionMap[type_name][subtype_name].push({
       id,
       name,
