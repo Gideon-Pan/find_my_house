@@ -193,7 +193,7 @@ main {
 .radio {
   display: none;
   position: absolute;
-  top: calc(10% + 90px);
+  top: calc(10% + 80px);
   z-index: 3;
   /* background-color: #EFC2CE; */
   /* background-color: #85A4B3; */

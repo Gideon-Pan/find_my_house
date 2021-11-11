@@ -70,6 +70,7 @@ function initMap() {
   map = new google.maps.Map(document.getElementById('map'), {
     zoom: 13,
     center: myLatlng,
+    disableDefaultUI: true,
     scaleControl: true
   })
 
@@ -235,7 +236,8 @@ function renderHouses(houses) {
         lng: longitude
       },
       map: map,
-      icon: houseIcon
+      icon: houseIcon,
+      zIndex:2
       // label: `${i}`
     })
     const contentString = `  
