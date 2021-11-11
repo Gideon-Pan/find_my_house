@@ -8,3 +8,4 @@ dump/
 # public/assets
 bus_velocity.json
 .env.ec2
+.env.crawler_and_cleanser
