@@ -48,28 +48,34 @@ const authentication = (roleId) => {
         let accessToken = req.get('Authorization');
         // console.log(accessToken)
         if (!accessToken) {
+            console.log('what')
             res.status(401).send({error: 'Unauthorized'});
             return;
         }
+        // console.log(accessToken)
         
         accessToken = accessToken.replace('Bearer ', '');
+        // console.log(accessToken)
         if (accessToken == 'null') {
             res.status(401).send({error: 'Unauthorized'});
             return;
         }
         // console.log('hear')
         try {
+            // console.log('*')
+            // console.log(roleId)
             const user = jwt.verify(accessToken, TOKEN_SECRET);
+            // console.log('#')
             req.user = user;
             if (roleId == null) {
                 next();
             } else {
                 let userDetail;
-                if (roleId == User.USER_ROLE.ALL) {
+                // if (roleId == User.USER_ROLE.ALL) {
                     userDetail = await User.getUserDetail(user.email);
-                } else {
-                    userDetail = await User.getUserDetail(user.email, roleId);
-                }
+                // } else {
+                    // userDetail = await User.getUserDetail(user.email, roleId);
+                // }
                 if (!userDetail) {
                     res.status(403).send({error: 'Forbidden'});
                 } else {
@@ -80,6 +86,7 @@ const authentication = (roleId) => {
             }
             return;
         } catch(err) {
+            console.log(err)
             res.status(403).send({error: 'Forbidden'});
             return;
         }

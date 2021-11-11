@@ -1,3 +1,5 @@
+// const { default: axios } = require("axios")
+
 let map
 let markers = []
 let houseMarkers = []
@@ -15,6 +17,7 @@ let lifeFunctions = []
 let currentData
 let currentLifeFunctionType
 let lifeFunctionInfowindow
+let selectedHouseId
 
 // const Justin = {
 //   lat: 25.00921512991647,
@@ -237,7 +240,7 @@ function renderHouses(houses) {
       },
       map: map,
       icon: houseIcon,
-      zIndex:2
+      zIndex: 2
       // label: `${i}`
     })
     const contentString = `  
@@ -247,6 +250,8 @@ function renderHouses(houses) {
       <p>價格：${price}元/月</p>
       <p>地址：${address}</p>
       <a href="${link}" target="_blank">查看更多</a>
+      <button onclick="like()">加入收藏</button>
+      <button onclick="dislike()">取消收藏</button>
     </div>
   `
     // <a href="flat-share.html" target="_blank">徵室友</a>
@@ -264,6 +269,14 @@ function renderHouses(houses) {
         shouldFocus: false
       })
     })
+    marker.addListener(
+      'click',
+      (function (id) {
+        return function () {
+          selectedHouseId = id
+        }
+      })(id)
+    )
     // console.log(houseInfowindow)
 
     google.maps.event.addListener(map, 'click', function () {
@@ -330,51 +343,6 @@ function renderHouses(houses) {
             default:
               console.log('what')
           }
-
-          // console.log(data)
-          // const { coordinate } = data
-
-          // const houseCoordinate = {
-          //   lat: coordinate.latitude,
-          //   lng: coordinate.longitude
-          // }
-          // const stations = data['交通']['捷運']
-          // // const currentId
-          // stations.forEach((station) => {
-          //   const { id, name, latitude, longitude, distance, subtype, type } =
-          //     station
-          //   // coordinates.push({lat: latitude, lng: longitude})
-
-          //   // make line
-          //   const spotCoordinate = { lat: latitude, lng: longitude }
-          //   const line = new google.maps.Polyline({
-          //     path: [houseCoordinate, spotCoordinate],
-          //     geodesic: true,
-          //     strokeColor: '#000000',
-          //     strokeOpacity: 1.0,
-          //     strokeWeight: 5,
-          //     'z-index': 2
-          //   })
-
-          //   line.setMap(map)
-          //   lines.push(line)
-
-          //   // make marker
-          //   const lifeFunction = new google.maps.Marker({
-          //     position: spotCoordinate,
-          //     label: name,
-          //     map: map
-          //   })
-          //   lifeFunctions.push(lifeFunction)
-          //   // console.log('here')
-          // })
-
-          // const flightPlanCoordinates = [
-          //   { lat: 37.772, lng: -122.214 },
-          //   { lat: 21.291, lng: -157.821 },
-          //   { lat: -18.142, lng: 178.431 },
-          //   { lat: -27.467, lng: 153.027 },
-          // ];
         }
       })(id)
     )
@@ -654,6 +622,51 @@ function getFood() {
   clearLifeFunction()
   currentLifeFunctionType = 'food'
   showLifeFunction('生活', '餐飲')
+}
+
+async function like() {
+  const access_token = window.localStorage.getItem('access_token')
+  // console.log('here')
+  // console.log(access_token)
+  console.log(selectedHouseId)
+  try {
+    const { data } = await axios.post(
+      '/api/1.0/user/like',
+      {
+        houseId: selectedHouseId
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${access_token}`
+        }
+      }
+    )
+    console.log('successfully like')
+  } catch (e) {
+    console.log(e)
+    console.log('fail')
+  }
+}
+
+async function dislike() {
+  const access_token = window.localStorage.getItem('access_token')
+  // console.log('here')
+  // console.log(access_token)
+  console.log(selectedHouseId)
+  try {
+    const { data } = await axios.delete('/api/1.0/user/like', {
+      data: {
+        houseId: selectedHouseId
+      },
+      headers: {
+        Authorization: `Bearer ${access_token}`
+      }
+    })
+    console.log('successfully dislike')
+  } catch (e) {
+    console.log(e)
+    console.log('fail')
+  }
 }
 
 init()
