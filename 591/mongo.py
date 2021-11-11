@@ -8,11 +8,12 @@ database = os.environ.get("MONGO_DATABASE")
 host = os.environ.get("MONGO_HOST")
 
 ENVIROMENT = os.environ.get("ENVIRONMENT")
+MONGO_HOST = os.environ.get("MONGO_HOST")
 
 if (ENVIROMENT == 'local'):
   client = pymongo.MongoClient('localhost', 27017)
 else:
-  client = pymongo.MongoClient("mongodb://mongouser:" + password + "@127.0.0.1:27017/?authSource=admin&readPreference=primary&appname=MongoDB%20Compass&ssl=false")
+  client = pymongo.MongoClient("mongodb://mongouser:" + password + "@" + MONGO_HOST + ":27017/?authSource=admin&readPreference=primary&appname=MongoDB%20Compass&ssl=false")
 
 # client = pymongo.MongoClient("mongodb+srv://Gideon:" + password + "@cluster0.0fwjx.mongodb.net/" + database + "?retryWrites=true&w=majority")
 # client = pymongo.MongoClient("mongodb://" + host + ":27017")
