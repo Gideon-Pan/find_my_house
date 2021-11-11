@@ -4,7 +4,7 @@ const { getDistance } = require('geolib')
 // const { Db } = require('mongodb')
 
 async function getLifeFunction(id) {
-  const q = `SELECT house.latitude AS house_lat, house.longitude AS house_lng, life_function.id, life_function.name, life_function.latitude, life_function.longitude, distance, life_function_type.name AS type_name, life_function_subtype.name AS subtype_name FROM life_function
+  const q = `SELECT house.latitude AS house_lat, house.longitude AS house_lng, life_function.id, life_function.name, life_function.latitude, life_function.longitude, distance, life_function_type.name AS type_name, life_function_subtype.name AS subtype_name, like_table.status AS like_status FROM life_function
   JOIN house_life_function
     ON house_life_function.life_function_id = life_function.id
   JOIN life_function_subtype
@@ -13,19 +13,18 @@ async function getLifeFunction(id) {
     ON life_function_type.id = life_function_subtype.type_id
   JOIN house
     ON house.id = house_life_function.house_id
-  WHERE house_id = ${id}
+  LEFT JOIN like_table
+    ON like_table.house_id = house.id
+  WHERE house.id = ${id}
   ORDER BY distance
 `
   const [result] = await pool.query(q)
+  // console.log(result)
 
   const idMap = {}
   if (result.length === 0) return {}
-  const lifeFunctionMap = {
-    coordinate: {
-      latitude: result[0].house_lat,
-      longitude: result[1].house_lng
-    }
-  }
+  
+  const lifeFunctionMap = {}
   result.forEach((lifeFunction) => {
     const {id, name, latitude, longitude, distance, type_name, subtype_name} = lifeFunction
     if (!lifeFunctionMap[type_name]) {
@@ -48,8 +47,17 @@ async function getLifeFunction(id) {
     // idMap[id] = lifeFunction
     // lifeFunctionMap[type_name][subtype_name].enqueue(id, distance)
   })
+  const house = {
+    id,
+    coordinate: {
+      latitude: result[0].house_lat,
+      longitude: result[1].house_lng
+    },
+    like: result[0].like_status ? true : false,
+    lifeFunction: lifeFunctionMap,
+  }
 
-  return lifeFunctionMap
+  return house
 }
 
 async function makeHouseStopDistanceMap() {

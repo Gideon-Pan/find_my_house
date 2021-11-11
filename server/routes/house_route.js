@@ -7,7 +7,7 @@ const { getLifeFunction } = require('../controllers/house_controller');
 // } = require('../../util/util');
 
 
-router.route('/house/life-function')
+router.route('/house/details')
     .get(getLifeFunction);
 
 

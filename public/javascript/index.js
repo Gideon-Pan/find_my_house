@@ -14,7 +14,7 @@ let houseLat
 let houseLng
 let lines = []
 let lifeFunctions = []
-let currentData
+let currentHouse
 let currentLifeFunctionType
 let lifeFunctionInfowindow
 let selectedHouseId
@@ -250,8 +250,8 @@ function renderHouses(houses) {
       <p>價格：${price}元/月</p>
       <p>地址：${address}</p>
       <a href="${link}" target="_blank">查看更多</a>
-      <button onclick="like()">加入收藏</button>
-      <button onclick="dislike()">取消收藏</button>
+      <button class="like" onclick="like()">加入收藏</button>
+      <button class="dislike" onclick="dislike()">取消收藏</button>
     </div>
   `
     // <a href="flat-share.html" target="_blank">徵室友</a>
@@ -317,7 +317,7 @@ function renderHouses(houses) {
           removeLines()
           console.log(id)
           const { data } = await axios.get(
-            `/api/1.0/house/life-function?id=${id}`
+            `/api/1.0/house/details?id=${id}`
           )
           console.log(data)
           document
@@ -329,7 +329,7 @@ function renderHouses(houses) {
             currentLifeFunctionType = 'traffic'
           }
 
-          currentData = data
+          currentHouse = data
           switch (currentLifeFunctionType) {
             case 'traffic':
               getTraffic()
@@ -553,13 +553,13 @@ function showLifeFunction(type, subtype) {
   // clearLifeFunction()
   removeLines()
   // removeRadio()
-  const { coordinate } = currentData
+  const { coordinate } = currentHouse
 
   const houseCoordinate = {
     lat: coordinate.latitude,
     lng: coordinate.longitude
   }
-  const stations = currentData[type][subtype]
+  const stations = currentHouse.lifeFunction[type][subtype]
   // const currentId
   stations.forEach((station) => {
     const { id, name, latitude, longitude, distance, subtype, type } = station
