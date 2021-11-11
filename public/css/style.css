@@ -72,6 +72,7 @@ main {
   justify-content: space-evenly;
   /* justify-content: center; */
   align-items: center;
+  position: relative;
 }
 
 .search-field {
@@ -192,7 +193,7 @@ main {
 .radio {
   display: none;
   position: absolute;
-  top: 180px;
+  top: calc(10% + 90px);
   z-index: 3;
   /* background-color: #EFC2CE; */
   /* background-color: #85A4B3; */
