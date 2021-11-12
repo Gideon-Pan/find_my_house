@@ -26,7 +26,8 @@
   font-weight: bold;
   margin-top: 1px;
   margin-left: 2px;
-  margin-right: 127px;
+  display: inline;
+  /* margin-right: 127px; */
 }
 
 .house-info a:hover {

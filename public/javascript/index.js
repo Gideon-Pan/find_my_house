@@ -283,9 +283,12 @@ function renderHouses(houses) {
       <p>房型：${category}, ${area}坪</p>
       <p>價格：${price}元/月</p>
       <p>地址：${address}</p>
-      <a href="${link}" target="_blank">查看更多</a>
-      <button class="like" onclick="like()">加入收藏</button>
-      <button class="dislike" onclick="dislike()">取消收藏</button>
+      <div>
+        <a href="${link}" target="_blank">查看更多</a>
+        <button class="like" id ="${id}-like" style="display: ${likeMap[id] ? 'none' : 'ineline'};" onclick="like()">加入收藏</button>
+        <button class="dislike" id ="${id}-dislike" style="display: ${likeMap[id] ? 'ineline' : 'none'};" onclick="dislike()">取消收藏</button>
+      </div>
+      
     </div>
   `
     // <a href="flat-share.html" target="_blank">徵室友</a>
@@ -699,7 +702,7 @@ async function dislike() {
       }
     })
     likeMap[selectedHouseId] = false
-    setLike(selectedHouseId)
+    setDislike(selectedHouseId)
     console.log('successfully dislike')
   } catch (e) {
     console.log(e)
@@ -735,20 +738,39 @@ async function getLikes() {
 }
 
 function setLike(id) {
-  
   // hide like button
-
+  $(`#${id}-like`).attr('style', 'display: none;')
+  $(`#${id}-dislike`).attr('style', 'display: inline;')
   // show unlike button
 
   // change pic
   const newIcon  = makeHouseIcon(id)
   markerMap[id].setIcon(newIcon)
-  console.log('ww')
+  // console.log('ww')
+}
+
+function setDislike(id) {
+  $(`#${id}-dislike`).attr('style', 'display: none;')
+  $(`#${id}-like`).attr('style', 'display: inline;')
+  // show unlike button
+
+  // change pic
+  const newIcon  = makeHouseIcon(id)
+  markerMap[id].setIcon(newIcon)
+}
+
+function hideButton() {
+
+}
+
+function showButton() {
+
 }
 
 function makeHouseIcon(id) {
   return {
     url: likeMap[id] ? './assets/house_liked.png' : './assets/house.png',
+    // scaledSize: new google.maps.Size(35, 35),
     scaledSize: likeMap[id] ? new google.maps.Size(35, 35) : new google.maps.Size(30, 30), // scaled size
     origin: new google.maps.Point(0, 0), // origin
     anchor: likeMap[id] ? new google.maps.Point(17, 22) :  new google.maps.Point(15, 20) // anchor
