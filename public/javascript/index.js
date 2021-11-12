@@ -4,6 +4,7 @@
 
 let map
 let markers = []
+const markerMap = {}
 let houseMarkers = []
 let houseInfowindow
 let houseInfowindows = []
@@ -48,9 +49,13 @@ let officeLng = Justin.lng
 const Appworks = { lat: 25.042482379737326, lng: 121.5647583475222 }
 
 function setMapOnAll(map) {
-  for (let i = 0; i < markers.length; i++) {
-    markers[i].setMap(map)
-  }
+  // for (let i = 0; i < markers.length; i++) {
+  //   markers[i].setMap(map)
+  // }
+  Object.values(markerMap).forEach(marker => {
+    // console.log('hi')
+    marker.setMap(map)
+  })
 }
 
 // Removes the markers from the map, but keeps them in the array.
@@ -182,13 +187,13 @@ async function search() {
   console.log(data)
   const { positionData, houseData } = data
 
-  hideCircles()
-  circles = []
-  removeLines()
+  // hideCircles()
+  // circles = []
+  // removeLines()
   removeRadio()
   clearLifeFunction()
   removeReachableArea()
-  clearHouses()
+  removeHouses()
   renderHouses(houseData)
 
   return showReachableArea(positionData, time1)
@@ -211,7 +216,7 @@ async function search() {
   console.log('It takes total :', (time2 - time1) / 1000, 'seconds')
 }
 
-function clearHouses() {
+function removeHouses() {
   for (let houseMarker of houseMarkers) {
     houseMarker.setMap(null)
   }
@@ -249,18 +254,18 @@ function renderHouses(houses) {
     if (area % 1 !== 0) {
       area = area.toFixed(1)
     }
-
-    const houseIcon = {
-      // url: './assets/renting.png', // url
-      // url: './assets/renting-house.jpg',
-      // url: './assets/icon.jfif',
-      // 2, 4 works
-      url: './assets/house_liked.png',
-      scaledSize: new google.maps.Size(30, 30), // scaled size
-      origin: new google.maps.Point(0, 0), // origin
-      anchor: new google.maps.Point(15, 20) // anchor
-      // anchor: new google.maps.Point(15, 20) // anchor
-    }
+    const houseIcon = makeHouseIcon(id)
+    // const houseIcon = {
+    //   // url: './assets/renting.png', // url
+    //   // url: './assets/renting-house.jpg',
+    //   // url: './assets/icon.jfif',
+    //   // 2, 4 works
+    //   url: likeMap[id] ? './assets/house_liked.png' : './assets/house.png',
+    //   scaledSize: likeMap[id] ? new google.maps.Size(35, 35) : new google.maps.Size(30, 30), // scaled size
+    //   origin: new google.maps.Point(0, 0), // origin
+    //   anchor: new google.maps.Point(15, 20) // anchor
+    //   // anchor: new google.maps.Point(15, 20) // anchor
+    // }
     const marker = new google.maps.Marker({
       // position: { lat: 25.042482379737326, lng: 121.5647583475222 },
       position: {
@@ -413,7 +418,7 @@ function renderHouses(houses) {
         lastOpenedInfoWindow.close()
       }
     }
-
+    markerMap[id] = marker
     markers.push(marker)
     // houseInfowindows.push(houseInfowindow)
   })
@@ -670,6 +675,8 @@ async function like() {
         }
       }
     )
+    likeMap[selectedHouseId] = true
+    setLike(selectedHouseId)
     console.log('successfully like')
   } catch (e) {
     console.log(e)
@@ -691,6 +698,8 @@ async function dislike() {
         Authorization: `Bearer ${access_token}`
       }
     })
+    likeMap[selectedHouseId] = false
+    setLike(selectedHouseId)
     console.log('successfully dislike')
   } catch (e) {
     console.log(e)
@@ -722,6 +731,28 @@ async function getLikes() {
   } catch (e) {
     console.log(e)
     console.log('fail')
+  }
+}
+
+function setLike(id) {
+  
+  // hide like button
+
+  // show unlike button
+
+  // change pic
+  const newIcon  = makeHouseIcon(id)
+  markerMap[id].setIcon(newIcon)
+  console.log('ww')
+}
+
+function makeHouseIcon(id) {
+  return {
+    url: likeMap[id] ? './assets/house_liked.png' : './assets/house.png',
+    scaledSize: likeMap[id] ? new google.maps.Size(35, 35) : new google.maps.Size(30, 30), // scaled size
+    origin: new google.maps.Point(0, 0), // origin
+    anchor: likeMap[id] ? new google.maps.Point(17, 22) :  new google.maps.Point(15, 20) // anchor
+    // anchor: new google.maps.Point(15, 20) // anchor
   }
 }
 
