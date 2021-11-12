@@ -1,4 +1,4 @@
-const { getMongo } = require('../../../server/models/db/mongo')
+const { getMongo, getHouseIds } = require('../../../server/models/db/mongo')
 const { cleanseData } = require('../cleanse/cleanse')
 const { today, yesterday } = require('../time')
 const {
@@ -15,16 +15,23 @@ async function updateAllTables(cleansedDataOld, cleansedDataNew) {
   console.log('start cleansing')
   await cleanseData(`houseDataRaw${today}`)
   console.log('finish cleansing today data')
+
   // console.log(today)
-  const housesOld = await getMongo('591_cleansed', cleansedDataOld)
-  console.log('finish fetch old houses')
-  console.log(housesOld.length)
-	const housesNew = await getMongo('591_cleansed', cleansedDataNew)
-  console.log('finish fetch new houses')
-	console.log(housesNew.length)
-  if (housesNew.length / housesOld.length < 0.1) {
+  // const housesOld = await getMongo('591_cleansed', cleansedDataOld)
+  // console.log('finish fetch old houses')
+  // console.log(housesOld.length)
+	// const housesNew = await getMongo('591_cleansed', cleansedDataNew)
+  // console.log('finish fetch new houses')
+	// console.log(housesNew.length)
+  const oldIds = await getHouseIds('591_cleansed', cleansedDataOld)
+  const newIds = await getHouseIds('591_cleansed', cleansedDataNew)
+  if (newIds.length / oldIds.length < 0.3) {
     return console.log('something wrong for new data')
   }
+  // console.log(oldIds.length)
+  // console.log(newIds.length)
+  // console.log(newIds.length / oldIds.length)
+  // return 
   
   console.log('start deleting houses')
   await deleteHouse(cleansedDataOld, cleansedDataNew)
