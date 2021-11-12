@@ -166,7 +166,7 @@ async function search() {
   }
   if (maxWalkDistance === null) {
     Swal.fire({
-      title: '步行距離',
+      title: '請選擇步行距離',
       heightAuto: false
       // text: 'Something went wrong!',
       // footer: '<a href="">Why do I have this issue?</a>'
