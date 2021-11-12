@@ -133,19 +133,45 @@ async function search() {
   // const tags =
 
   if (period === null) {
-    alert('請選擇通勤時段')
+    Swal.fire({
+      title: '請選擇通勤時段',
+      heightAuto: false
+      // text: 'Something went wrong!',
+      // footer: '<a href="">Why do I have this issue?</a>'
+    })
+    // alert('請選擇通勤時段')
     return
   }
-  if (commuteTime === null) {
-    alert('請選擇通勤時間')
+  // console.log(commuteTime)
+  if (!commuteTime) {
+    
+    // alert('請選擇通勤時間')
+    Swal.fire({
+      title: '請選擇通勤時間',
+      heightAuto: false
+      // text: 'Something went wrong!',
+      // footer: '<a href="">Why do I have this issue?</a>'
+    })
     return
   }
   if (commuteWay === null) {
-    alert('請選擇交通方式')
+    Swal.fire({
+      title: '請選擇交通方式',
+      heightAuto: false
+      // text: 'Something went wrong!',
+      // footer: '<a href="">Why do I have this issue?</a>'
+    })
+    // alert('請選擇交通方式')
     return
   }
   if (maxWalkDistance === null) {
-    alert('請選擇步行距離')
+    Swal.fire({
+      title: '步行距離',
+      heightAuto: false
+      // text: 'Something went wrong!',
+      // footer: '<a href="">Why do I have this issue?</a>'
+    })
+    // alert('請選擇步行距離')
     return
   }
   const url = `/search?period=${period}&commuteTime=${commuteTime}&commuteWay=${commuteWay}&maxWalkDistance=${maxWalkDistance}&budget=${budget}&officeLat=${officeLat}&officeLng=${officeLng}&houseType=${houseType}&fire=${fire}&shortRent=${shortRent}&directRent=${directRent}&pet=${pet}&newItem=${newItem}`
