@@ -255,7 +255,7 @@ function renderHouses(houses) {
       // url: './assets/renting-house.jpg',
       // url: './assets/icon.jfif',
       // 2, 4 works
-      url: './assets/4.png',
+      url: './assets/house_liked.png',
       scaledSize: new google.maps.Size(30, 30), // scaled size
       origin: new google.maps.Point(0, 0), // origin
       anchor: new google.maps.Point(15, 20) // anchor
