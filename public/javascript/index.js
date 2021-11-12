@@ -22,6 +22,7 @@ let currentLifeFunctionType
 let lifeFunctionInfowindow
 let selectedHouseId
 let likeMap = {}
+let userId
 
 // const Justin = {
 //   lat: 25.00921512991647,
@@ -573,10 +574,12 @@ async function init() {
       }
     })
     console.log('authenticated')
-    $('.signout').html('<div onclick="signout()">登出</div>')
+    // console.log(data.data)
+    $('.sign').html('<div onclick="signout()">登出</div>')
   } catch {
     console.log('not authenticated')
-    $('.signout').html('<a href="/signin.html">登入</div>')
+    $('.sign').html('<a href="/signin.html">登入</div>')
+    $('.like').css('display', 'none')
     $('.avator').css('display', 'none')
   }
 }
@@ -726,10 +729,10 @@ async function getLikes() {
     )
     // console.log('....')
     console.log(data)
-    data.forEach(houseId => {
+    data.favoriteHouseIds.forEach(houseId => {
       likeMap[houseId] = true
     })
-    console.log(likeMap)
+    // console.log(likeMap)
     // console.log('successfully like')
   } catch (e) {
     console.log(e)
@@ -769,14 +772,21 @@ function showButton() {
 
 function makeHouseIcon(id) {
   return {
-    url: likeMap[id] ? './assets/house_liked.png' : './assets/house.png',
-    // scaledSize: new google.maps.Size(35, 35),
-    scaledSize: likeMap[id] ? new google.maps.Size(35, 35) : new google.maps.Size(30, 30), // scaled size
+    url: likeMap[id] ? './assets/test.png' : './assets/house.png',
+    scaledSize: new google.maps.Size(35, 35),
+    // scaledSize: likeMap[id] ? new google.maps.Size(35, 35) : new google.maps.Size(30, 30), // scaled size
     origin: new google.maps.Point(0, 0), // origin
-    anchor: likeMap[id] ? new google.maps.Point(17, 22) :  new google.maps.Point(15, 20) // anchor
-    // anchor: new google.maps.Point(15, 20) // anchor
+    // anchor: likeMap[id] ? new google.maps.Point(17, 22) :  new google.maps.Point(15, 20) // anchor
+    anchor: new google.maps.Point(15, 20) // anchor
   }
 }
 
-init()
-getLikes()
+
+
+async function main() {
+  await init()
+  await getLikes()
+  $('body').css('display', 'inline')
+}
+
+main()

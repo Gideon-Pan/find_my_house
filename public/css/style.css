@@ -8,6 +8,7 @@ body {
   width: 100%;
   margin: 0;
   padding: 0;
+  /* display: none; */
 }
 
 body {
@@ -18,6 +19,7 @@ body {
   flex-direction: column;
   justify-content: space-around;
   align-items: center; */
+  display: none;
 }
 
 .header {
@@ -61,6 +63,11 @@ body {
 }
 
 .nav div:hover {
+  color: gray;
+  cursor: pointer;
+}
+
+.like:hover {
   color: gray;
   cursor: pointer;
 }
