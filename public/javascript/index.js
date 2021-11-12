@@ -772,7 +772,7 @@ function showButton() {
 
 function makeHouseIcon(id) {
   return {
-    url: likeMap[id] ? './assets/test.png' : './assets/house.png',
+    url: likeMap[id] ? './assets/house.png' : './assets/test.png',
     scaledSize: new google.maps.Size(35, 35),
     // scaledSize: likeMap[id] ? new google.maps.Size(35, 35) : new google.maps.Size(30, 30), // scaled size
     origin: new google.maps.Point(0, 0), // origin
