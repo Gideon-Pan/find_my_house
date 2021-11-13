@@ -1,8 +1,8 @@
 const { getDistance } = require('geolib')
 // const { Db } = require('mongodb')
-const pool = require('../../server/models/db/mysql')
+const pool = require('../../../server/models/db/mysql')
 
-async function main() {
+async function insertStationHouseDistance() {
   const q1 = `SELECT id, latitude, longitude FROM station
     WHERE latitude IS NOT NULL`
   console.log('finish fetching stations info')
@@ -24,7 +24,8 @@ async function main() {
   const map = {}
   const time1 = Date.now()
   const q3 =
-    'INSERT INTO station_house_distance (station_id, house_id, distance) VALUES ?'
+    `INSERT INTO station_house_distance (station_id, house_id, distance) VALUES ?
+      ON DUPLICATE KEY UPDATE distance = VALUES(distance)`
   let values = []
   let counter = 0
   // console.log(stations.length)
@@ -101,4 +102,6 @@ async function main() {
   console.log('finish inserting house life distance')
 }
 
-main()
+module.exports = {
+  insertStationHouseDistance
+}

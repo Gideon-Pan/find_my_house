@@ -1,6 +1,7 @@
 const { getMongo, getHouseIds } = require('../../../server/models/db/mongo')
 const { cleanseData } = require('../cleanse/cleanse')
 const { today, yesterday } = require('../time')
+const { insertStationHouseDistance } = require('./station_house_distance')
 const {
   deleteHouse,
   insertHouse,
@@ -51,6 +52,7 @@ async function updateAllTables(cleansedDataOld, cleansedDataNew, today) {
   console.log('start inserting house life function')
   await insertHouseLifeFunction(cleansedDataNew)
   console.log('finish update all house tables')
+  await insertStationHouseDistance()
   process.exit()
 }
 
