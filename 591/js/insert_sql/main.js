@@ -12,6 +12,7 @@ const {
 //deleteHouse(`${yesterday}houseDatacleansed`, `${today}houseDatacleansed`)
 
 async function updateAllTables(cleansedDataOld, cleansedDataNew, today) {
+  
   const cleansedData = await getHouseIds('591_cleansed', `${today}houseDatacleansed`)
   if (cleanseData.length === 0) {
     console.log('start cleansing')
@@ -50,6 +51,7 @@ async function updateAllTables(cleansedDataOld, cleansedDataNew, today) {
   console.log('start inserting house life function')
   await insertHouseLifeFunction(cleansedDataNew)
   console.log('finish update all house tables')
+  process.exit()
 }
 
 updateAllTables(`${yesterday}houseDatacleansed`, `${today}houseDatacleansed`, today)

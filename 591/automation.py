@@ -188,3 +188,5 @@ def insertDataOfRegion(region):
 regions = [1, 3]
 for region in regions:
     insertDataOfRegion(region)
+    exit()
+
