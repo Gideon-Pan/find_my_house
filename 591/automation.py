@@ -166,7 +166,7 @@ def insertDataOfRegion(region):
 
     DataPerPage = 30
     page = math.floor(dataAmount / DataPerPage)
-    for i in range(page):
+    for i in range(page + 20):
         try:
             houseData = insertData(
                 'https://rent.591.com.tw/?region=' + str(region) + '&firstRow=' + str(i * DataPerPage))

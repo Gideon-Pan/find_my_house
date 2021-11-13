@@ -75,8 +75,8 @@ async function makeHouseStopDistanceMap() {
       ON house.id = station_house_distance.house_id
     JOIN category
       ON category.id = house.category_id
-    WHERE category.name IN (?)
-      AND station.type='metro'
+    WHERE category.name IN ?
+      ${process.argv[2] === 'metro' ? 'AND type = "metro"' : ''}
   `
   console.log('finish fetching stations stop info')
   // const [stations] = await pool.query(q1)
@@ -85,7 +85,7 @@ async function makeHouseStopDistanceMap() {
   // console.log('finish fetching houses info')
   const map = {}
   const time1 = Date.now()
-  const [result] = await pool.query(q1, ['分租套房', '獨立套房', '雅房'])
+  const [result] = await pool.query(q1, [[['分租套房', '獨立套房', '雅房']]])
   let stopCounter = 0
   let houseCounter = 0
 

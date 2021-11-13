@@ -57,13 +57,13 @@ async function insertStationHouseDistance() {
       }
     }
     if (i === stations.length - 1) {
-      console.log(i)
+      // console.log(i)
       // console.log(values)
       await pool.query(q3, [values])
       while (values.length !== 0) {
         values.pop()
       }
-      console.log('finish inserting', i + 1, 'times')
+      console.log('finish inserting', i + 1, 'stations')
       break
     }
     // if (i % 5 === 0) {

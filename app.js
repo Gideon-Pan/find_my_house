@@ -375,6 +375,7 @@ async function getHousesInBudget(budget, houseType, validTags) {
     // console.log('~~~')
     // console.log(house.counter)
     // console.log(validTags.length)
+    // console.log(house.category)
     return house.counter === validTags.length
   })
   // Object.values(houseMap).forEach(house => {
@@ -395,6 +396,7 @@ async function getHousesInRange(positionData, houses) {
   // const [houses] = await db.query(q)
   let counter = 0
   const houseData = houses.filter(house => {
+    // console.log(house.category)
     const {latitude, longitude} = house
     for (let i = 0; i < positionData.length; i++) {
       const position = positionData[i]
@@ -413,6 +415,7 @@ async function getHousesInRange(positionData, houses) {
       // }
       const houseNum = houseIdToNumMap.get(house.id)
       const stopNum = stopIdToNumMap.get(position.stationId)
+      // console.log(houseStopDistanceMap[houseNum])
       if (houseStopDistanceMap[houseNum] && houseStopDistanceMap[houseNum][stopNum] < radius) {
         // console.log(houseStopMap[houseNum][stopNum])
         return true
@@ -421,6 +424,7 @@ async function getHousesInRange(positionData, houses) {
     // console.log('waht')
     return false
   })
+  // console.log(houseData)
   console.log(`computing ${counter} times`)
   return houseData
 }
