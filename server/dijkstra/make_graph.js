@@ -240,31 +240,23 @@ async function makeEdges(version) {
       AND version = ${version}
       ${process.argv[2] === 'metro' ? 'AND type = "metro"' : ''}
     `
-  const [data] = await db.query(q)
-  data.forEach(
-    ({
-      from_stop_id,
-      to_stop_id,
-      // time_period_hour,
-      // time_period_minute,
-      period,
-      time,
-      distance
-    }) => {
-      if (!busIdMap[from_stop_id]) {
-        console.log(from_stop_id)
+  const [result] = await db.query(q)
+  result.forEach(
+    (data) => {
+      if (!busIdMap[data.from_stop_id]) {
+        console.log(data.from_stop_id)
         return
       }
-      distance = distance ? distance : 0
+      data.distance = data.distance ? data.distance : 0
       // console.log(distance)
       // console.log(busIdMap[from_stop_id])
       const edge = new Edge(
-        busIdMap[from_stop_id],
-        busIdMap[to_stop_id],
+        busIdMap[data.from_stop_id],
+        busIdMap[data.to_stop_id],
         // `${time_period_hour}-${time_period_minute}`,
-        period,
-        time,
-        distance
+        data.period,
+        data.time,
+        data.distance
       )
       // g.addEdge(edge)
       edges.push(edge)

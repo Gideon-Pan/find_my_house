@@ -213,6 +213,7 @@ app.get('/search', async (req, res) => {
         distanceLeft: maxWalkDistance
       }
     ]
+    console.log(positionData.length)
     const houses = await getHousesInBudget(budget, houseType, tags)
     const houseData = await getHousesInRange(positionData, houses)
     return res.send({
@@ -278,6 +279,13 @@ app.get('/search', async (req, res) => {
     }
   })
   const positionData = Object.values(reachableStationsMap)
+  positionData.push({
+    stationId: '-2',
+    lat: officeLat,
+    lng: officeLng,
+    distanceLeft: maxWalkDistance
+  })
+  // console.log(positionData)
   // console.log(budget)
   const time1 = Date.now()
   const  houses = await getHousesInBudget(budget, houseType, tags)
@@ -394,11 +402,14 @@ async function getHousesInRange(positionData, houses) {
   // `
   // // console.log(db)
   // const [houses] = await db.query(q)
+  // console.log(positionData)
   let counter = 0
   const houseData = houses.filter(house => {
     // console.log(house.category)
     const {latitude, longitude} = house
+    // console.log(positionData.length)
     for (let i = 0; i < positionData.length; i++) {
+      // console.log(positionData.length)
       const position = positionData[i]
       const radius = position.distanceLeft
       counter++
@@ -416,6 +427,9 @@ async function getHousesInRange(positionData, houses) {
       const houseNum = houseIdToNumMap.get(house.id)
       const stopNum = stopIdToNumMap.get(position.stationId)
       // console.log(houseStopDistanceMap[houseNum])
+      if (radius === 400 && getDistance({latitude, longitude}, {latitude: position.lat, longitude: position.lng}) < radius) {
+        return true
+      }
       if (houseStopDistanceMap[houseNum] && houseStopDistanceMap[houseNum][stopNum] < radius) {
         // console.log(houseStopMap[houseNum][stopNum])
         return true
