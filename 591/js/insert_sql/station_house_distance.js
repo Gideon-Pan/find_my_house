@@ -99,8 +99,10 @@ async function insertStationHouseDistance() {
   const time2 = Date.now()
   console.log('Valid data:', counter)
   console.log((time2 - time1) / 1000, 'seconds')
-  console.log('finish inserting house life distance')
+  console.log('finish inserting station house distance')
 }
+
+// insertStationHouseDistance()
 
 module.exports = {
   insertStationHouseDistance
