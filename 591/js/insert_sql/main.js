@@ -15,7 +15,7 @@ const {
 async function updateAllTables(cleansedDataOld, cleansedDataNew, today) {
   
   const cleansedData = await getHouseIds('591_cleansed', `${today}houseDatacleansed`)
-  if (cleanseData.length === 0) {
+  if (cleansedData.length === 0) {
     console.log('start cleansing')
     await cleanseData(`houseDataRaw${today}`)
     console.log('finish cleansing today data')
