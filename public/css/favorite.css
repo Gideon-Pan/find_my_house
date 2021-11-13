@@ -1,0 +1,38 @@
+main {
+  width: 100vw;
+  display: flex;
+  flex-direction: row;
+  /* justify-content: space-around; */
+  /* justify-content: center; */
+}
+
+.house-item {
+  /* margin: 0 20px; */
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+}
+
+.info {
+  margin-left: 20px;
+}
+
+.info p {
+  font-size: 15px;
+  margin-top: 5px;
+}
+
+.info a {
+  margin-top: 5px;
+}
+
+#map {
+  /* margin-top: 10px; */
+  height: 80%;
+  /* height: 100vh; */
+  width: calc(90% - 330px);
+  /* margin: 10px auto; */
+  /* margin:  auto; */
+  /* margin-bottom: 15px; */
+  margin: 20px;
+}

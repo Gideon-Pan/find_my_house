@@ -55,6 +55,11 @@ body {
   margin-right: 50px;
 }
 
+.nav:hover {
+  color: gray;
+  cursor: pointer;
+}
+
 .nav a:hover {
   color: gray;
 }

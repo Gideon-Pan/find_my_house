@@ -23,6 +23,7 @@ let lifeFunctionInfowindow
 let selectedHouseId
 let likeMap = {}
 let userId
+const houseDataMap = {}
 
 // const Justin = {
 //   lat: 25.00921512991647,
@@ -124,6 +125,7 @@ async function search() {
   const commuteWay = $('#commute_way').val()
   const maxWalkDistance = $('#walk_distance').val()
   const budget = $('#budget').val()
+  // console.log(budget)
   const houseType = $('#house-type').val()
   // const fire = $('#fire').val()
   const fire = document.querySelector('#fire').checked
@@ -231,6 +233,24 @@ function clearLifeFunction() {
   lifeFunctions = []
 }
 
+function makeContentString(house) {
+  const {image, category, area, price, address, link, id} = house
+  return `  
+  <div class="house-info">
+      <img src="${image}" onerror="this.src='./assets/no-img.png'" width="125" height="100" />
+      <p>房型：${category}, ${area}坪</p>
+      <p>價格：${price}元/月</p>
+      <p>地址：${address}</p>
+      <div class="option">
+        <a href="${link}" target="_blank">查看更多</a>
+        <img src="./assets/heart.png" class="like heart" id ="${id}-like" style="display: ${likeMap[id] ? 'none' : 'ineline'};" onclick="like()">
+        <img src="./assets/heart_red.png" class="dislike heart" id ="${id}-dislike" style="display: ${likeMap[id] ? 'ineline' : 'none'};" onclick="dislike()">
+      </div>
+      
+    </div>
+  `
+}
+
 // here
 function renderHouses(houses) {
   while (markers.length !== 0) {
@@ -255,6 +275,7 @@ function renderHouses(houses) {
     if (area % 1 !== 0) {
       area = area.toFixed(1)
     }
+    houseDataMap[id] = house
     const houseIcon = makeHouseIcon(id)
     // const houseIcon = {
     //   // url: './assets/renting.png', // url
@@ -279,20 +300,21 @@ function renderHouses(houses) {
       // label: `${i}`
     })
   // console.log(likeMap[id])
-    const contentString = `  
-  <div class="house-info">
-      <img src="${image}" onerror="this.src='./assets/no-img.png'" width="125" height="100" />
-      <p>房型：${category}, ${area}坪</p>
-      <p>價格：${price}元/月</p>
-      <p>地址：${address}</p>
-      <div class="option">
-        <a href="${link}" target="_blank">查看更多</a>
-        <img src="./assets/heart.png" class="like heart" id ="${id}-like" style="display: ${likeMap[id] ? 'none' : 'ineline'};" onclick="like()">
-        <img src="./assets/heart_red.png" class="dislike heart" id ="${id}-dislike" style="display: ${likeMap[id] ? 'ineline' : 'none'};" onclick="dislike()">
-      </div>
+  //   const contentString = `  
+  // <div class="house-info">
+  //     <img src="${image}" onerror="this.src='./assets/no-img.png'" width="125" height="100" />
+  //     <p>房型：${category}, ${area}坪</p>
+  //     <p>價格：${price}元/月</p>
+  //     <p>地址：${address}</p>
+  //     <div class="option">
+  //       <a href="${link}" target="_blank">查看更多</a>
+  //       <img src="./assets/heart.png" class="like heart" id ="${id}-like" style="display: ${likeMap[id] ? 'none' : 'ineline'};" onclick="like()">
+  //       <img src="./assets/heart_red.png" class="dislike heart" id ="${id}-dislike" style="display: ${likeMap[id] ? 'ineline' : 'none'};" onclick="dislike()">
+  //     </div>
       
-    </div>
-  `
+  //   </div>
+  // `
+  // const contentString = makeContentString(house)
     // <a href="flat-share.html" target="_blank">徵室友</a>
     // const houseInfowindow = new google.maps.InfoWindow({
     //   content: contentString
@@ -332,9 +354,11 @@ function renderHouses(houses) {
     google.maps.event.addListener(
       marker,
       'click',
-      (function (marker, content, infowindow) {
+      (function (marker, id, infowindow) {
         lastOpenedInfoWindow = false
         return function () {
+          // console.log('jww')
+          const content = makeContentString(houseDataMap[id])
           closeLastOpenedInfoWindow()
           // console.log(infowindow)
           infowindow.setContent(content)
@@ -344,7 +368,7 @@ function renderHouses(houses) {
           // console.log(id)
           // currentId = id
         }
-      })(marker, contentString, houseInfowindow)
+      })(marker, id, houseInfowindow)
     )
 
     google.maps.event.addListener(
@@ -585,8 +609,12 @@ async function init() {
   }
 }
 
-function signout() {
+async function signout() {
   window.localStorage.removeItem('access_token')
+  await Swal.fire({
+    title: '登出成功',
+    heightAuto: false
+  })
   location.href = '/'
 }
 
@@ -687,6 +715,19 @@ async function like() {
     console.log('successfully like')
   } catch (e) {
     console.log(e)
+    Swal.fire({
+      title: '加入收藏前請先登入',
+      // showDenyButton: true,
+      showCancelButton: true,
+      confirmButtonText: '前往登入',
+      // denyButtonText: `不了謝謝`,
+      cancelButtonText: '不了謝謝'
+    }).then((result) => {
+      /* Read more about isConfirmed, isDenied below */
+      if (result.isConfirmed) {
+        location.href = '/signin.html'
+      }
+    })
     console.log('fail')
   }
 }

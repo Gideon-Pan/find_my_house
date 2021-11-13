@@ -125,7 +125,7 @@ main {
   border: #ccc;
   border-radius: 50px;
   box-shadow: 3px 3px 10px rgba(50, 50, 50, 0.1),
-    2px 2px 4px rgba(60, 60, 60, 0.1);
+    2px 2px 4px rgba(60f, 60, 60, 0.1);
   margin: 30px 0;
 } */
 
