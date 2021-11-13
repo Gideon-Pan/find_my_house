@@ -61,11 +61,22 @@ async function getLifeFunction(id) {
 }
 
 async function makeHouseStopDistanceMap() {
-  const q1 = `SELECT stop.ptx_stop_id AS stop_id, house_id, distance from station_house_distance
+  const stopIdToNumMap = new Map()
+  const numToStopIdMap = new Map()
+  const houseIdToNumMap = new Map()
+  const numToHouseIdMap = new Map()
+  const houseStopDistanceMap = []
+  const q1 = `SELECT stop.ptx_stop_id AS stop_id, station_house_distance.house_id, distance from station_house_distance
     JOIN station
       ON station.id = station_house_distance.station_id
     JOIN stop
       ON stop.station_id = station.id
+    JOIN house
+      ON house.id = station_house_distance.house_id
+    JOIN category
+      ON category.id = house.category_id
+    WHERE category.name IN (?)
+      AND station.type='metro'
   `
   console.log('finish fetching stations stop info')
   // const [stations] = await pool.query(q1)
@@ -74,14 +85,35 @@ async function makeHouseStopDistanceMap() {
   // console.log('finish fetching houses info')
   const map = {}
   const time1 = Date.now()
-  const [result] = await pool.query(q1)
-  result.forEach(({stop_id, house_id, distance}, i) => {
-    if (!map[house_id]){
-      map[house_id] = {}
+  const [result] = await pool.query(q1, ['分租套房', '獨立套房', '雅房'])
+  let stopCounter = 0
+  let houseCounter = 0
+
+  result.forEach(data => {
+    if (!stopIdToNumMap.get(data.stop_id)) {
+      stopIdToNumMap.set(data.stop_id, stopCounter)
+      numToStopIdMap.set(stopCounter, data.stop_id)
+      stopCounter++
     }
-    map[house_id][stop_id] = distance
-    if (i % 10000 === 0) console.log(i)
+    if (!houseIdToNumMap.get(data.house_id)) {
+      houseIdToNumMap.set(data.house_id, houseCounter)
+      numToHouseIdMap.set(houseCounter, data.house_id)
+      houseCounter++
+    }
+    if (!houseStopDistanceMap[houseIdToNumMap.get(data.house_id)]) {
+      houseStopDistanceMap[houseIdToNumMap.get(data.house_id)] = []
+    }
+    houseStopDistanceMap[houseIdToNumMap.get(data.house_id)][stopIdToNumMap.get(data.stop_id)] = data.distance
+    
+    // {stop_id, house_id, distance}
+    // if (!map[house_id]){
+    //   map[house_id] = {}
+    // }
+    // map[house_id][stop_id] = distance
+    // if (i % 10000 === 0) console.log(i)
   })
+  console.log(stopCounter)
+  console.log(houseCounter)
   
   // const q3 = 'INSERT INTO station_house_distance (station_id, house_id, distance) VALUES ?'
   // let values = []
@@ -110,7 +142,13 @@ async function makeHouseStopDistanceMap() {
   const time2 = Date.now()
   console.log((time2 - time1) / 1000, 'seconds')
   console.log('finish loading stop house distance')
-  return map
+  return {
+    stopIdToNumMap,
+    numToStopIdMap,
+    houseIdToNumMap,
+    numToHouseIdMap,
+    houseStopDistanceMap
+  }
 }
 
 

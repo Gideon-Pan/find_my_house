@@ -47,6 +47,10 @@ let graphForMetro
 let graphForMix
 let waitingTimeMaps
 let graphs
+let stopIdToNumMap
+let numToStopIdMap
+let houseIdToNumMap
+let numToHouseIdMap
 let houseStopDistanceMap
 async function main() {
   const time0_0 = Date.now()
@@ -64,7 +68,19 @@ async function main() {
     'seconds'
   )
   
+
   // houseStopDistanceMap = await makeHouseStopDistanceMap()
+  const maps = await makeHouseStopDistanceMap()
+  stopIdToNumMap = maps.stopIdToNumMap
+  console.log('stopIdToNumMap: ', stopIdToNumMap.size);
+  numToStopIdMap = maps.numToStopIdMap
+  console.log('numToStopIdMap: ', numToStopIdMap.size);
+  houseIdToNumMap = maps.houseIdToNumMap
+  console.log('houseIdToNumMap: ', houseIdToNumMap.size);
+  numToHouseIdMap = maps.numToHouseIdMap
+  console.log('numToHouseIdMap: ', numToHouseIdMap.size);
+  houseStopDistanceMap = maps.houseStopDistanceMap
+  console.log('houseStopMap: ', houseStopDistanceMap.length);
 
   // // console.log(map)
   // const time0_2 = Date.now()
@@ -315,7 +331,7 @@ async function getHousesInBudget(budget, houseType, validTags) {
   }
   // console.log(houseType)
   // const condition = budget ? `WHERE price <= ${budget}` : ''
-  console.log(budget)
+  // console.log(budget)
   // console.log('hehehehe')
   const q = `SELECT house.id, title, price, area, link, image, house.address, house.latitude, house.longitude, category.name AS category, tag.id AS tag FROM house 
     JOIN category
@@ -384,9 +400,9 @@ async function getHousesInRange(positionData, houses) {
       const position = positionData[i]
       const radius = position.distanceLeft
       counter++
-      if (getDistance({latitude, longitude}, {latitude: position.lat, longitude: position.lng}) < radius) {
-        return true
-      }
+      // if (getDistance({latitude, longitude}, {latitude: position.lat, longitude: position.lng}) < radius) {
+      //   return true
+      // }
       // if (houseStopDistanceMap[house.id] && houseStopDistanceMap[house.id][positionData[i].stationId] < radius) {
       //   // console.log(house.id)
       //   // console.log(positionData[i].stationId)
@@ -395,6 +411,12 @@ async function getHousesInRange(positionData, houses) {
       //   // console.log('~~~')
       //   return true
       // }
+      const houseNum = houseIdToNumMap.get(house.id)
+      const stopNum = stopIdToNumMap.get(position.stationId)
+      if (houseStopDistanceMap[houseNum] && houseStopDistanceMap[houseNum][stopNum] < radius) {
+        // console.log(houseStopMap[houseNum][stopNum])
+        return true
+      }
     }
     // console.log('waht')
     return false
