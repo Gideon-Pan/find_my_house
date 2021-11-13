@@ -7,8 +7,19 @@ async function main() {
     WHERE latitude IS NOT NULL`
   console.log('finish fetching stations info')
   const [stations] = await pool.query(q1)
-  const q2 = 'SELECT id, latitude, longitude FROM house'
-  const [houses] = await pool.query(q2)
+  console.log(stations.length)
+  const houseTypes = ['獨立套房', '分租套房', '雅房']
+  const q2 = `SELECT house.id, latitude, longitude, category.name FROM house
+    JOIN category
+      ON house.category_id = category.id
+    WHERE category.name IN (?)`
+  const [houses] = await pool.query(q2, [houseTypes])
+  // houses.forEach(house => {
+  //   console.log(house.name)
+  // })
+  console.log(houses.length)
+  // console.log(houseTypes)
+  // return
   console.log('finish fetching houses info')
   const map = {}
   const time1 = Date.now()
@@ -34,6 +45,7 @@ async function main() {
         { latitude: station.latitude, longitude: station.longitude },
         { latitude: house.latitude, longitude: house.longitude }
       )
+      // console.log(distance)
       // values.push([station.id, house.id, distance])
       if (distance < 1000) {
         // map[station.id][house.id] = getDistance(
@@ -45,10 +57,13 @@ async function main() {
     }
     if (i === stations.length - 1) {
       console.log(i)
-      console.log(values)
+      // console.log(values)
       await pool.query(q3, [values])
-      values = []
+      while (values.length !== 0) {
+        values.pop()
+      }
       console.log('finish inserting', i + 1, 'times')
+      break
     }
     // if (i % 5 === 0) {
     //   // console.log(values)
@@ -61,9 +76,17 @@ async function main() {
       // console.log(i)
       // console.log(counter)
       // if (values.length === 0) continue
+      if (values.length === 0) {
+        console.log('nothing to insert')
+        continue
+      }
+      // console.log(q3)
+      // console.log(values)
       await pool.query(q3, [values])
-      values = []
-      console.log('finish inserting', i + 1, 'stations')
+      console.log('finish inserting', i + 1, 'stations, with', values.length, 'data')
+      while (values.length !== 0) {
+        values.pop()
+      }
     }
 
     // console.log(i)

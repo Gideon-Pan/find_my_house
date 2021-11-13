@@ -18,4 +18,4 @@ async function deleteTable(tableName, bulkNum) {
   console.log('finish')
 }
 
-deleteTable('house', 100)
+deleteTable('station_house_distance', 10000)
