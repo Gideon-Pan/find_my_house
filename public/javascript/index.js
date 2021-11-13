@@ -278,16 +278,17 @@ function renderHouses(houses) {
       zIndex: 2
       // label: `${i}`
     })
+  // console.log(likeMap[id])
     const contentString = `  
   <div class="house-info">
       <img src="${image}" onerror="this.src='./assets/no-img.png'" width="125" height="100" />
       <p>房型：${category}, ${area}坪</p>
       <p>價格：${price}元/月</p>
       <p>地址：${address}</p>
-      <div>
+      <div class="option">
         <a href="${link}" target="_blank">查看更多</a>
-        <button class="like" id ="${id}-like" style="display: ${likeMap[id] ? 'none' : 'ineline'};" onclick="like()">加入收藏</button>
-        <button class="dislike" id ="${id}-dislike" style="display: ${likeMap[id] ? 'ineline' : 'none'};" onclick="dislike()">取消收藏</button>
+        <img src="./assets/heart.png" class="like heart" id ="${id}-like" style="display: ${likeMap[id] ? 'none' : 'ineline'};" onclick="like()">
+        <img src="./assets/heart_red.png" class="dislike heart" id ="${id}-dislike" style="display: ${likeMap[id] ? 'ineline' : 'none'};" onclick="dislike()">
       </div>
       
     </div>

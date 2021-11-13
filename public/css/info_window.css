@@ -12,7 +12,10 @@
   margin-bottom: 2px;
 }
 
-.house-info img {
+.house-info > img {
+  /* 125 100 */
+  /* width: 120px;
+  height: 96px; */
   margin-bottom: 1px;
 }
 
@@ -27,9 +30,31 @@
   margin-top: 1px;
   margin-left: 2px;
   display: inline;
+  height: 20px;
   /* margin-right: 127px; */
 }
 
 .house-info a:hover {
   cursor: pointer;
+}
+
+.heart {
+  margin-top: 2px;
+  width: 16px;
+  height: 16px;
+}
+
+.heart:hover {
+  cursor: pointer;
+}
+
+button {
+  padding: 0;
+}
+
+.option {
+  display: flex;
+  justify-content: space-between;
+  height: 20px;
+  align-items: center;
 }
