@@ -203,8 +203,8 @@ const getFacebookProfile = async function (accessToken) {
 }
 
 async function like(userId, houseId) {
-  const values = [[userId, houseId, 1]]
-  const q = `INSERT INTO like_table (user_id, house_id, status) VALUES ?
+  const values = [[userId, houseId, 1, new Date()]]
+  const q = `INSERT INTO like_table (user_id, house_id, status, update_at) VALUES ?
 		ON DUPLICATE KEY UPDATE status = VALUES(status)`
   await pool.query(q, [values])
   console.log('success like')
@@ -246,7 +246,7 @@ async function getFavoriteById(userId) {
   JOIN category
     ON category.id = house.category_id
   WHERE like_table.user_id = ?
-  ORDER BY distance`
+  `
   const values = [userId]
   const [result] = await pool.query(q, values)
   const houseMap = {}
@@ -272,25 +272,26 @@ async function getFavoriteById(userId) {
       if (!houseMap[house_id]) {
         houseMap[house_id] = {
           id: house_id,
-          position: { latitude: house_lat, longitude: house_lng },
+          latitude: house_lat, 
+          longitude: house_lng,
           category,
           area,
           price,
           link,
           image,
           address,
-          lifeFunctionMap: {}
+          lifeFunction: {}
         }
       }
-      if (!houseMap[house_id].lifeFunctionMap[type_name]) {
-        houseMap[house_id].lifeFunctionMap[type_name] = {}
+      if (!houseMap[house_id].lifeFunction[type_name]) {
+        houseMap[house_id].lifeFunction[type_name] = {}
       }
-      if (!houseMap[house_id].lifeFunctionMap[type_name][subtype_name]) {
-        houseMap[house_id].lifeFunctionMap[type_name][subtype_name] = []
+      if (!houseMap[house_id].lifeFunction[type_name][subtype_name]) {
+        houseMap[house_id].lifeFunction[type_name][subtype_name] = []
         // lifeFunctionMap[type_name][subtype_name] = new PQ()
       }
       // if (lifeFunctionMap[type_name][subtype_name].length >= 3) return
-      houseMap[house_id].lifeFunctionMap[type_name][subtype_name].push({
+      houseMap[house_id].lifeFunction[type_name][subtype_name].push({
         id: life_function_id,
         name: life_function_name,
         latitude: life_function_lat,

@@ -15,6 +15,7 @@
     <link rel="stylesheet" type="text/css" href="./css/reset2.css" />
     <!-- <link rel="stylesheet" type="text/css" href="./header.css" /> -->
     <link rel="stylesheet" type="text/css" href="./css/header.css" />
+    <link rel="stylesheet" type="text/css" href="./css/radio.css" />
     <link rel="stylesheet" type="text/css" href="./css/favorite.css" />
     <link rel="stylesheet" type="text/css" href="./css/info_window.css" />
     <title>Document</title>
@@ -45,108 +46,89 @@
       </div> -->
       </div>
     </header>
-
+    <div class="no-like">
+      <h1>你目前還沒有收藏喔</h1>
+      <a href="/">前往加入收藏</a>
+    </div>
     <main>
+      <div class="radio">
+        <div class="form-check form-check-inline">
+          <input
+            class="form-check-input"
+            type="radio"
+            name="flexRadioDefault"
+            id="flexRadioDefault1"
+            onclick="getTraffic()"
+            checked
+          />
+          <label class="form-check-label" for="flexRadioDefault1"> 交通 </label>
+        </div>
+        <div class="form-check form-check-inline">
+          <input
+            class="form-check-input"
+            type="radio"
+            name="flexRadioDefault"
+            id="flexRadioDefault2"
+            onclick="getLife()"
+          />
+          <label class="form-check-label" for="flexRadioDefault2"> 生活 </label>
+        </div>
+        <div class="form-check form-check-inline">
+          <input
+            class="form-check-input"
+            type="radio"
+            name="flexRadioDefault"
+            id="flexRadioDefault2"
+            onclick="getFood()"
+          />
+          <label class="form-check-label" for="flexRadioDefault2"> 餐飲 </label>
+        </div>
+      </div>
+      <div class="check">
+        <div class="form-check form-switch">
+          <input
+            class="form-check-input"
+            type="checkbox"
+            id="flexSwitchCheckDefault"
+            onclick="changeSwitchState()"
+          />
+          <label class="form-check-label" for="flexSwitchCheckDefault"
+            >顯示生活機能</label
+          >
+        </div>
+      </div>
+
       <div id="map"></div>
-      <ul class="list-group">
-        <!-- <li class="list-group-item active"></li> -->
-        <li class="list-group-item">
-          <div class="house-item">
-            <img
-              src="https://img2.591.com.tw/house/2021/10/27/163531688961318539.jpg!190x150.water2.jpg"
-              onerror="this.src='./assets/no-img.png'"
-              width="125"
-              height="100"
-            />
-            <div class="info">
-              <p>房型：獨立套房, 9坪</p>
-              <p>價格：13800元/月</p>
-              <p>地址：松山區南京東路五段</p>
-              <div class="option">
-                <a href="/" target="_blank">查看更多</a>
-                <img
-                  src="./assets/heart_red.png"
-                  class="dislike heart"
-                  id="${id}-dislike"
-                  onclick="dislike()"
-                />
+      <div class="d-flex column renting-houses-area">
+        <ul class="list-group">
+          <!-- <li class="list-group-item active"></li> -->
+
+          <!-- <li class="list-group-item">
+            <div class="house-item">
+              <img
+                src="https://img2.591.com.tw/house/2021/10/27/163531688961318539.jpg!190x150.water2.jpg"
+                onerror="this.src='./assets/no-img.png'"
+                width="125"
+                height="100"
+              />
+              <div class="info">
+                <p>房型：獨立套房, 9坪</p>
+                <p>價格：13800元/月</p>
+                <p>地址：松山區南京東路五段</p>
+                <div class="option">
+                  <a href="/" target="_blank">前往租屋</a>
+                  <img
+                    src="./assets/delete.png"
+                    class="dislike heart"
+                    id="${id}-dislike"
+                    onclick="dislike()"
+                  />
+                </div>
               </div>
             </div>
-          </div>
-        </li>
-        <li class="list-group-item">
-          <div class="house-item">
-            <img
-              src="https://img2.591.com.tw/house/2021/10/27/163531688961318539.jpg!190x150.water2.jpg"
-              onerror="this.src='./assets/no-img.png'"
-              width="125"
-              height="100"
-            />
-            <div class="info">
-              <p>房型：獨立套房, 9坪</p>
-              <p>價格：13800元/月</p>
-              <p>地址：松山區南京東路五段</p>
-              <div class="option">
-                <a href="/" target="_blank">查看更多</a>
-                <img
-                  src="./assets/heart_red.png"
-                  class="dislike heart"
-                  id="${id}-dislike"
-                  onclick="dislike()"
-                />
-              </div>
-            </div>
-          </div>
-        </li>
-        <li class="list-group-item">
-          <div class="house-item">
-            <img
-              src="https://img2.591.com.tw/house/2021/10/27/163531688961318539.jpg!190x150.water2.jpg"
-              onerror="this.src='./assets/no-img.png'"
-              width="125"
-              height="100"
-            />
-            <div class="info">
-              <p>房型：獨立套房, 9坪</p>
-              <p>價格：13800元/月</p>
-              <p>地址：松山區南京東路五段</p>
-              <div class="option">
-                <a href="/" target="_blank">查看更多</a>
-                <img
-                  src="./assets/heart_red.png"
-                  class="dislike heart"
-                  id="${id}-dislike"
-                  onclick="dislike()"
-                />
-              </div>
-            </div>
-          </div>
-        </li>
-        <li class="list-group-item">
-          <div class="house-item">
-            <img
-              src="https://img2.591.com.tw/house/2021/10/27/163531688961318539.jpg!190x150.water2.jpg"
-              onerror="this.src='./assets/no-img.png'"
-              width="125"
-              height="100"
-            />
-            <div class="info">
-              <p>房型：獨立套房, 9坪</p>
-              <p>價格：13800元/月</p>
-              <p>地址：松山區南京東路五段</p>
-              <div class="option">
-                <a href="/" target="_blank">查看更多</a>
-                <img
-                  src="./assets/heart_red.png"
-                  class="dislike heart"
-                  id="${id}-dislike"
-                  onclick="dislike()"
-                />
-              </div>
-            </div>
-          </div>
-        </li>
-      </ul>
+          </li> -->
+        </ul>
+      </div>
     </main>
 
     <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -163,6 +145,7 @@
       crossorigin="anonymous"
     ></script>
     <script src="./javascript/favorite.js"></script>
+    <script src="./javascript/life_function.js"></script>
     <script
       src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBBDC1rCzOAKfo_u4qR7Zq0XE0RnbHaDCA&callback=initMap&v=weekly&language=zh-TW&region=JP"
       defer

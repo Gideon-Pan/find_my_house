@@ -1,3 +1,22 @@
+// const { HostAddress } = require("mongodb")
+
+const officePosition = {
+  lat: 25.04222965263713,
+  lng: 121.5648119917025
+}
+const houseMap = {}
+const houses = []
+let houseInfowindow
+let lifeFunctionInfowindow
+let currentHouseMarker
+let houseDataList
+let lifeFunctions = []
+let currentHouse
+let currentLifeFunctionType
+let map
+let switchState = 0
+let activeIndex = 0
+
 async function getFavorite() {
   const access_token = window.localStorage.getItem('access_token')
   // console.log('here')
@@ -5,7 +24,7 @@ async function getFavorite() {
   // console.log(selectedHouseId)
   try {
     const { data } = await axios.get(
-      '/api/1.0/user/like',
+      '/api/1.0/user/favorite',
       {
         headers: {
           Authorization: `Bearer ${access_token}`
@@ -14,15 +33,21 @@ async function getFavorite() {
     )
     // console.log('....')
     console.log(data)
-    data.favoriteHouseIds.forEach(houseId => {
-      likeMap[houseId] = true
+    if (data.favoriteHouses.length === 0) {
+      $('main').css('display', 'none')
+      return $('.no-like').css('display', 'flex')
+    }
+    data.favoriteHouses.forEach(favoriteHouse => {
+      houseMap[favoriteHouse.id] = favoriteHouse
+      houses.push(favoriteHouse)
     })
+    console.log(houseMap)
     // console.log(likeMap)
     // console.log('successfully like')
   } catch (e) {
-
     console.log(e)
     console.log('fail')
+    // location.href= '/'
   }
 }
 
@@ -46,35 +71,178 @@ function initMap() {
     scaleControl: true
   })
 
-  const icon = {
-    url: './assets/office-place.png', // url
-    scaledSize: new google.maps.Size(45, 45), // scaled size
-    origin: new google.maps.Point(0, 0), // origin
-    anchor: new google.maps.Point(20, 25) // anchor
-  }
-  const officeMarker = new google.maps.Marker({
-    // position: { lat: 25.042482379737326, lng: 121.5647583475222 },
-    position: Justin,
-    map: map,
-    icon: icon,
-    draggable: true,
-    zIndex: 99999999
-  })
-
-  officeMarker.addListener('dragend', (mapsMouseEvent) => {
-    officeLat = mapsMouseEvent.latLng.toJSON().lat
-    officeLng = mapsMouseEvent.latLng.toJSON().lng
-    search()
-  })
-
   houseInfowindow = new google.maps.InfoWindow()
   lifeFunctionInfowindow = new google.maps.InfoWindow()
-  // console.log(houseInfowindow)
-  // console.log(lifeFunctionInfowindow)
-  // choose office by click
-  // click.js
+}
+
+function renderListGroup() {
+  // currentIndex = currentIndex ? currentIndex : 0
+  console.log(activeIndex)
+  let htmls = ''
+  houses.forEach((house, index) => {
+    const html = `<li class="list-group-item ${index === activeIndex ? 'color' : ''}" id="${house.id}" >
+    <div class="house-item">
+      <img
+        src="${house.image}"
+        onerror="this.src='./assets/no-img.png'"
+        width="125"
+        height="100"
+      />
+      <div class="info">
+        <p>房型：${house.category}, ${house.area}坪</p>
+        <p>價格：${house.price}元/月</p>
+        <p>地址：${house.address}</p>
+        <div class="option">
+          <div onclick="selectHouse(${house.id})" target="_blank">查看位置</div>
+          <a href="${house.link}" target="_blank" class="go-rent">查看更多</a>
+          <img
+            src="./assets/delete.png"
+            class="dislike heart"
+            id="${house.id}-dislike"
+            onclick="dislike(${house.id})"
+          />
+        </div>
+      </div>
+    </div>
+  </li>`
+  // 
+    htmls += html
+  })
+  console.log(htmls)
+  $('.list-group').html(htmls)
+}
+
+function selectHouse(id) {
+  renderHouse(id)
+  $('.color').removeClass('color')
+  $(`#${id}`).addClass('color')
+  houses.forEach((house, index) => {
+    if (house.id === id) {
+      activeIndex = index
+    }
+  })
+}
+
+function renderHouse(id) {
+  // console.log(id)
+  if (currentHouseMarker) {
+    currentHouseMarker.setMap(null)
+  }
+  const house = houseMap[id]
+  let {
+    title,
+    area,
+    link,
+    category,
+    image,
+    price,
+    address,
+    latitude,
+    longitude,
+  } = house
+  // currentId = id
+  if (area % 1 !== 0) {
+    area = area.toFixed(1)
+  }
+  // houseDataMap[id] = house
+  const houseIcon = {
+    url: './assets/house.png',
+    scaledSize: new google.maps.Size(35, 35),
+    // scaledSize: likeMap[id] ? new google.maps.Size(35, 35) : new google.maps.Size(30, 30), // scaled size
+    origin: new google.maps.Point(0, 0), // origin
+    // anchor: likeMap[id] ? new google.maps.Point(17, 22) :  new google.maps.Point(15, 20) // anchor
+    anchor: new google.maps.Point(15, 20), // anchor
+    zIndex: 200
+  }
+  const marker = new google.maps.Marker({
+    // position: { lat: 25.042482379737326, lng: 121.5647583475222 },
+    position: {
+      lat: latitude,
+      lng: longitude
+    },
+    map: map,
+    icon: houseIcon,
+    zIndex: 2
+    // label: `${i}`
+  })
+  currentHouseMarker = marker
+  currentHouse = house
+  clearLifeFunction()
+  if (switchState) {
+    renderRadio()
+    renderLifeFunction()
+  }
+  // renderRadio()
+  // renderLifeFunction()
+  map.panTo({
+    lat: latitude,
+    lng: longitude
+  })
+}
+
+function changeSwitchState() {
+  switchState = switchState ? 0 : 1
+  if (switchState) {
+    renderRadio()
+    renderLifeFunction()
+  } else {
+    removeRadio()
+    clearLifeFunction()
+  }
+}
+
+async function dislike(id) {
+  const access_token = window.localStorage.getItem('access_token')
+  // console.log('here')
+  // console.log(access_token)
+  // console.log(selectedHouseId)
+  try {
+    const { data } = await axios.delete('/api/1.0/user/like', {
+      data: {
+        houseId: id
+      },
+      headers: {
+        Authorization: `Bearer ${access_token}`
+      }
+    })
+    // likeMap[selectedHouseId] = false
+    // setDislike(selectedHouseId)
+    console.log('successfully dislike')
+    // let currentIndex
+    houses.forEach((house, index) => {
+      if (house.id === id) {
+        // Index = index
+        
+        if (index < activeIndex) {
+          houses.splice(index, 1)
+          return activeIndex--
+        }
+        if (index === activeIndex && index === houses.length - 1) {
+          activeIndex--
+        }
+        houses.splice(index, 1)
+      }
+    })
+    if (houses.length === 0) {
+      location.href = ''
+    }
+    // console.log(currentIndex)
+    // return
+    delete houseMap[id]
+
+    renderListGroup()
+  } catch (e) {
+    console.log(e)
+    console.log('fail')
+  }
 }
 
 async function main() {
-  getFavorite()
+  await getFavorite()
+  renderListGroup()
+  renderHouse(Object.keys(houseMap)[0])
+  $('main').css('visibility', 'inherit')
+  // $('main').css('dispaly', 'inline')
 }
+
+main()

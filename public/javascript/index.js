@@ -540,6 +540,7 @@ function removeReachableArea() {
 }
 
 async function showReachableArea(stations, time1) {
+  const time0 = Date.now()
   var mycity = new google.maps.LatLng(25, 121.52)
   var bigOne = new google.maps.LatLng(25, 121.53)
   var smallOne = new google.maps.LatLng(25, 121.52)
@@ -576,7 +577,7 @@ async function showReachableArea(stations, time1) {
   joined.setMap(map)
   polygons.push(joined)
   const time2 = Date.now()
-  console.log('It takes total :', (time2 - time1) / 1000, 'seconds')
+  console.log('It takes total :', (time2 - time0) / 1000, 'seconds to render')
 }
 
 async function testHouse() {

@@ -1,7 +1,10 @@
 main {
-  width: 100vw;
+  /* margin-left: 15px; */
+  width: calc(100vw);
   display: flex;
   flex-direction: row;
+  visibility: hidden;
+  /* display: none; */
   /* justify-content: space-around; */
   /* justify-content: center; */
 }
@@ -9,30 +12,136 @@ main {
 .house-item {
   /* margin: 0 20px; */
   display: flex;
-  justify-content: space-around;
+  /* justify-content: space-around; */
   align-items: center;
 }
 
 .info {
   margin-left: 20px;
+  width: 200px;
 }
 
 .info p {
   font-size: 15px;
   margin-top: 5px;
+  font-family: Microsoft YaHei, Verdana, Geneva, Tahoma, sans-serif;
+  line-height: 16px;
 }
 
-.info a {
-  margin-top: 5px;
+.info a,
+.option div {
+  margin-top: 8px;
+  font-size: 15px;
+  color: #28afb0;
+}
+
+.option {
+  margin-top: 3px;
+  margin-bottom: 5px;
+}
+
+.option img {
+  margin-top: 10px;
+}
+
+.option div:hover {
+  cursor: pointer;
 }
 
 #map {
   /* margin-top: 10px; */
-  height: 80%;
+  height: 90%;
   /* height: 100vh; */
-  width: calc(90% - 330px);
+  width: calc(90% - 350px);
   /* margin: 10px auto; */
   /* margin:  auto; */
   /* margin-bottom: 15px; */
-  margin: 20px;
+  margin: 0;
+}
+
+.renting-houses-area {
+  /* max-height: 90px; */
+  height: 90%;
+  overflow: scroll;
+  -webkit-overflow-scrolling: touch;
+}
+
+.go-rent {
+  margin-right: 20px;
+}
+
+.check {
+  position: absolute;
+  top: calc(7% + 60px);
+  left: calc(4% + 10px);
+  padding: 0 10px;
+  border-radius: 10px;
+  z-index: 200;
+  background-color: aliceblue;
+  /* background-color: #aeced2; */
+}
+
+.check label {
+  margin-top: 4px;
+}
+
+.radio {
+  display: none;
+  position: absolute;
+  top: calc(7% + 60px);
+  left: calc((100vw - 600px) / 2);
+  z-index: 300;
+  /* background-color: #EFC2CE; */
+  /* background-color: #85A4B3; */
+  background-color: #aeced2;
+  border-radius: 300px;
+  padding: 10px 10px 10px 20px;
+}
+
+.radio label {
+  margin-top: 3px;
+}
+
+/* .list-group-item[aria-expanded='true'] {
+  background-color: black !important;
+  border-color: #aed248;
+} */
+
+.color {
+  /* background-color: #F9EBAE; */
+  background-color: #D8E6FC;
+}
+
+/* li:hover {
+  cursor: pointer;
+} */
+
+/* main {
+  display: none;
+  visibility: hidden;
+} */
+
+.no-like {
+  height: calc(100vh - 50px);
+  width: 100vw;
+  display: flex;
+  /* position: fixed;
+  left: calc(50vw - 50px - 35px);
+  top: calc(50vh - 50px - 35px); */
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  display: none;
+  /* visibility: hidden; */
+  /* visibility: inherit; */
+}
+
+.no-like h1 {
+  font-size: 30px;
+  margin-bottom: 20px;
+}
+
+.no-like a {
+  font-size: 20px;
+  color: #28afb0;
 }
