@@ -203,28 +203,106 @@ const getFacebookProfile = async function (accessToken) {
 }
 
 async function like(userId, houseId) {
-	const values = [[userId, houseId, 1]]
-	const q = `INSERT INTO like_table (user_id, house_id, status) VALUES ?
+  const values = [[userId, houseId, 1]]
+  const q = `INSERT INTO like_table (user_id, house_id, status) VALUES ?
 		ON DUPLICATE KEY UPDATE status = VALUES(status)`
-	await pool.query(q, [values])
-	console.log('success like')
+  await pool.query(q, [values])
+  console.log('success like')
 }
 
 async function dislike(userId, houseId) {
-	const values = [0, userId, houseId]
-	const q = `UPDATE like_table SET status = ? WHERE user_id = ? AND house_id = ?`
-	await pool.query(q, values)
-	console.log('success dislike')
+  const values = [userId, houseId]
+  const q = `DELETE FROM like_table WHERE user_id = ? AND house_id = ?`
+  await pool.query(q, values)
+  console.log('success dislike')
 }
 
 async function getLikesById(userId) {
-	const q = `SELECT house_id FROM like_table 
+  const q = `SELECT house_id FROM like_table 
 		WHERE user_id = ?
 			AND status = 1`
-	const values = [userId]
-	const [result] = await pool.query(q, values)
-	const houseIds = result.map(({house_id}) => house_id)
-	return houseIds
+  const values = [userId]
+  const [result] = await pool.query(q, values)
+  const houseIds = result.map(({ house_id }) => house_id)
+  return houseIds
+}
+
+async function getFavoriteById(userId) {
+  const q = `SELECT house.id AS house_id, house.latitude AS house_lat, house.longitude AS house_lng, 
+    category.name AS category, area, price, link, image, house.address,
+    life_function.id AS life_function_id, life_function.name AS life_function_name, 
+    life_function.latitude AS life_function_lat, life_function.longitude AS life_function_lng, distance, 
+    life_function_type.name AS type_name, life_function_subtype.name AS subtype_name, like_table.status AS like_status FROM life_function
+  JOIN house_life_function
+    ON house_life_function.life_function_id = life_function.id
+  JOIN life_function_subtype
+    ON life_function_subtype.id = life_function.subtype_id
+  JOIN life_function_type
+    ON life_function_type.id = life_function_subtype.type_id
+  JOIN house
+    ON house.id = house_life_function.house_id
+  JOIN like_table
+    ON like_table.house_id = house.id
+  JOIN category
+    ON category.id = house.category_id
+  WHERE like_table.user_id = ?
+  ORDER BY distance`
+  const values = [userId]
+  const [result] = await pool.query(q, values)
+  const houseMap = {}
+  result.forEach(
+    ({
+      house_id,
+      house_lat,
+      house_lng,
+      category,
+      area,
+      price,
+      link,
+      image,
+      address,
+      life_function_id,
+      life_function_name,
+      life_function_lat,
+      life_function_lng,
+      distance,
+      type_name,
+      subtype_name
+    }) => {
+      if (!houseMap[house_id]) {
+        houseMap[house_id] = {
+          id: house_id,
+          position: { latitude: house_lat, longitude: house_lng },
+          category,
+          area,
+          price,
+          link,
+          image,
+          address,
+          lifeFunctionMap: {}
+        }
+      }
+      if (!houseMap[house_id].lifeFunctionMap[type_name]) {
+        houseMap[house_id].lifeFunctionMap[type_name] = {}
+      }
+      if (!houseMap[house_id].lifeFunctionMap[type_name][subtype_name]) {
+        houseMap[house_id].lifeFunctionMap[type_name][subtype_name] = []
+        // lifeFunctionMap[type_name][subtype_name] = new PQ()
+      }
+      // if (lifeFunctionMap[type_name][subtype_name].length >= 3) return
+      houseMap[house_id].lifeFunctionMap[type_name][subtype_name].push({
+        id: life_function_id,
+        name: life_function_name,
+        latitude: life_function_lat,
+        longitude: life_function_lng,
+        distance,
+        type: type_name,
+        subtype: subtype_name
+      })
+      
+    }
+  )
+  return Object.values(houseMap)
 }
 
 module.exports = {
@@ -234,7 +312,8 @@ module.exports = {
   facebookSignIn,
   getUserDetail,
   getFacebookProfile,
-	like,
-	dislike,
-	getLikesById
+  like,
+  dislike,
+  getLikesById,
+  getFavoriteById
 }

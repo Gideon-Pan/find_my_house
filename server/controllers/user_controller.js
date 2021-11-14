@@ -182,6 +182,20 @@ async function getLikes(req, res) {
 	}
 }
 
+async function getFavorite(req, res) {
+  try {
+    const favoriteHouses = await User.getFavoriteById(req.user.id)
+    // console.log(houseIds)
+		res.send({
+      userId: req.user.id,
+      favoriteHouses
+    })
+  } catch(e) {
+    console.log(e)
+    res.status(500).send()
+  }
+}
+
 module.exports = {
   signUp,
   signIn,
@@ -189,4 +203,5 @@ module.exports = {
   like,
 	dislike,
 	getLikes,
+  getFavorite
 }
