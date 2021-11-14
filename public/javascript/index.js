@@ -565,10 +565,12 @@ async function showReachableArea(stations, time1) {
     // #065279 0.3
     // #ff7500 0.6
     paths,
-    strokeColor: '#ff7500',
+    // strokeColor: '#ff7500',
+    strokeColor: '#D8A08A',
     strokeOpacity: 0.1,
     strokeWeight: 0,
-    fillColor: '#ff7500',
+    // fillColor: '#ff7500',
+    fillColor: '#D8A08A',
     fillOpacity: 0.6
   })
   // console.log('jel')
@@ -647,12 +649,36 @@ function showLifeFunction(type, subtype) {
     // })
     // line.setMap(map)
     // lines.push(line)
-
+    let url
+    switch (subtype) {
+      case '捷運':
+        url = './assets/metro.png'
+        break
+      case '公車':
+        url = './assets/bus.png'
+        break
+      case '購物':
+        url = './assets/shop.png'
+        break
+      case '餐飲':
+        url = './assets/food.png'
+        break
+      default:
+        console.log('what the fuck')
+    }
+    // url = './assets/'
+    const icon = {
+      // url,
+      scaledSize: new google.maps.Size(20, 20), // scaled size
+      origin: new google.maps.Point(0, 0), // origin
+      // anchor: new google.maps.Point(20, 25) // anchor
+    }
     // make marker
     const lifeFunction = new google.maps.Marker({
       position: spotCoordinate,
       // label: name,
-      map: map
+      map: map,
+      icon
     })
     // console.log(lifeFunctionInfowindow)
     lifeFunction.addListener(
