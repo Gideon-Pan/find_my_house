@@ -159,8 +159,8 @@ def getDataAmount(firstPageUrl):
 # getAll()
 
 
-def insertDataOfRegion(region):
-    firstPageUrl = "https://rent.591.com.tw/?region=" + str(region)
+def insertDataOfRegion(region, kind):
+    firstPageUrl = "https://rent.591.com.tw/?region=" + str(region) + "kind&kind=" + str(kind)
     dataAmount = getDataAmount(firstPageUrl)
     print(dataAmount)
 
@@ -169,7 +169,7 @@ def insertDataOfRegion(region):
     for i in range(page + 20):
         try:
             houseData = insertData(
-                'https://rent.591.com.tw/?region=' + str(region) + '&firstRow=' + str(i * DataPerPage))
+                'https://rent.591.com.tw/?region=' + str(region) + "kind&kind=" + str(kind) + '&firstRow=' + str(i * DataPerPage))
             # print(i)
             # print('https://rent.591.com.tw/?region=' + str(region) + '&firstRow=' + str(i * DataPerPage))
             print('finish inserting page ' + str(i))
@@ -186,7 +186,9 @@ def insertDataOfRegion(region):
 # 1 for Teipei
 # 3 for New Taipei
 regions = [1, 3]
+kinds = [2, 3, 4]
 for region in regions:
-    insertDataOfRegion(region)
-    exit()
+    for kind in kinds:
+        insertDataOfRegion(region, kind)
+exit()
 
