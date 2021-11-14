@@ -223,8 +223,8 @@ async function dislike(event) {
     console.log('successfully dislike')
     // let currentIndex
     houses.forEach((house, index) => {
-      console.log(id)
-      console.log(house.id)
+      // console.log(id)
+      // console.log(house.id)
       if (house.id === id) {
         // Index = index
         
@@ -247,6 +247,7 @@ async function dislike(event) {
     delete houseMap[id]
     console.log(houses.length)
     renderListGroup()
+    selectHouse(houses[activeIndex].id)
     // alert('wqeq')
     console.log('finsih dislike function')
     // event.stopPropagation()
