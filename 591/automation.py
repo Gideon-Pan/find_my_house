@@ -132,6 +132,7 @@ def insertData(url):
     today = date.today()
     print("Today's date:", today)
     # insertMongo("houseDataRaw11-999" , housesData)
+    # print(len(housesData))
     insertMongo("houseDataRaw" + str(today), housesData)
 
     # print(id)
@@ -160,16 +161,16 @@ def getDataAmount(firstPageUrl):
 
 
 def insertDataOfRegion(region, kind):
-    firstPageUrl = "https://rent.591.com.tw/?region=" + str(region) + "kind&kind=" + str(kind)
+    firstPageUrl = "https://rent.591.com.tw/?region=" + str(region) + "&kind=" + str(kind)
     dataAmount = getDataAmount(firstPageUrl)
     print(dataAmount)
 
     DataPerPage = 30
     page = math.floor(dataAmount / DataPerPage)
-    for i in range(page + 20):
+    for i in range(page + 10):
         try:
             houseData = insertData(
-                'https://rent.591.com.tw/?region=' + str(region) + "kind&kind=" + str(kind) + '&firstRow=' + str(i * DataPerPage))
+                'https://rent.591.com.tw/?region=' + str(region) + "&kind=" + str(kind) + '&firstRow=' + str(i * DataPerPage))
             # print(i)
             # print('https://rent.591.com.tw/?region=' + str(region) + '&firstRow=' + str(i * DataPerPage))
             print('finish inserting page ' + str(i))
@@ -185,7 +186,7 @@ def insertDataOfRegion(region, kind):
 
 # 1 for Teipei
 # 3 for New Taipei
-regions = [1, 3]
+regions = [3]
 kinds = [2, 3, 4]
 for region in regions:
     for kind in kinds:

@@ -427,11 +427,12 @@ async function getHousesInRange(positionData, houses) {
       const houseNum = houseIdToNumMap.get(house.id)
       const stopNum = stopIdToNumMap.get(position.stationId)
       // console.log(houseStopDistanceMap[houseNum])
-      if (radius === 400 && getDistance({latitude, longitude}, {latitude: position.lat, longitude: position.lng}) < radius) {
-        return true
-      }
+      
       if (houseStopDistanceMap[houseNum] && houseStopDistanceMap[houseNum][stopNum] < radius) {
         // console.log(houseStopMap[houseNum][stopNum])
+        return true
+      }
+      if (radius === 400 && getDistance({latitude, longitude}, {latitude: position.lat, longitude: position.lng}) < radius) {
         return true
       }
     }
