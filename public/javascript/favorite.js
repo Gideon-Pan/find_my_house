@@ -80,7 +80,7 @@ function renderListGroup() {
   console.log(activeIndex)
   let htmls = ''
   houses.forEach((house, index) => {
-    const html = `<li class="list-group-item ${index === activeIndex ? 'color' : ''}" id="${house.id}" >
+    const html = `<li class="list-group-item ${index === activeIndex ? 'item-selected' : 'item-not-selected'}" id="${house.id}" onclick="selectHouse(${house.id})">
     <div class="house-item">
       <img
         src="${house.image}"
@@ -93,29 +93,37 @@ function renderListGroup() {
         <p>價格：${house.price}元/月</p>
         <p>地址：${house.address}</p>
         <div class="option">
-          <div onclick="selectHouse(${house.id})" target="_blank">查看位置</div>
+          
           <a href="${house.link}" target="_blank" class="go-rent">查看更多</a>
           <img
             src="./assets/delete.png"
             class="dislike heart"
             id="${house.id}-dislike"
-            onclick="dislike(${house.id})"
+            "
           />
         </div>
       </div>
     </div>
   </li>`
-  // 
+  // <div onclick="selectHouse(${house.id})" target="_blank">查看位置</div>
     htmls += html
+    // console.log($(`#${house.id}`))
   })
-  console.log(htmls)
+  console.log('rerender')
+  // console.log(htmls)
   $('.list-group').html(htmls)
+  houses.forEach(house => {
+    $(`#${house.id}-dislike`).click(dislike)
+  })
 }
 
 function selectHouse(id) {
+  // console.log('fuck')
   renderHouse(id)
-  $('.color').removeClass('color')
-  $(`#${id}`).addClass('color')
+  $('.item-selected').addClass('item-not-selected')
+  $('.item-selected').removeClass('item-selected')
+  $(`#${id}`).addClass('item-selected')
+  $(`#${id}`).removeClass('item-not-selected')
   houses.forEach((house, index) => {
     if (house.id === id) {
       activeIndex = index
@@ -191,7 +199,12 @@ function changeSwitchState() {
   }
 }
 
-async function dislike(id) {
+async function dislike(event) {
+  console.log(event)
+  event.stopPropagation()
+  const id = Number(event.target.id.split('-')[0])
+  // console.log(id)
+  // console.log('213123213')
   const access_token = window.localStorage.getItem('access_token')
   // console.log('here')
   // console.log(access_token)
@@ -210,6 +223,8 @@ async function dislike(id) {
     console.log('successfully dislike')
     // let currentIndex
     houses.forEach((house, index) => {
+      console.log(id)
+      console.log(house.id)
       if (house.id === id) {
         // Index = index
         
@@ -221,6 +236,7 @@ async function dislike(id) {
           activeIndex--
         }
         houses.splice(index, 1)
+        // console.log('###')
       }
     })
     if (houses.length === 0) {
@@ -229,8 +245,11 @@ async function dislike(id) {
     // console.log(currentIndex)
     // return
     delete houseMap[id]
-
+    console.log(houses.length)
     renderListGroup()
+    // alert('wqeq')
+    console.log('finsih dislike function')
+    // event.stopPropagation()
   } catch (e) {
     console.log(e)
     console.log('fail')

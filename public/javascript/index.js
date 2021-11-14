@@ -88,10 +88,10 @@ function initMap() {
   })
 
   const icon = {
-    url: './assets/office-place.png', // url
-    scaledSize: new google.maps.Size(45, 45), // scaled size
+    url: './assets/office_2.png', // url
+    scaledSize: new google.maps.Size(60, 60), // scaled size
     origin: new google.maps.Point(0, 0), // origin
-    anchor: new google.maps.Point(20, 25) // anchor
+    // anchor: new google.maps.Point(20, 25) // anchor
   }
   const officeMarker = new google.maps.Marker({
     // position: { lat: 25.042482379737326, lng: 121.5647583475222 },

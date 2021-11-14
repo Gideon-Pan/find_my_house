@@ -46,6 +46,7 @@ main {
 
 .option div:hover {
   cursor: pointer;
+  /* background-color: black; */
 }
 
 #map {
@@ -64,6 +65,8 @@ main {
   height: 90%;
   overflow: scroll;
   -webkit-overflow-scrolling: touch;
+  overflow-x:hidden;
+  overflow-y: auto;
 }
 
 .go-rent {
@@ -107,14 +110,18 @@ main {
   border-color: #aed248;
 } */
 
-.color {
+.item-selected {
   /* background-color: #F9EBAE; */
   background-color: #D8E6FC;
 }
 
-/* li:hover {
+.item-not-selected:hover {
+  background-color: azure;
+}
+
+li:hover {
   cursor: pointer;
-} */
+}
 
 /* main {
   display: none;
