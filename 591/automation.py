@@ -116,20 +116,32 @@ def insertData(url):
     # print(ids)
     # return
     housesData = []
+    today = date.today()
     # print(ids)
     for id in ids:
-        houseData = get_house_info(id)
-        ts = time.time()
-        houseData['timestamp'] = ts
-        houseData['id'] = id
-        # pprint(houseData)
-        housesData.append(houseData)
+        try:
+            houseData = get_house_info(id)
+            # time.sleep(1)
+            ts = time.time()
+            houseData['timestamp'] = ts
+            houseData['id'] = id
+            # pprint(houseData)
+            housesData.append(houseData)
         # print('finish fetching data of id:' + str(id))
         # print(housesData[0])
         # pprint(housesData)
         # return
         # print(id)
-    today = date.today()
+        except:
+            print("Unexpected error:", sys.exc_info()[0])
+            errorMessage = [{
+                'date': today,
+                'url': f"https://bff.591.com.tw/v1/house/rent/detail?id=" + str(id),
+                'errorMessage': sys.exc_info()[0]
+            }]
+            insertMongo("Error" + str(today), errorMessage)
+            continue
+    
     print("Today's date:", today)
     # insertMongo("houseDataRaw11-999" , housesData)
     # print(len(housesData))
@@ -167,7 +179,7 @@ def insertDataOfRegion(region, kind):
 
     DataPerPage = 30
     page = math.floor(dataAmount / DataPerPage)
-    for i in range(page + 10):
+    for i in range(page + 5):
         try:
             houseData = insertData(
                 'https://rent.591.com.tw/?region=' + str(region) + "&kind=" + str(kind) + '&firstRow=' + str(i * DataPerPage))
@@ -186,7 +198,7 @@ def insertDataOfRegion(region, kind):
 
 # 1 for Teipei
 # 3 for New Taipei
-regions = [3]
+regions = [1, 3]
 kinds = [2, 3, 4]
 for region in regions:
     for kind in kinds:
