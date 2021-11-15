@@ -13,7 +13,21 @@ async function signinNative() {
   // console.log('here')
   // const name = $('#name').value
   const email = $('#email').val()
+  if (!email) {
+    await Swal.fire({
+      title: '請輸入信箱',
+      heightAuto: false
+    })
+    return
+  }
   const password = $('#password').val()
+  if (!password) {
+    await Swal.fire({
+      title: '請輸入密碼',
+      heightAuto: false
+    })
+    return
+  }
   const body = {
     provider: 'native',
     email,
@@ -29,7 +43,11 @@ async function signinNative() {
   } catch (e) {
     console.log(e)
     console.log('signin fail')
-    alert('登入失敗')
+    await Swal.fire({
+      title: '登入失敗',
+      heightAuto: false
+    })
+    return
   }
 }
 
