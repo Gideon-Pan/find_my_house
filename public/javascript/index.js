@@ -24,6 +24,7 @@ let selectedHouseId
 let likeMap = {}
 let userId
 let latestMarker
+let latestId
 const houseDataMap = {}
 
 // const Justin = {
@@ -187,6 +188,7 @@ async function search() {
   // const walk_distance = $("walk_distance").val()
 
   console.log(url)
+  removeRadio()
   showBlock()
   $('.spinner').css('display', 'inline')
   const { data } = await axios.get(url)
@@ -340,13 +342,14 @@ function renderHouses(houses) {
       'click',
       (function (id, marker) {
         return function () {
-          selectedHouseId = id
+          
           console.log(houseDataMap[id])
           
           if (latestMarker) {
             latestMarker.setZIndex(2)
           }
           marker.setZIndex(1000)
+          selectedHouseId = id
           latestMarker = marker
           const {latitude, longitude} = houseDataMap[id]
           // console.log(houseDataMap[id])
