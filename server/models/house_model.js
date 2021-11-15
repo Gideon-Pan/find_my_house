@@ -154,15 +154,16 @@ async function makeHouseStopDistanceMap() {
       if (!houseStopDistanceMap[houseIdToNumMap.get(data.house_id)]) {
         houseStopDistanceMap[houseIdToNumMap.get(data.house_id)] = []
       }
-      houseStopDistanceMap[houseIdToNumMap.get(data.house_id)][stopIdToNumMap.get(stop_id)] = data.distance
+      // houseStopDistanceMap[houseIdToNumMap.get(data.house_id)][stopIdToNumMap.get(stop_id)] = data.distance
+      houseStopDistanceMap[houseIdToNumMap.get(data.house_id)].push([stop_id, data.distance])
       counter++
     })
     // console.log()
     // if (i % 10000 === 0) console.log(i)
   })
-  console.log(stopCounter)
-  console.log(houseCounter)
-  console.log(counter)
+  // console.log(stopCounter)
+  // console.log(houseCounter)
+  // console.log(counter)
   // const q3 = 'INSERT INTO station_house_distance (station_id, house_id, distance) VALUES ?'
   // let values = []
   // for (let i = 0; i < stations.length; i++) {

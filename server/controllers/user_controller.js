@@ -145,8 +145,8 @@ const getUserProfile = async (req, res) => {
 
 async function like(req, res) {
   // console.log('get it')
-  console.log(req.user.id)
-  console.log(req.body.houseId)
+  // console.log(req.user.id)
+  // console.log(req.body.houseId)
   // console.log(req)
   // res.send('hi')
   try {

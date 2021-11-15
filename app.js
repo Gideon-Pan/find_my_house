@@ -72,15 +72,15 @@ async function main() {
   // houseStopDistanceMap = await makeHouseStopDistanceMap()
   const maps = await makeHouseStopDistanceMap()
   stopIdToNumMap = maps.stopIdToNumMap
-  console.log('stopIdToNumMap: ', stopIdToNumMap.size);
+  // console.log('stopIdToNumMap: ', stopIdToNumMap.size);
   // numToStopIdMap = maps.numToStopIdMap
   // console.log('numToStopIdMap: ', numToStopIdMap.size);
   houseIdToNumMap = maps.houseIdToNumMap
-  console.log('houseIdToNumMap: ', houseIdToNumMap.size);
+  // console.log('houseIdToNumMap: ', houseIdToNumMap.size);
   // numToHouseIdMap = maps.numToHouseIdMap
   // console.log('numToHouseIdMap: ', numToHouseIdMap.size);
   houseStopDistanceMap = maps.houseStopDistanceMap
-  console.log('houseStopMap: ', houseStopDistanceMap.length);
+  // console.log('houseStopMap: ', houseStopDistanceMap.length);
 
   // // console.log(map)
   // const time0_2 = Date.now()
@@ -198,12 +198,14 @@ app.get('/search', async (req, res) => {
     }
   }
 
-
-
   // console.log(distToStationMap)
   const nearByStationCount = counter - 1
-  console.log('nearByStationCount: ', nearByStationCount)
+  
   // can't get to any station but itself
+
+  const timerNearby = Date.now()
+  console.log((timerNearby - start) / 1000, 'seconds for get nearby station')
+  console.log('nearByStationCount: ', nearByStationCount)
   if (nearByStationCount === 0) {
     const positionData = [
       {
@@ -213,21 +215,28 @@ app.get('/search', async (req, res) => {
         distanceLeft: maxWalkDistance
       }
     ]
-    console.log(positionData.length)
+    const stopRadiusMap = {}
+    positionData.forEach(({stationId, distanceLeft}) => {
+      stopRadiusMap[stationId] = distanceLeft
+    })
+    // console.log(positionData.length)
     const houses = await getHousesInBudget(budget, houseType, tags)
-    const houseData = await getHousesInRange(positionData, houses)
+    const houseData = await getHousesInRange(positionData, houses, stopRadiusMap)
+    const end = Date.now()
+    console.log('It totally takes', (end - start) / 1000, 'seconds')
+    console.log('respond')
     return res.send({
       positionData,
       houseData
     })
   }
-
   // const counter = {}
-
+  const timer0 = Date.now()
   const reachableStations = getShortestPath(g, '-2', commuteTime, period)
-
+  const timer1 = Date.now()
+  console.log((timer1 - timer0) / 1000, 'seconds for Dijkstra')
   const reachableStationsMap = {}
-  console.log("reachable station count:", reachableStations.length)
+  console.log("reachable stops count:", reachableStations.length)
 
   reachableStations.forEach((reachableStation) => {
     const { id, startStationId, timeSpent, walkDistance } = reachableStation
@@ -279,6 +288,10 @@ app.get('/search', async (req, res) => {
     }
   })
   const positionData = Object.values(reachableStationsMap)
+  const stopRadiusMap = {}
+  positionData.forEach(({stationId, distanceLeft}) => {
+    stopRadiusMap[stationId] = distanceLeft
+  })
   // positionData.push({
   //   stationId: '-2',
   //   lat: officeLat,
@@ -288,15 +301,16 @@ app.get('/search', async (req, res) => {
   // console.log(positionData)
   // console.log(budget)
   const time1 = Date.now()
+  // console.log((time1 - start) / 1000, '!!!')
   const  houses = await getHousesInBudget(budget, houseType, tags)
   const time2 = Date.now()
-  console.log((time2 - time1) / 1000, "seconds to get house inbudget")
+  console.log((time2 - time1) / 1000, "seconds to get house in house constraint")
   // console.log(houses)
   let houseData
   // console.log(houses.length)
   if (houses.length !== 0) {
     // console.log(houses.lastIndexOf)
-    houseData = await getHousesInRange(positionData, houses)
+    houseData = await getHousesInRange(positionData, houses, stopRadiusMap)
     // console.log(houseData)
   } else {
     houseData = houses
@@ -348,12 +362,13 @@ async function getHousesInBudget(budget, houseType, validTags) {
       ON house.id = house_tag.house_id
     JOIN tag
       ON tag.id = house_tag.tag_id
-    WHERE latitude IS NOT NULL
-      AND longitude IS NOT NULL
+    WHERE price <= ${budget}
       ${validTags.length !== 0 ? 'AND tag.id IN  (?)' : ''}
-      ${budget ? `AND price <= ${budget}` : ''}
-      ${houseType ? `AND category.name = '${houseType}'` : "AND (category.name = '獨立套房' OR category.name = '分租套房' OR category.name = '雅房')"}
+      ${houseType ? `AND category.name = '${houseType}'` : ""}
   `
+  //       ${budget ? `` : ''}
+  // latitude IS NOT NULL AND longitude IS NOT NULL
+  // AND (category.name = '獨立套房' OR category.name = '分租套房' OR category.name = '雅房')
   // console.log(q)
 
   // console.log(db)
@@ -395,8 +410,8 @@ async function getHousesInBudget(budget, houseType, validTags) {
   return houses
 }
 
-async function getHousesInRange(positionData, houses, maxWalkDistance) {
-  console.log('positionData length', positionData.length)
+async function getHousesInRange(positionData, houses, stopRadiusMap) {
+  console.log('reachable stations count', positionData.length)
   // const q = `SELECT * FROM house 
   // WHERE latitude IS NOT NULL 
   //   AND longitude IS NOT NULL
@@ -404,53 +419,70 @@ async function getHousesInRange(positionData, houses, maxWalkDistance) {
   // // console.log(db)
   // const [houses] = await db.query(q)
   // console.log(positionData)
+
   let counter = 0
+  // const houseData = houses.filter(house => {
+  //   // console.log(house.category)
+  //   const {latitude, longitude} = house
+  //   const houseNum = houseIdToNumMap.get(house.id)
+  //   if (!houseStopDistanceMap[houseNum]) {
+  //     const position = positionData[0]
+  //     // console.log(position)
+  //     if (getDistance({latitude, longitude}, {latitude: position.lat, longitude: position.lng}) < position.distanceLeft) {
+  //       // console.log(getDistance({latitude, longitude}, {latitude: position.lat, longitude: position.lng}))
+  //       return true
+  //     }
+  //     return false
+  //   }
+  //   // console.log(positionData.length)
+  //   for (let i = 0; i < positionData.length; i++) {
+  //     // console.log(positionData.length)
+  //     const position = positionData[i]
+  //     const radius = position.distanceLeft
+  //     counter++
+  //     const stopNum = stopIdToNumMap.get(position.stationId)
+  //     // console.log(stopNum)
+  //     // console.log(houseStopDistanceMap[houseNum])
+  //     if (houseStopDistanceMap[houseNum][stopNum] < radius) {
+        
+  //       return true
+  //     }
+  //     if (positionData[i].stationId === '-2' && getDistance({latitude, longitude}, {latitude: position.lat, longitude: position.lng}) < radius) {
+  //       return true
+  //     }
+  //     // console.log('distance:', houseStopDistanceMap[houseNum][stopNum])
+  //     // console.log('radius:', radius)
+  //   }
+  //   return false
+  // })
   const houseData = houses.filter(house => {
-    // console.log(house.category)
     const {latitude, longitude} = house
     const houseNum = houseIdToNumMap.get(house.id)
-    if (!houseStopDistanceMap[houseNum]) {
-      const position = positionData[0]
+    // if (!houseStopDistanceMap[houseNum]) {
+    //   const position = positionData[0]
+    //   if (getDistance({latitude, longitude}, {latitude: position.lat, longitude: position.lng}) < position.distanceLeft) {
+    //     return true
+    //   }
+    //   return false
+    // }
+    // console.log(houseNum, 'dfsd')
+    if (houseStopDistanceMap[houseNum]) {
+      for (let i = 0; i < houseStopDistanceMap[houseNum].length; i++) {
+        const stopId = houseStopDistanceMap[houseNum][i][0]
+        const radius = stopRadiusMap[stopId]
+        const distance = houseStopDistanceMap[houseNum][i][1]
+        counter++
+        if (distance < radius) {
+          return true
+        }
+      }
+    }
+    const position = positionData[0]
       // console.log(position)
-      if (getDistance({latitude, longitude}, {latitude: position.lat, longitude: position.lng}) < position.distanceLeft) {
+    if (getDistance({latitude, longitude}, {latitude: position.lat, longitude: position.lng}) < position.distanceLeft) {
         // console.log(getDistance({latitude, longitude}, {latitude: position.lat, longitude: position.lng}))
-        return true
-      }
-      return false
+      return true
     }
-    // console.log(positionData.length)
-    for (let i = 0; i < positionData.length; i++) {
-      // console.log(positionData.length)
-      const position = positionData[i]
-      const radius = position.distanceLeft
-      counter++
-      // if (getDistance({latitude, longitude}, {latitude: position.lat, longitude: position.lng}) < radius) {
-      //   return true
-      // }
-      // if (houseStopDistanceMap[house.id] && houseStopDistanceMap[house.id][positionData[i].stationId] < radius) {
-      //   // console.log(house.id)
-      //   // console.log(positionData[i].stationId)
-      //   // console.log('houseStopDistanceMap[house.id][positionData[i].stationId]: ', houseStopDistanceMap[house.id][positionData[i].stationId]);
-      //   // console.log('radius: ', radius);
-      //   // console.log('~~~')
-      //   return true
-      // }
-      
-      const stopNum = stopIdToNumMap.get(position.stationId)
-      // console.log(stopNum)
-      // console.log(houseStopDistanceMap[houseNum])
-      
-      if (houseStopDistanceMap[houseNum][stopNum] < radius) {
-        
-        return true
-      }
-      if (positionData[i].stationId === '-2' && getDistance({latitude, longitude}, {latitude: position.lat, longitude: position.lng}) < radius) {
-        return true
-      }
-      // console.log('distance:', houseStopDistanceMap[houseNum][stopNum])
-      // console.log('radius:', radius)
-    }
-    // console.log('waht')
     return false
   })
   // console.log(houseData)

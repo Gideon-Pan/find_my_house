@@ -207,7 +207,7 @@ async function like(userId, houseId) {
   const q = `INSERT INTO like_table (user_id, house_id, status, update_at) VALUES ?
 		ON DUPLICATE KEY UPDATE status = VALUES(status)`
   await pool.query(q, [values])
-  console.log('success like')
+  // console.log('success like')
 }
 
 async function dislike(userId, houseId) {
