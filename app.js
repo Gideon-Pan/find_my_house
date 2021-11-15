@@ -73,12 +73,12 @@ async function main() {
   const maps = await makeHouseStopDistanceMap()
   stopIdToNumMap = maps.stopIdToNumMap
   console.log('stopIdToNumMap: ', stopIdToNumMap.size);
-  numToStopIdMap = maps.numToStopIdMap
-  console.log('numToStopIdMap: ', numToStopIdMap.size);
+  // numToStopIdMap = maps.numToStopIdMap
+  // console.log('numToStopIdMap: ', numToStopIdMap.size);
   houseIdToNumMap = maps.houseIdToNumMap
   console.log('houseIdToNumMap: ', houseIdToNumMap.size);
-  numToHouseIdMap = maps.numToHouseIdMap
-  console.log('numToHouseIdMap: ', numToHouseIdMap.size);
+  // numToHouseIdMap = maps.numToHouseIdMap
+  // console.log('numToHouseIdMap: ', numToHouseIdMap.size);
   houseStopDistanceMap = maps.houseStopDistanceMap
   console.log('houseStopMap: ', houseStopDistanceMap.length);
 
@@ -279,12 +279,12 @@ app.get('/search', async (req, res) => {
     }
   })
   const positionData = Object.values(reachableStationsMap)
-  positionData.push({
-    stationId: '-2',
-    lat: officeLat,
-    lng: officeLng,
-    distanceLeft: maxWalkDistance
-  })
+  // positionData.push({
+  //   stationId: '-2',
+  //   lat: officeLat,
+  //   lng: officeLng,
+  //   distanceLeft: maxWalkDistance
+  // })
   // console.log(positionData)
   // console.log(budget)
   const time1 = Date.now()
@@ -395,7 +395,8 @@ async function getHousesInBudget(budget, houseType, validTags) {
   return houses
 }
 
-async function getHousesInRange(positionData, houses) {
+async function getHousesInRange(positionData, houses, maxWalkDistance) {
+  console.log('positionData length', positionData.length)
   // const q = `SELECT * FROM house 
   // WHERE latitude IS NOT NULL 
   //   AND longitude IS NOT NULL
@@ -407,6 +408,16 @@ async function getHousesInRange(positionData, houses) {
   const houseData = houses.filter(house => {
     // console.log(house.category)
     const {latitude, longitude} = house
+    const houseNum = houseIdToNumMap.get(house.id)
+    if (!houseStopDistanceMap[houseNum]) {
+      const position = positionData[0]
+      // console.log(position)
+      if (getDistance({latitude, longitude}, {latitude: position.lat, longitude: position.lng}) < position.distanceLeft) {
+        // console.log(getDistance({latitude, longitude}, {latitude: position.lat, longitude: position.lng}))
+        return true
+      }
+      return false
+    }
     // console.log(positionData.length)
     for (let i = 0; i < positionData.length; i++) {
       // console.log(positionData.length)
@@ -424,17 +435,20 @@ async function getHousesInRange(positionData, houses) {
       //   // console.log('~~~')
       //   return true
       // }
-      const houseNum = houseIdToNumMap.get(house.id)
+      
       const stopNum = stopIdToNumMap.get(position.stationId)
+      // console.log(stopNum)
       // console.log(houseStopDistanceMap[houseNum])
       
-      if (houseStopDistanceMap[houseNum] && houseStopDistanceMap[houseNum][stopNum] < radius) {
-        // console.log(houseStopMap[houseNum][stopNum])
+      if (houseStopDistanceMap[houseNum][stopNum] < radius) {
+        
         return true
       }
-      if (radius === 400 && getDistance({latitude, longitude}, {latitude: position.lat, longitude: position.lng}) < radius) {
+      if (positionData[i].stationId === '-2' && getDistance({latitude, longitude}, {latitude: position.lat, longitude: position.lng}) < radius) {
         return true
       }
+      // console.log('distance:', houseStopDistanceMap[houseNum][stopNum])
+      // console.log('radius:', radius)
     }
     // console.log('waht')
     return false

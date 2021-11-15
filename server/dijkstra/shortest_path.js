@@ -107,9 +107,9 @@ function getShortestPath(g, fromId, timeLeft, period) {
       timeSpent: timeTo[reachableStationId],
       walkDistance: walkDistance[reachableStationId]
     })
-    if (reachableStationId === '16911') {
-      console.log(route)
-    }
+    // if (reachableStationId === '16911') {
+    //   console.log(route)
+    // }
     // route = route.reverse()
     // console.log(route[route.length - 2])
   }

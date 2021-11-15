@@ -62,59 +62,107 @@ async function getLifeFunction(id) {
 
 async function makeHouseStopDistanceMap() {
   const stopIdToNumMap = new Map()
-  const numToStopIdMap = new Map()
+  // const numToStopIdMap = new Map()
   const houseIdToNumMap = new Map()
-  const numToHouseIdMap = new Map()
+  // const numToHouseIdMap = new Map()
   const houseStopDistanceMap = []
-  const q1 = `SELECT stop.ptx_stop_id AS stop_id, station_house_distance.house_id, distance from station_house_distance
+  const time0 = Date.now()
+  // const q0 = `SELECT stop.ptx_stop_id AS stop_id, station_house_distance.house_id, distance from station_house_distance
+  //   JOIN station
+  //     ON station.id = station_house_distance.station_id
+  //   JOIN stop
+  //     ON stop.station_id = station.id
+  //   JOIN house
+  //     ON house.id = station_house_distance.house_id
+  //   JOIN category
+  //     ON category.id = house.category_id
+  //   ${process.argv[2] === 'metro' ? 'WHERE type = "metro"' : ''}
+  // `
+  // const [result] = await pool.query(q0)
+  // console.log(result.length)
+  const q1 = `SELECT station_id, house_id, distance from station_house_distance
     JOIN station
       ON station.id = station_house_distance.station_id
-    JOIN stop
-      ON stop.station_id = station.id
-    JOIN house
-      ON house.id = station_house_distance.house_id
-    JOIN category
-      ON category.id = house.category_id
-    WHERE category.name IN ?
-      ${process.argv[2] === 'metro' ? 'AND type = "metro"' : ''}
+    ${process.argv[2] === 'metro' ? 'WHERE type = "metro"' : ''}
   `
-  console.log('finish fetching stations stop info')
-  // const [stations] = await pool.query(q1)
-  // const q2 = 'SELECT id, latitude, longitude FROM house'
-  // const [houses] = await pool.query(q2)
-  // console.log('finish fetching houses info')
+  const [result1] = await pool.query(q1)
+  const q2 = 'SELECT id, latitude, longitude FROM house'
+  const [houses] = await pool.query(q2)
+  console.log('finish fetching houses info')
   const map = {}
+  
+  // WHERE category.name IN ?
+  // , [[['分租套房', '獨立套房', '雅房']]]
+  // const [result1] = await pool.query(q1)
+  const q3 = `SELECT station.id AS station_id, ptx_stop_id FROM station
+    JOIN stop
+      ON station.id = stop.station_id
+      ${process.argv[2] === 'metro' ? 'WHERE type = "metro"' : ''}`
+  const [result2] = await pool.query(q2)
+  const [result3] = await pool.query(q3)
+  const stationStops = {}
+  result3.forEach(data => {
+    if(!stationStops[data.station_id]) {
+      stationStops[data.station_id] = []
+    }
+    stationStops[data.station_id].push(data.ptx_stop_id)
+    // console.log(stationStops)
+  })
   const time1 = Date.now()
-  const [result] = await pool.query(q1, [[['分租套房', '獨立套房', '雅房']]])
+  console.log('finish fetching stop house distance:', (time1 - time0) / 1000, 'seconds')
   let stopCounter = 0
   let houseCounter = 0
-
-  result.forEach(data => {
-    if (!stopIdToNumMap.get(data.stop_id)) {
-      stopIdToNumMap.set(data.stop_id, stopCounter)
-      numToStopIdMap.set(stopCounter, data.stop_id)
-      stopCounter++
-    }
-    if (!houseIdToNumMap.get(data.house_id)) {
-      houseIdToNumMap.set(data.house_id, houseCounter)
-      numToHouseIdMap.set(houseCounter, data.house_id)
-      houseCounter++
-    }
-    if (!houseStopDistanceMap[houseIdToNumMap.get(data.house_id)]) {
-      houseStopDistanceMap[houseIdToNumMap.get(data.house_id)] = []
-    }
-    houseStopDistanceMap[houseIdToNumMap.get(data.house_id)][stopIdToNumMap.get(data.stop_id)] = data.distance
+  // console.log(result1.length)
+  // result.forEach((data, i) => {
+  //   if (!stopIdToNumMap.get(data.stop_id)) {
+  //     stopIdToNumMap.set(data.stop_id, stopCounter)
+  //     // numToStopIdMap.set(stopCounter, data.stop_id)
+  //     stopCounter++
+  //   }
+  //   if (!houseIdToNumMap.get(data.house_id)) {
+  //     houseIdToNumMap.set(data.house_id, houseCounter)
+  //     // numToHouseIdMap.set(houseCounter, data.house_id)
+  //     houseCounter++
+  //   }
+  //   if (!houseStopDistanceMap[houseIdToNumMap.get(data.house_id)]) {
+  //     houseStopDistanceMap[houseIdToNumMap.get(data.house_id)] = []
+  //   }
+  //   houseStopDistanceMap[houseIdToNumMap.get(data.house_id)][stopIdToNumMap.get(data.stop_id)] = data.distance
     
-    // {stop_id, house_id, distance}
-    // if (!map[house_id]){
-    //   map[house_id] = {}
-    // }
-    // map[house_id][stop_id] = distance
+  //   // {stop_id, house_id, distance}
+  //   // if (!map[house_id]){
+  //   //   map[house_id] = {}
+  //   // }
+  //   // map[house_id][stop_id] = distance
+  //   // if (i % 10000 === 0) console.log(i)
+  // })
+  let  counter = 0
+  result1.forEach((data, i) => {
+    stationStops[data.station_id].forEach(stop_id => {
+      // console.log(data.station_id)
+      // console.log(stop_id)
+      if (!stopIdToNumMap.get(stop_id)) {
+        stopIdToNumMap.set(stop_id, stopCounter)
+        // numToStopIdMap.set(stopCounter, data.stop_id)
+        stopCounter++
+      }
+      if (!houseIdToNumMap.get(data.house_id)) {
+        houseIdToNumMap.set(data.house_id, houseCounter)
+        // numToHouseIdMap.set(houseCounter, data.house_id)
+        houseCounter++
+      }
+      if (!houseStopDistanceMap[houseIdToNumMap.get(data.house_id)]) {
+        houseStopDistanceMap[houseIdToNumMap.get(data.house_id)] = []
+      }
+      houseStopDistanceMap[houseIdToNumMap.get(data.house_id)][stopIdToNumMap.get(stop_id)] = data.distance
+      counter++
+    })
+    // console.log()
     // if (i % 10000 === 0) console.log(i)
   })
   console.log(stopCounter)
   console.log(houseCounter)
-  
+  console.log(counter)
   // const q3 = 'INSERT INTO station_house_distance (station_id, house_id, distance) VALUES ?'
   // let values = []
   // for (let i = 0; i < stations.length; i++) {
@@ -140,13 +188,13 @@ async function makeHouseStopDistanceMap() {
   // }
   // console.log(map)
   const time2 = Date.now()
-  console.log((time2 - time1) / 1000, 'seconds')
-  console.log('finish loading stop house distance')
+  // console.log((time2 - time1) / 1000, 'seconds')
+  console.log('finish loading stop house distance:', (time2 - time1) / 1000, 'seconds')
   return {
     stopIdToNumMap,
-    numToStopIdMap,
+    // numToStopIdMap,
     houseIdToNumMap,
-    numToHouseIdMap,
+    // numToHouseIdMap,
     houseStopDistanceMap
   }
 }

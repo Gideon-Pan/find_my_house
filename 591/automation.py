@@ -91,7 +91,6 @@ def get_house_info(id):
     # time.sleep(0.5)
     return web_content
 
-
 def insertMongo(collection, houseData):
     houses = db[collection]
     if (len(houseData) == 0):
