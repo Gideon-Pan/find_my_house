@@ -23,6 +23,7 @@ let lifeFunctionInfowindow
 let selectedHouseId
 let likeMap = {}
 let userId
+let latestMarker
 const houseDataMap = {}
 
 // const Justin = {
@@ -329,14 +330,28 @@ function renderHouses(houses) {
         map,
         shouldFocus: false
       })
+      
     })
     marker.addListener(
       'click',
-      (function (id) {
+      (function (id, marker) {
         return function () {
           selectedHouseId = id
+          console.log(houseDataMap[id])
+          
+          if (latestMarker) {
+            latestMarker.setZIndex(2)
+          }
+          marker.setZIndex(1000)
+          latestMarker = marker
+          const {latitude, longitude} = houseDataMap[id]
+          // console.log(houseDataMap[id])
+          // map.panTo({
+          //   lat: latitude,
+          //   lng: longitude
+          // })
         }
-      })(id)
+      })(id, marker)
     )
     // console.log(houseInfowindow)
 
@@ -378,7 +393,7 @@ function renderHouses(houses) {
         return async function () {
           clearLifeFunction()
           removeLines()
-          console.log(id)
+          // console.log(id)
           const { data } = await axios.get(
             `/api/1.0/house/details?id=${id}`
           )
@@ -577,6 +592,10 @@ async function showReachableArea(stations, time1) {
   // console.log(joined)
   // console.log(map)
   joined.setMap(map)
+  joined.addListener('click', () => {
+    // console.log('here')
+    houseInfowindow.close()
+  })
   polygons.push(joined)
   const time2 = Date.now()
   console.log('It takes total :', (time2 - time0) / 1000, 'seconds to render')

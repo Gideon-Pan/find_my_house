@@ -27,6 +27,7 @@ function showLifeFunction(type, subtype) {
     lat: currentHouse.latitude,
     lng: currentHouse.longitude
   }
+  map.panTo(houseCoordinate)
   const stations = currentHouse.lifeFunction[type][subtype]
   // const currentId
   stations.forEach((station) => {
@@ -52,6 +53,8 @@ function showLifeFunction(type, subtype) {
       // label: name,
       map: map
     })
+    // const zIndex = lifeFunction.getZIndex()
+    // console.log('lifeFunction', zIndex)
     // console.log(lifeFunctionInfowindow)
     lifeFunction.addListener(
       'mouseover',

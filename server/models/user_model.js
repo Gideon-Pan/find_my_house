@@ -214,7 +214,7 @@ async function dislike(userId, houseId) {
   const values = [userId, houseId]
   const q = `DELETE FROM like_table WHERE user_id = ? AND house_id = ?`
   await pool.query(q, values)
-  console.log('success dislike')
+  // console.log('success dislike')
 }
 
 async function getLikesById(userId) {

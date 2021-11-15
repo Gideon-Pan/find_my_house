@@ -77,7 +77,7 @@ function initMap() {
 
 function renderListGroup() {
   // currentIndex = currentIndex ? currentIndex : 0
-  console.log(activeIndex)
+  // console.log(activeIndex)
   let htmls = ''
   houses.forEach((house, index) => {
     const html = `<li class="list-group-item ${index === activeIndex ? 'item-selected' : 'item-not-selected'}" id="${house.id}" onclick="selectHouse(${house.id})">
@@ -109,7 +109,7 @@ function renderListGroup() {
     htmls += html
     // console.log($(`#${house.id}`))
   })
-  console.log('rerender')
+  // console.log('rerender')
   // console.log(htmls)
   $('.list-group').html(htmls)
   houses.forEach(house => {
@@ -155,11 +155,12 @@ function renderHouse(id) {
   // houseDataMap[id] = house
   const houseIcon = {
     url: './assets/house.png',
-    scaledSize: new google.maps.Size(35, 35),
+    scaledSize: new google.maps.Size(40, 40),
     // scaledSize: likeMap[id] ? new google.maps.Size(35, 35) : new google.maps.Size(30, 30), // scaled size
     origin: new google.maps.Point(0, 0), // origin
     // anchor: likeMap[id] ? new google.maps.Point(17, 22) :  new google.maps.Point(15, 20) // anchor
-    anchor: new google.maps.Point(15, 20), // anchor
+    anchor: new google.maps.Point(22, 30), // anchor
+    // anchor: new google.maps.Point(0, 0),
     zIndex: 200
   }
   const marker = new google.maps.Marker({
@@ -170,9 +171,11 @@ function renderHouse(id) {
     },
     map: map,
     icon: houseIcon,
-    zIndex: 2
+    zIndex: 2000
     // label: `${i}`
   })
+  // const zIndex = marker.getZIndex()
+  // console.log('house', zIndex)
   currentHouseMarker = marker
   currentHouse = house
   clearLifeFunction()
