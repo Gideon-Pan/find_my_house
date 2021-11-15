@@ -220,3 +220,53 @@ main {
 .gm-style-iw-d {
   overflow: hidden !important;
 } */
+
+/* loading */
+.block {
+  height: 500px;
+  /* background-color: #AECED2; */
+  /* background-color: rgb(139, 132, 131); */
+  background-color: aliceblue;
+  opacity: 0.9;
+  position: absolute;
+  top: 0px;
+  left: 0px;
+}
+
+.loading {
+  position: absolute;
+  top: 0px;
+  left: 0px;
+}
+
+.blockUI {
+  position: absolute;           
+  top: 0px;
+  left: 0px;
+  display: none;
+
+
+}
+
+.border-b {
+  border: 2px solid black;
+}
+
+.block-full-w {
+  width: 100%
+}
+
+.spinner {
+  display: none;
+  position: fixed;
+  top: calc(50vh - 100px + 50px);
+  left: calc(50vw - 100px);
+  z-index: 10;
+  /* background-color: rgb(139, 132, 131); */
+}
+/* .loading {
+
+  top: calc(50vh - 100px + 50px);
+  left: calc(50vw - 100px);
+  z-index: 10;
+} */

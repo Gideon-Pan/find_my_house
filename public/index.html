@@ -26,7 +26,12 @@
         <!-- <div class="nav">
           <a href="/">我的聊天</a>
         </div> -->
-        <div class="nav like" onclick="(function() {location.href=`/favorite.html`}())">我的收藏</div>
+        <div
+          class="nav like"
+          onclick="(function() {location.href=`/favorite.html`}())"
+        >
+          我的收藏
+        </div>
         <div class="nav sign">
           <!-- <div onclick="signout()">登出</div> -->
         </div>
@@ -47,7 +52,7 @@
               aria-label="Default select example"
             >
               <!-- <option value="">上班時間</option> -->
-              <!-- <option value="" selected="true" disabled="disablgd">通勤時段</option> -->
+              <option value="" selected="true" disabled="disablgd">通勤時段</option>
               <option value="weekdaysPeak">平日尖峰</option>
               <option value="weekdays">平日離峰</option>
               <option value="weekend">假日</option>
@@ -60,7 +65,7 @@
               aria-label="Default select example"
             >
               <!-- <option value="">通勤時間</option> -->
-              <!-- <option value="" selected="true" disabled="disabled">通勤時間</option> -->
+              <option value="" selected="true" disabled="disabled">通勤時間</option>
               <!-- <option value="9:00">10分鐘</option>
               <option value="9:00">15分鐘</option> -->
               <option value="20">20min</option>
@@ -77,7 +82,7 @@
               aria-label="Default select example"
             >
               <!-- <option value="">交通方式</option> -->
-              <!-- <option value="" selected="true" disabled="disabled">交通方式</option> -->
+              <option value="" selected="true" disabled="disabled">交通方式</option>
               <option value="metro">捷運</option>
               <option value="bus">公車</option>
               <option value="mix">公車+捷運</option>
@@ -90,7 +95,7 @@
               aria-label="Default select example"
             >
               <!-- <option value="">步行距離</option> -->
-              <!-- <option value="" selected="true" disabled="disabled">步行距離</option> -->
+              <option value="" selected="true" disabled="disabled">步行距離</option>
               <option value="400">400m</option>
               <option value="500">500m</option>
               <option value="1000">1km</option>
@@ -182,7 +187,9 @@
                 id="new-item"
                 value="option4"
               />
-              <label class="form-check-label" for="inlineCheckbox4">新品上架</label>
+              <label class="form-check-label" for="inlineCheckbox4"
+                >新品上架</label
+              >
             </div>
             <!-- checks -->
           </div>
@@ -197,27 +204,53 @@
       </div>
       <div class="radio">
         <div class="form-check form-check-inline">
-          <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault1" onclick="getTraffic()" checked>
-          <label class="form-check-label" for="flexRadioDefault1">
-            交通
-          </label>
+          <input
+            class="form-check-input"
+            type="radio"
+            name="flexRadioDefault"
+            id="flexRadioDefault1"
+            onclick="getTraffic()"
+            checked
+          />
+          <label class="form-check-label" for="flexRadioDefault1"> 交通 </label>
         </div>
         <div class="form-check form-check-inline">
-          <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault2" onclick="getLife()">
-          <label class="form-check-label" for="flexRadioDefault2">
-            生活
-          </label>
+          <input
+            class="form-check-input"
+            type="radio"
+            name="flexRadioDefault"
+            id="flexRadioDefault2"
+            onclick="getLife()"
+          />
+          <label class="form-check-label" for="flexRadioDefault2"> 生活 </label>
         </div>
         <div class="form-check form-check-inline">
-          <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault2" onclick="getFood()">
-          <label class="form-check-label" for="flexRadioDefault2">
-            餐飲
-          </label>
+          <input
+            class="form-check-input"
+            type="radio"
+            name="flexRadioDefault"
+            id="flexRadioDefault2"
+            onclick="getFood()"
+          />
+          <label class="form-check-label" for="flexRadioDefault2"> 餐飲 </label>
         </div>
       </div>
       <div id="map"></div>
-    
     </main>
+    <div class="blockUI block-full-w">
+      <div class="block block-full-w"></div>
+      <div class="loading block-full-w" style="text-align: center">
+        <i
+          class="fas fa-spinner fa-spin fa-5x"
+          style="color: rgb(254, 254, 255)"
+        ></i>
+      </div>
+    </div>
+
+    <div class="spinner">
+      <img src="./assets/spinner.gif">
+    </div>
+    
 
     <div class="filters-old">
       <!-- <label>活動商品名稱</label> -->
@@ -227,7 +260,6 @@
         <option value="weekdaysPeak">平日尖峰</option>
         <option value="weekdays">平日離峰</option>
         <option value="weekend">假日</option>
-      
       </select>
 
       <select name="commute_time" id="commute_time">
