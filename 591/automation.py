@@ -11,6 +11,7 @@ from selenium.webdriver.chrome.options import Options
 import sys
 import os
 from dotenv import load_dotenv
+import traceback
 load_dotenv()
 # import dnspython
 ENVIROMENT = os.environ.get("ENVIRONMENT")
@@ -93,6 +94,8 @@ def get_house_info(id):
 
 def insertMongo(collection, houseData):
     houses = db[collection]
+    print (collection)
+    print(houseData)
     if (len(houseData) == 0):
         return
     houses.insert_many(houseData)
@@ -131,12 +134,14 @@ def insertData(url):
         # pprint(housesData)
         # return
         # print(id)
-        except:
-            print("Unexpected error:", sys.exc_info()[0])
+        except Exception as e:
+            ex_type, ex_value, ex_traceback = sys.exc_info()
+            print("Unexpected error:", str(e))
+            print(sys.exc_info()[1], "......")
             errorMessage = [{
-                'date': today,
+                'date': str(today),
                 'url': f"https://bff.591.com.tw/v1/house/rent/detail?id=" + str(id),
-                'errorMessage': sys.exc_info()[0]
+                'errorMessage': str(e)
             }]
             insertMongo("Error" + str(today), errorMessage)
             continue
@@ -187,10 +192,40 @@ def insertDataOfRegion(region, kind):
             print('finish inserting page ' + str(i))
             time.sleep(2)
             # insertData("houseData", houseData)
-        except:
-            print('page ' + str(i) + 'fail')
-            print("Unexpected error:", sys.exc_info()[0])
-            continue
+        # except:
+        #     print('page ' + str(i) + 'fail')
+        #     print("Unexpected error:", sys.exc_info()[0])
+        #     print("Unexpected error:", sys.exc_info()[0])
+        #     return
+        #     errorMessage = [{
+        #         'date': date.today(),
+        #         'url': f"https://bff.591.com.tw/v1/house/rent/detail?id=" + str(id),
+        #         # 'errorMessage': sys.exc_info()[0]
+        #     }]
+
+        #     insertMongo("Error" + "test", errorMessage)
+        #     print('recording error')
+        #     continue
+        #     continue
+        except Exception as e:
+            # Get current system exception
+            ex_type, ex_value, ex_traceback = sys.exc_info()
+
+            # Extract unformatter stack traces as tuples
+            trace_back = traceback.extract_tb(ex_traceback)
+
+            # Format stacktrace
+            stack_trace = list()
+
+            for trace in trace_back:
+                stack_trace.append("File : %s , Line : %d, Func.Name : %s, Message : %s" % (trace[0], trace[1], trace[2], trace[3]))
+
+            # print("Exception type : %s " % ex_type.__name__)
+            # print("Exception message : %s" %ex_value)
+            print('error message:', str(e))
+            # print("Stack trace : %s" %stack_trace)
+            exit()
+            return
 
 # getData('https://rent.591.com.tw/')
 

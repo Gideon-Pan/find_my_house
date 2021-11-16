@@ -15,7 +15,7 @@ let walkVelocity = 1.25
 let currentId
 let houseLat
 let houseLng
-let lines = []
+// let lines = []
 let lifeFunctions = []
 let currentHouse
 let currentLifeFunctionType
@@ -25,7 +25,14 @@ let likeMap = {}
 let userId
 let latestMarker
 let latestId
-const houseDataMap = {}
+let houseDataMap = {}
+// const renderHouseDataMap = {}
+let houseInfoStatus = false
+let lastOpenedInfoWindow
+const renderLimit = 7500000
+// let  = true
+let totalTime = 0
+let counter = 0
 
 // const Justin = {
 //   lat: 25.00921512991647,
@@ -56,7 +63,7 @@ function setMapOnAll(map) {
   // for (let i = 0; i < markers.length; i++) {
   //   markers[i].setMap(map)
   // }
-  Object.values(markerMap).forEach(marker => {
+  Object.values(markerMap).forEach((marker) => {
     // console.log('hi')
     marker.setMap(map)
   })
@@ -92,7 +99,7 @@ function initMap() {
   const icon = {
     url: './assets/office_2.png', // url
     scaledSize: new google.maps.Size(60, 60), // scaled size
-    origin: new google.maps.Point(0, 0), // origin
+    origin: new google.maps.Point(0, 0) // origin
     // anchor: new google.maps.Point(20, 25) // anchor
   }
   const officeMarker = new google.maps.Marker({
@@ -112,13 +119,20 @@ function initMap() {
 
   houseInfowindow = new google.maps.InfoWindow()
   lifeFunctionInfowindow = new google.maps.InfoWindow()
+  google.maps.event.addListener(map, 'click', function () {
+    closeLastOpenedInfoWindow()
+  })
   // console.log(houseInfowindow)
   // console.log(lifeFunctionInfowindow)
   // choose office by click
   // click.js
+  // google.maps.event.clearListener(map, 'idle', reRenderHouses);
 }
 
 async function search() {
+  houseDataMap = {}
+  houseInfoStatus = false
+  // return
   // const test = $('#test').val()
   // console.log(test)
   const time1 = Date.now()
@@ -154,7 +168,6 @@ async function search() {
   }
   // console.log(commuteTime)
   if (!commuteTime) {
-    
     // alert('請選擇通勤時間')
     Swal.fire({
       title: '請選擇通勤時間',
@@ -195,7 +208,9 @@ async function search() {
   removeBlock()
   $('.spinner').css('display', 'none')
   console.log(data)
+  // if (data.length)
   const { positionData, houseData } = data
+  
 
   // hideCircles()
   // circles = []
@@ -204,7 +219,37 @@ async function search() {
   clearLifeFunction()
   removeReachableArea()
   removeHouses()
+  // console.log()
+  if (houseData.length > 1000) {
+    houseInfoStatus = false
+    if (markerCluster) {
+      markerCluster.clearMarkers()
+    }
+    // Swal.fire({
+    //   title: `符合搜尋條件的房子過多(${houseData.length}間)，為了您的使用體驗，請更改搜尋條件`,
+    //   heightAuto: false
+    //   // text: 'Something went wrong!',
+    //   // footer: '<a href="">Why do I have this issue?</a>'
+    // })
+    Swal.fire({
+      title: '請限縮搜尋條件',
+      text: `目前共找到${houseData.length}間，限縮搜尋條件以找到最適合您的房子`,
+      icon: 'info',
+      confirmButtonText: '我知道了'
+    })
+    // alert('請選擇步行距離')
+    return
+  }
   renderHouses(houseData)
+  // console.log(houseDataMap)
+  const latitudeNW = map.getBounds().getNorthEast().lat()
+  const longitudeNW = map.getBounds().getNorthEast().lng()
+  const latitudeSE = map.getBounds().getSouthWest().lat()
+  const longitudeSE = map.getBounds().getSouthWest().lng()
+  latestLatitudeNW = latitudeNW
+  latestLongitudeNW = longitudeNW
+  height = Math.abs(latitudeNW - latitudeSE)
+  width = Math.abs(longitudeNW - longitudeSE)
 
   return showReachableArea(positionData, time1)
   data.forEach((station) => {
@@ -230,6 +275,12 @@ function removeHouses() {
   for (let houseMarker of houseMarkers) {
     houseMarker.setMap(null)
   }
+  // Object.keys(markerMap).forEach(id => {
+  //   houseMarkerMap[id].setMap(null)
+  //   delete houseMarkerMap[id]
+  // })
+  // if ()
+
   houseMarkers = []
 }
 
@@ -241,7 +292,7 @@ function clearLifeFunction() {
 }
 
 function makeContentString(house) {
-  const {image, category, area, price, address, link, id} = house
+  const { image, category, area, price, address, link, id } = house
   return `  
   <div class="house-info">
       <img src="${image}" onerror="this.src='./assets/no-img.png'" width="125" height="100" />
@@ -250,8 +301,12 @@ function makeContentString(house) {
       <p>地址：${address}</p>
       <div class="option">
         <a href="${link}" target="_blank">查看更多</a>
-        <img src="./assets/heart.png" class="like heart" id ="${id}-like" style="display: ${likeMap[id] ? 'none' : 'ineline'};" onclick="like()">
-        <img src="./assets/heart_red.png" class="dislike heart" id ="${id}-dislike" style="display: ${likeMap[id] ? 'ineline' : 'none'};" onclick="dislike()">
+        <img src="./assets/heart.png" class="like heart" id ="${id}-like" style="display: ${
+    likeMap[id] ? 'none' : 'ineline'
+  };" onclick="like()">
+        <img src="./assets/heart_red.png" class="dislike heart" id ="${id}-dislike" style="display: ${
+    likeMap[id] ? 'ineline' : 'none'
+  };" onclick="dislike()">
       </div>
       
     </div>
@@ -259,55 +314,60 @@ function makeContentString(house) {
 }
 
 // here
-function renderHouses(houses) {
-  while (markers.length !== 0) {
-    markers.pop()
+function renderHouse(house) {
+  // (house) => {
+  // console.log('a')
+  let {
+    title,
+    area,
+    link,
+    category,
+    image,
+    price,
+    address,
+    latitude,
+    longitude,
+    id
+  } = house
+  const latlng = new google.maps.LatLng(latitude, longitude)
+  if (
+    !map.getBounds().contains(latlng) &&
+    Object.keys(houseDataMap).length > renderLimit
+  ) {
+    return
   }
-  // markerClusterer.clearMarkers();
-  houses.forEach((house, i) => {
-    // console.log('a')
-    let {
-      title,
-      area,
-      link,
-      category,
-      image,
-      price,
-      address,
-      latitude,
-      longitude,
-      id
-    } = house
-    // currentId = id
-    if (area % 1 !== 0) {
-      area = area.toFixed(1)
-    }
-    houseDataMap[id] = house
-    const houseIcon = makeHouseIcon(id)
-    // const houseIcon = {
-    //   // url: './assets/renting.png', // url
-    //   // url: './assets/renting-house.jpg',
-    //   // url: './assets/icon.jfif',
-    //   // 2, 4 works
-    //   url: likeMap[id] ? './assets/house_liked.png' : './assets/house.png',
-    //   scaledSize: likeMap[id] ? new google.maps.Size(35, 35) : new google.maps.Size(30, 30), // scaled size
-    //   origin: new google.maps.Point(0, 0), // origin
-    //   anchor: new google.maps.Point(15, 20) // anchor
-    //   // anchor: new google.maps.Point(15, 20) // anchor
-    // }
-    const marker = new google.maps.Marker({
-      // position: { lat: 25.042482379737326, lng: 121.5647583475222 },
-      position: {
-        lat: latitude,
-        lng: longitude
-      },
-      map: map,
-      icon: houseIcon,
-      zIndex: 2
-      // label: `${i}`
-    })
+  // currentId = id
+  if (area % 1 !== 0) {
+    area = area.toFixed(1)
+  }
+
+  const houseIcon = makeHouseIcon(id)
+  // const houseIcon = {
+  //   // url: './assets/renting.png', // url
+  //   // url: './assets/renting-house.jpg',
+  //   // url: './assets/icon.jfif',
+  //   // 2, 4 works
+  //   url: likeMap[id] ? './assets/house_liked.png' : './assets/house.png',
+  //   scaledSize: likeMap[id] ? new google.maps.Size(35, 35) : new google.maps.Size(30, 30), // scaled size
+  //   origin: new google.maps.Point(0, 0), // origin
+  //   anchor: new google.maps.Point(15, 20) // anchor
+  //   // anchor: new google.maps.Point(15, 20) // anchor
+  // }
+  const time1 = Date.now()
+  const marker = new google.maps.Marker({
+    // position: { lat: 25.042482379737326, lng: 121.5647583475222 },
+    position: {
+      lat: latitude,
+      lng: longitude
+    },
+    map: map,
+    icon: houseIcon,
+    zIndex: 2
+    // label: `${i}`
+  })
+
   // console.log(likeMap[id])
-  //   const contentString = `  
+  //   const contentString = `
   // <div class="house-info">
   //     <img src="${image}" onerror="this.src='./assets/no-img.png'" width="125" height="100" />
   //     <p>房型：${category}, ${area}坪</p>
@@ -318,161 +378,201 @@ function renderHouses(houses) {
   //       <img src="./assets/heart.png" class="like heart" id ="${id}-like" style="display: ${likeMap[id] ? 'none' : 'ineline'};" onclick="like()">
   //       <img src="./assets/heart_red.png" class="dislike heart" id ="${id}-dislike" style="display: ${likeMap[id] ? 'ineline' : 'none'};" onclick="dislike()">
   //     </div>
-      
+
   //   </div>
   // `
   // const contentString = makeContentString(house)
-    // <a href="flat-share.html" target="_blank">徵室友</a>
-    // const houseInfowindow = new google.maps.InfoWindow({
-    //   content: contentString
-    // })
-    houseInfowindow.addListener('domready', () => {
-      var test = $('.test')
-      // test.html('test')
-    })
-    marker.addListener('click', () => {
-      houseInfowindow.open({
-        anchor: marker,
-        map,
-        shouldFocus: false
-      })
-      
-    })
-    marker.addListener(
-      'click',
-      (function (id, marker) {
-        return function () {
-          
-          console.log(houseDataMap[id])
-          
-          if (latestMarker) {
-            latestMarker.setZIndex(2)
-          }
-          marker.setZIndex(1000)
-          selectedHouseId = id
-          latestMarker = marker
-          const {latitude, longitude} = houseDataMap[id]
-          // console.log(houseDataMap[id])
-          // map.panTo({
-          //   lat: latitude,
-          //   lng: longitude
-          // })
-        }
-      })(id, marker)
-    )
-    // console.log(houseInfowindow)
-
-    google.maps.event.addListener(map, 'click', function () {
-      houseInfowindow.close()
-    })
-    // console.log(houseInfowindows)
-    // if (houseMarkers.length !== 0) {
-    // houseInfowindows.forEach((houseInfowindowOld) => {
-    //   // console.log(houseInfowindowOld)
-    //   houseInfowindowOld.close()
-    //   houseInfowindowOld.setMap(null)
-    // })
-    // }
-    google.maps.event.addListener(
-      marker,
-      'click',
-      (function (marker, id, infowindow) {
-        lastOpenedInfoWindow = false
-        return function () {
-          // console.log('jww')
-          const content = makeContentString(houseDataMap[id])
-          closeLastOpenedInfoWindow()
-          // console.log(infowindow)
-          infowindow.setContent(content)
-          infowindow.open(map, marker)
-          lastOpenedInfoWindow = infowindow
-          // console.log('hi')
-          // console.log(id)
-          // currentId = id
-        }
-      })(marker, id, houseInfowindow)
-    )
-
-    google.maps.event.addListener(
-      marker,
-      'click',
-      (function (id) {
-        return async function () {
-          clearLifeFunction()
-          removeLines()
-          // console.log(id)
-          const { data } = await axios.get(
-            `/api/1.0/house/details?id=${id}`
-          )
-          console.log(data)
-          document
-            .querySelector('.radio')
-            .setAttribute('style', 'display: inline;')
-          // console.log($('.radio').attr("display"))
-
-          if (!currentLifeFunctionType) {
-            currentLifeFunctionType = 'traffic'
-          }
-
-          currentHouse = data
-          switch (currentLifeFunctionType) {
-            case 'traffic':
-              getTraffic()
-              break
-            case 'life':
-              getLife()
-              break
-            case 'food':
-              getFood()
-              break
-            default:
-              console.log('what')
-          }
-        }
-      })(id)
-    )
-
-    // google.maps.event.addListener(marker, 'click', async () => {
-    //   // console.log(currentId)
-    //   const {data} = await axios.get(`/api/1.0/house/life-function?id=${currentId}`)
-    //   console.log(data)
-    //   const  {coordinate} = data
-    //   const houseCoordinate = {lat: coordinate.latitude, lng: coordinate.longitude}
-    //   const stations = data['交通']['捷運']
-    //   // const currentId
-    //   stations.forEach(station => {
-    //     const {id, name, latitude, longitude, distance, subtype, type} = station
-    //     // coordinates.push({lat: latitude, lng: longitude})
-    //     const spotCoordinate = {lat: latitude, lng: longitude}
-    //     const flightPath = new google.maps.Polyline({
-    //       path: [houseCoordinate, spotCoordinate],
-    //       geodesic: true,
-    //       strokeColor: "#FF0000",
-    //       strokeOpacity: 1.0,
-    //       strokeWeight: 2,
-    //     });
-
-    //     flightPath.setMap(map);
-    //     console.log('here')
-    //   })
-    //   // const flightPlanCoordinates = [
-    //   //   { lat: 37.772, lng: -122.214 },
-    //   //   { lat: 21.291, lng: -157.821 },
-    //   //   { lat: -18.142, lng: 178.431 },
-    //   //   { lat: -27.467, lng: 153.027 },
-    //   // ];
-
-    // })
-
-    function closeLastOpenedInfoWindow() {
-      if (lastOpenedInfoWindow) {
-        lastOpenedInfoWindow.close()
-      }
-    }
-    markerMap[id] = marker
-    markers.push(marker)
-    // houseInfowindows.push(houseInfowindow)
+  // <a href="flat-share.html" target="_blank">徵室友</a>
+  // const houseInfowindow = new google.maps.InfoWindow({
+  //   content: contentString
+  // })
+  houseInfowindow.addListener('domready', () => {
+    var test = $('.test')
+    // test.html('test')
   })
+  marker.addListener('click', () => {
+    houseInfowindow.open({
+      anchor: marker,
+      map,
+      shouldFocus: false
+    })
+  })
+  marker.addListener(
+    'click',
+    (function (id, marker) {
+      return function () {
+        console.log(houseDataMap[id])
+
+        if (latestMarker) {
+          latestMarker.setZIndex(2)
+        }
+        marker.setZIndex(1000)
+        selectedHouseId = id
+        latestMarker = marker
+        const { latitude, longitude } = houseDataMap[id]
+        // console.log(houseDataMap[id])
+        // map.panTo({
+        //   lat: latitude,
+        //   lng: longitude
+        // })
+      }
+    })(id, marker)
+  )
+  // console.log(houseInfowindow)
+
+  // console.log(houseInfowindows)
+  // if (houseMarkers.length !== 0) {
+  // houseInfowindows.forEach((houseInfowindowOld) => {
+  //   // console.log(houseInfowindowOld)
+  //   houseInfowindowOld.close()
+  //   houseInfowindowOld.setMap(null)
+  // })
+  // }
+  google.maps.event.addListener(
+    marker,
+    'click',
+    (function (marker, id, infowindow) {
+      // lastOpenedInfoWindow = false
+      return function () {
+        // console.log('jww')
+        const content = makeContentString(houseDataMap[id])
+        closeLastOpenedInfoWindow()
+        // console.log(infowindow)
+        infowindow.setContent(content)
+        infowindow.open(map, marker)
+        lastOpenedInfoWindow = infowindow
+        infowindow.addListener('closeclick', () => (houseInfoStatus = false))
+        houseInfoStatus = true
+        // console.log('hi')
+        // console.log(id)
+        // currentId = id
+      }
+    })(marker, id, houseInfowindow)
+  )
+  // console.log(lastOpenedInfoWindow)
+  // for selected house
+  if (selectedHouseId === id && houseInfoStatus) {
+    closeLastOpenedInfoWindow()
+    const content = makeContentString(houseDataMap[id])
+    // console.log(infowindow)
+    houseInfowindow.setContent(content)
+    houseInfowindow.open(map, marker)
+    // console.log(lastOpenedInfoWindow)
+    lastOpenedInfoWindow = houseInfowindow
+    // console.log(lastOpenedInfoWindow)
+    houseInfoStatus = true
+  }
+  // console.log(lastOpenedInfoWindow)
+  google.maps.event.addListener(
+    marker,
+    'click',
+    (function (id) {
+      return async function () {
+        clearLifeFunction()
+        // removeLines()
+        // console.log(id)
+        const { data } = await axios.get(`/api/1.0/house/details?id=${id}`)
+        console.log(data)
+        document
+          .querySelector('.radio')
+          .setAttribute('style', 'display: inline;')
+        // console.log($('.radio').attr("display"))
+
+        if (!currentLifeFunctionType) {
+          currentLifeFunctionType = 'traffic'
+        }
+
+        currentHouse = data
+        switch (currentLifeFunctionType) {
+          case 'traffic':
+            getTraffic()
+            break
+          case 'life':
+            getLife()
+            break
+          case 'food':
+            getFood()
+            break
+          default:
+            console.log('what')
+        }
+      }
+    })(id)
+  )
+  // console.log(lastOpenedInfoWindow)
+  // google.maps.event.addListener(marker, 'click', async () => {
+  //   // console.log(currentId)
+  //   const {data} = await axios.get(`/api/1.0/house/life-function?id=${currentId}`)
+  //   console.log(data)
+  //   const  {coordinate} = data
+  //   const houseCoordinate = {lat: coordinate.latitude, lng: coordinate.longitude}
+  //   const stations = data['交通']['捷運']
+  //   // const currentId
+  //   stations.forEach(station => {
+  //     const {id, name, latitude, longitude, distance, subtype, type} = station
+  //     // coordinates.push({lat: latitude, lng: longitude})
+  //     const spotCoordinate = {lat: latitude, lng: longitude}
+  //     const flightPath = new google.maps.Polyline({
+  //       path: [houseCoordinate, spotCoordinate],
+  //       geodesic: true,
+  //       strokeColor: "#FF0000",
+  //       strokeOpacity: 1.0,
+  //       strokeWeight: 2,
+  //     });
+
+  //     flightPath.setMap(map);
+  //     console.log('here')
+  //   })
+  //   // const flightPlanCoordinates = [
+  //   //   { lat: 37.772, lng: -122.214 },
+  //   //   { lat: 21.291, lng: -157.821 },
+  //   //   { lat: -18.142, lng: 178.431 },
+  //   //   { lat: -27.467, lng: 153.027 },
+  //   // ];
+
+  // })
+
+  markerMap[id] = marker
+  // console.log(marker.getPosition())
+  markers.push(marker)
+  // houseInfowindows.push(houseInfowindow)
+  google.maps.event.clearListeners(map, 'zoom_changed', handleZoomChange)
+  google.maps.event.clearListeners(map, 'dragend', handleDrag)
+  google.maps.event.addListener(map, 'zoom_changed', handleZoomChange)
+  google.maps.event.addListener(map, 'dragend', handleDrag)
+  // google.maps.event.clearListeners(map, 'zoom_changed', () => {console.log('h1')})
+  // google.maps.event.addListener(map, 'zoom_changed', () => {console.log('h1')})
+  const time2 = Date.now()
+  // console.log('rennder a marker', (time2 - time1), 'ms')
+  counter++
+  totalTime += time2 - time1
+  // console.log(lastOpenedInfoWindow)
+}
+
+function closeLastOpenedInfoWindow() {
+  // console.log('h1')
+  // console.log(lastOpenedInfoWindow)
+  if (lastOpenedInfoWindow) {
+    lastOpenedInfoWindow.close()
+    houseInfoStatus = false
+    console.log(houseInfoStatus)
+  }
+}
+
+function renderHouses(houses) {
+  counter = 0
+  while (markers.length !== 0) {
+    markers.pop()
+  }
+  // markerClusterer.clearMarkers();
+  houses.forEach((house, i) => {
+    // if (i % 1000 === 0) console.log(Date.now())
+    // console.log(house)
+    houseDataMap[house.id] = house
+    renderHouse(house)
+  })
+  // console.log('total render house time', totalTime / 1000,  'seconds')
+  // console.log(counter, 'render marker')
   // Add a marker clusterer to manage the markers.
   // console.log(markers)
   // new markerClusterer.MarkerClusterer({ houseMarkers, map })
@@ -506,18 +606,91 @@ function renderHouses(houses) {
       }
     ]
   }
+  const timeBeforeCluster = Date.now()
   if (markerCluster) {
     markerCluster.clearMarkers()
   }
   markerCluster = new markerClusterer.MarkerClusterer({ markers, map })
+  const timeAfterCluster = Date.now()
+  // console.log('cluster time', timeAfterCluster - timeBeforeCluster)
+  // markerCluster = new markerClusterer.MarkerClusterer({map})
+  // markerCluster.addMarkers(markers.filter(marker => {
+  //   map.getBounds().contains(marker.getPosition())
+  //   console.log(map.getBounds)
+  //   console.log(marker.getPosition())
+  //   console.log(map.getBounds().contains(marker.getPosition()))
+  // }))
 }
 
-function removeLines() {
-  lines.forEach((line) => {
-    line.setMap(null)
-  })
-  lines = []
+let height
+let width
+let latestLatitudeNW
+let latestLongitudeNW
+
+function handleDrag() {
+  console.log('enter drag')
+  const startTime = Date.now()
+  if (Object.keys(houseDataMap).length < renderLimit) return
+  const latitudeNW = map.getBounds().getNorthEast().lat()
+  const longitudeNW = map.getBounds().getNorthEast().lng()
+  const latitudeSE = map.getBounds().getSouthWest().lat()
+  const longitudeSE = map.getBounds().getSouthWest().lng()
+  // console.log(Math.abs(latitudeNW - latestLatitudeNW))
+  // console.log(height)
+  // console.log(longitudeNW)
+  // console.log(latestLongitudeNW)
+  // console.log(Math.abs(longitudeNW - latestLongitudeNW))
+  // console.log(width)
+  if (
+    Math.abs(latitudeNW - latestLatitudeNW) / height < 0.1 &&
+    Math.abs(longitudeNW - latestLongitudeNW) / width < 0.1
+  ) {
+    console.log('less')
+    return
+  }
+  // console.log(latitudeNew)
+  console.log('much')
+  latestLatitudeNW = latitudeNW
+  latestLongitudeNW = longitudeNW
+  height = Math.abs(latitudeNW - latitudeSE)
+  width = Math.abs(longitudeNW - longitudeSE)
+  const startRenderTime = Date.now()
+  // console.log((startRenderTime - startTime) / 1000)
+  renderHouses(Object.values(houseDataMap))
+  // console.log(lastOpenedInfoWindow)
+  console.log('finish')
+  const finishTime = Date.now()
+  console.log((finishTime - startTime) / 1000, 'seconds')
 }
+
+function handleZoomChange() {
+  console.log('enter zoom')
+  const startTime = Date.now()
+  if (Object.keys(houseDataMap).length < renderLimit) return
+  const latitudeNW = map.getBounds().getNorthEast().lat()
+  const longitudeNW = map.getBounds().getNorthEast().lng()
+  const latitudeSE = map.getBounds().getSouthWest().lat()
+  const longitudeSE = map.getBounds().getSouthWest().lng()
+  latestLatitudeNW = latitudeNW
+  latestLongitudeNW = longitudeNW
+  height = Math.abs(latitudeNW - latitudeSE)
+  width = Math.abs(longitudeNW - longitudeSE)
+  renderHouses(Object.values(houseDataMap))
+  console.log('finish')
+  const finishTime = Date.now()
+  console.log((finishTime - startTime) / 1000, 'seconds')
+}
+
+// function reRenderHouses() {
+//   renderHouses(Object.values(houseDataMap))
+// }
+
+// function removeLines() {
+//   lines.forEach((line) => {
+//     line.setMap(null)
+//   })
+//   lines = []
+// }
 
 function drawCircle(point, radius, dir) {
   var d2r = Math.PI / 180 // degrees to radians
@@ -601,11 +774,11 @@ async function showReachableArea(stations, time1) {
   joined.setMap(map)
   joined.addListener('click', () => {
     // console.log('here')
-    houseInfowindow.close()
+    closeLastOpenedInfoWindow()
   })
   polygons.push(joined)
   const time2 = Date.now()
-  console.log('It takes total :', (time2 - time0) / 1000, 'seconds to render')
+  // console.log('It takes total :', (time2 - time0) / 1000, 'seconds to render')
 }
 
 async function testHouse() {
@@ -627,7 +800,7 @@ async function init() {
         Authorization: `Bearer ${access_token}`
       }
     })
-    console.log('authenticated')
+    // console.log('authenticated')
     // console.log(data.data)
     $('.sign').html('<div onclick="signout()">登出</div>')
   } catch {
@@ -649,7 +822,7 @@ async function signout() {
 
 function showLifeFunction(type, subtype) {
   // clearLifeFunction()
-  removeLines()
+  // removeLines()
   // removeRadio()
   const { coordinate } = currentHouse
 
@@ -696,15 +869,15 @@ function showLifeFunction(type, subtype) {
     const icon = {
       // url,
       scaledSize: new google.maps.Size(20, 20), // scaled size
-      origin: new google.maps.Point(0, 0), // origin
+      origin: new google.maps.Point(0, 0) // origin
       // anchor: new google.maps.Point(20, 25) // anchor
     }
     // make marker
     const lifeFunction = new google.maps.Marker({
       position: spotCoordinate,
       // label: name,
-      map: map,
-      icon
+      map: map
+      // icon
     })
     // console.log(lifeFunctionInfowindow)
     lifeFunction.addListener(
@@ -814,17 +987,14 @@ async function getLikes() {
   // console.log(access_token)
   // console.log(selectedHouseId)
   try {
-    const { data } = await axios.get(
-      '/api/1.0/user/like',
-      {
-        headers: {
-          Authorization: `Bearer ${access_token}`
-        }
+    const { data } = await axios.get('/api/1.0/user/like', {
+      headers: {
+        Authorization: `Bearer ${access_token}`
       }
-    )
+    })
     // console.log('....')
-    console.log(data)
-    data.favoriteHouseIds.forEach(houseId => {
+    // console.log(data)
+    data.favoriteHouseIds.forEach((houseId) => {
       likeMap[houseId] = true
     })
     // console.log(likeMap)
@@ -842,7 +1012,7 @@ function setLike(id) {
   // show unlike button
 
   // change pic
-  const newIcon  = makeHouseIcon(id)
+  const newIcon = makeHouseIcon(id)
   markerMap[id].setIcon(newIcon)
   // console.log('ww')
 }
@@ -853,17 +1023,13 @@ function setDislike(id) {
   // show unlike button
 
   // change pic
-  const newIcon  = makeHouseIcon(id)
+  const newIcon = makeHouseIcon(id)
   markerMap[id].setIcon(newIcon)
 }
 
-function hideButton() {
+function hideButton() {}
 
-}
-
-function showButton() {
-
-}
+function showButton() {}
 
 function makeHouseIcon(id) {
   return {
@@ -875,8 +1041,6 @@ function makeHouseIcon(id) {
     anchor: new google.maps.Point(15, 20) // anchor
   }
 }
-
-
 
 async function main() {
   // $('.loading').css('visibility', 'hidden')
@@ -890,25 +1054,28 @@ async function main() {
 main()
 
 function showBlock() {
-  let blockUI = document.querySelector(".blockUI");
-  let block = document.querySelector('.block');
-  let load = document.querySelector('.loading');
-  let scrollH = document.documentElement.scrollHeight; //計算整個頁面的高度(含scrollbar)
-  let wh = window.innerHeight; //計算可見視窗的高度，用來處理loading圖示的垂直居中
-  blockUI.setAttribute('style', `height:${scrollH}px`);
-  block.setAttribute('style', `height:${scrollH}px`);
-  load.setAttribute('style', `height:${wh}px;text-align: center; line-height:${wh}px`);
-  blockUI.setAttribute('style', 'display:inline');
+  let blockUI = document.querySelector('.blockUI')
+  let block = document.querySelector('.block')
+  let load = document.querySelector('.loading')
+  let scrollH = document.documentElement.scrollHeight //計算整個頁面的高度(含scrollbar)
+  let wh = window.innerHeight //計算可見視窗的高度，用來處理loading圖示的垂直居中
+  blockUI.setAttribute('style', `height:${scrollH}px`)
+  block.setAttribute('style', `height:${scrollH}px`)
+  load.setAttribute(
+    'style',
+    `height:${wh}px;text-align: center; line-height:${wh}px`
+  )
+  blockUI.setAttribute('style', 'display:inline')
   $('.loading').css('display', 'fixed')
   // return
   // setTimeout(() => {
-  //     blockUI.setAttribute('style', 'display:none');                     
+  //     blockUI.setAttribute('style', 'display:none');
   // }, 3000);
 }
 
 function removeBlock() {
-  let blockUI = document.querySelector(".blockUI");
-  blockUI.setAttribute('style', 'display:none');
+  let blockUI = document.querySelector('.blockUI')
+  blockUI.setAttribute('style', 'display:none')
   $('.loading').css('display', 'none')
 }
 
