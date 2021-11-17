@@ -14,6 +14,7 @@ main {
   display: flex;
   /* justify-content: space-around; */
   align-items: center;
+  /* height: 110px; */
 }
 
 .info {
@@ -25,7 +26,15 @@ main {
   font-size: 15px;
   margin-top: 5px;
   font-family: Microsoft YaHei, Verdana, Geneva, Tahoma, sans-serif;
-  line-height: 16px;
+  line-height: 18px;
+}
+
+.text {
+  height: 75px;
+}
+
+.address {
+  /* height: 36px; */
 }
 
 .info a,
@@ -65,8 +74,34 @@ main {
   height: 90%;
   overflow: scroll;
   -webkit-overflow-scrolling: touch;
-  overflow-x:hidden;
+  overflow-x: hidden;
   overflow-y: auto;
+  border-radius: 5px;
+}
+
+
+
+/* #comment-body {
+  overflow: scroll;
+} */
+
+.renting-houses-area::-webkit-scrollbar {
+  width: 10px;
+  background-color: white;
+}
+
+.renting-houses-area::-webkit-scrollbar-thumb {
+  border-radius: 5px;
+  -webkit-box-shadow: inset 0 0 6px rgb(0 0 0 / 30%);
+  /* background-color: #7e8c9e; */
+  /* background-color: 	cornflowerblue; */
+  background-color: rgba(100, 149, 237, 0.1);
+}
+
+.renting-houses-area::-webkit-scrollbar-track {
+  -webkit-box-shadow: inset 0 0 6px rgb(0 0 0 / 30%);
+  border-radius: 10px;
+  background-color: white;
 }
 
 .go-rent {
@@ -80,19 +115,32 @@ main {
   padding: 0 10px;
   border-radius: 10px;
   z-index: 200;
-  background-color: aliceblue;
-  border-color: black;
-  border: 2px solid #85A4B3;
+  /* background-color: aliceblue; */
+  /* background-color: #D8E6FC; */
+  background-color: #aeced2;
+  /* background-color: #85A4B3; */
+  /* border-color: black; */
+  /* border: 2px solid #85A4B3; */
   box-shadow: 3px 2px 2px rgb(53, 51, 51);
   /* background-color: #aeced2; */
+  height: 30px;
+  width: 175px;
+  font-size: 17px;
 }
 
 /* .check input {
   margin-top: 5px;
 } */
+.form-switch {
+  margin-top: 3px;
+  margin-left: 5px;
+}
+
 
 .check label {
-  margin-top: 4px;
+  margin-top: 3px;
+  /* font-size: 15px; */
+  /* margin-bottom: 1px; */
 }
 
 .radio {
@@ -119,7 +167,7 @@ main {
 
 .item-selected {
   /* background-color: #F9EBAE; */
-  background-color: #D8E6FC;
+  background-color: #d8e6fc;
 }
 
 .item-not-selected:hover {

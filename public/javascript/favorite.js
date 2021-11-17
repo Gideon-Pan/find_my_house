@@ -90,9 +90,11 @@ function renderListGroup() {
         height="100"
       />
       <div class="info">
+        <div class="text">
         <p>房型：${house.category}, ${house.area}坪</p>
         <p>價格：${house.price}元/月</p>
-        <p>地址：${house.address}</p>
+        <p class="address">地址：${house.address}</p>
+        </div>
         <div class="option">
           
           <a href="${house.link}" target="_blank" class="go-rent">查看更多</a>
@@ -155,7 +157,7 @@ function renderHouse(id) {
   }
   // houseDataMap[id] = house
   const houseIcon = {
-    url: './assets/house.png',
+    url: './assets/house-like.png',
     scaledSize: new google.maps.Size(40, 40),
     // scaledSize: likeMap[id] ? new google.maps.Size(35, 35) : new google.maps.Size(30, 30), // scaled size
     origin: new google.maps.Point(0, 0), // origin
