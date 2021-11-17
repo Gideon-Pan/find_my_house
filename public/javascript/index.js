@@ -12,7 +12,7 @@ let circles = []
 let markerCluster
 const polygons = []
 let walkVelocity = 1.25
-let currentId
+// let currentId
 let houseLat
 let houseLng
 // let lines = []
@@ -24,7 +24,7 @@ let selectedHouseId
 let likeMap = {}
 let userId
 let latestMarker
-let latestId
+// let latestId
 let houseDataMap = {}
 // const renderHouseDataMap = {}
 let houseInfoStatus = false
@@ -219,7 +219,30 @@ async function search() {
   clearLifeFunction()
   removeReachableArea()
   removeHouses()
+  selectedHouseId = null
+  // if (latestMarker) {
+  //   latestMarker.setZIndex(2)
+  //   // selectedHouseId = null
+  //   // latestHouseId = selectedHouseId
+  //   // selectedHouseId = null
+  //   const icon = makeHouseIcon(latestHouseId)
+  //   latestMarker.setIcon(icon)
+  // }
   // console.log()
+  if (houseData.length === 0) {
+    houseInfoStatus = false
+    if (markerCluster) {
+      markerCluster.clearMarkers()
+    }
+    Swal.fire({
+      title: '沒有符合的房屋',
+      text: `放寬搜尋條件以找到房屋`,
+      icon: 'info',
+      confirmButtonText: '我知道了'
+    })
+    // alert('請選擇步行距離')
+    return
+  }
   if (houseData.length > 1000) {
     houseInfoStatus = false
     if (markerCluster) {
@@ -233,7 +256,7 @@ async function search() {
     // })
     Swal.fire({
       title: '請限縮搜尋條件',
-      text: `目前共找到${houseData.length}間，限縮搜尋條件以找到最適合您的房子`,
+      text: `目前共找到${houseData.length}間，限縮搜尋條件以找到最適合您的房屋`,
       icon: 'info',
       confirmButtonText: '我知道了'
     })
@@ -402,12 +425,24 @@ function renderHouse(house) {
     (function (id, marker) {
       return function () {
         console.log(houseDataMap[id])
-
-        if (latestMarker) {
-          latestMarker.setZIndex(2)
-        }
+        const latestHouseId = selectedHouseId
+        
+        // 更新房屋圖像
         marker.setZIndex(1000)
         selectedHouseId = id
+        const icon = makeHouseIcon(id)
+        marker.setIcon(icon)
+
+        // 更新上一個選擇房屋的圖像
+        if (latestMarker) {
+          latestMarker.setZIndex(2)
+          // selectedHouseId = null
+          // latestHouseId = selectedHouseId
+          // selectedHouseId = null
+          const icon = makeHouseIcon(latestHouseId)
+          latestMarker.setIcon(icon)
+        }
+
         latestMarker = marker
         const { latitude, longitude } = houseDataMap[id]
         // console.log(houseDataMap[id])
@@ -889,7 +924,7 @@ function showLifeFunction(type, subtype) {
           infowindow.setContent(content)
           infowindow.open(map, marker)
         }
-      })(lifeFunction, `<p>${name}</p>`, lifeFunctionInfowindow)
+      })(lifeFunction, `<p class="life-function">${name}</p>`, lifeFunctionInfowindow)
     )
     // assuming you also want to hide the infowindow when user mouses-out
     lifeFunction.addListener('mouseout', function () {
@@ -1032,8 +1067,20 @@ function hideButton() {}
 function showButton() {}
 
 function makeHouseIcon(id) {
+  let url
+  console.log(likeMap[id])
+  if (likeMap[id] && id === selectedHouseId) {
+    url = './assets/house-like-active.png'
+  } else if (likeMap[id]) {
+    url = './assets/house-like.png'
+  } else if (id === selectedHouseId) {
+    url = './assets/house-active.png'
+  } else {
+    url = './assets/house.png'
+  }
   return {
-    url: likeMap[id] ? './assets/house.png' : './assets/test.png',
+    // url: likeMap[id] ? './assets/house-like.png' : './assets/house.png',
+    url,
     scaledSize: new google.maps.Size(35, 35),
     // scaledSize: likeMap[id] ? new google.maps.Size(35, 35) : new google.maps.Size(30, 30), // scaled size
     origin: new google.maps.Point(0, 0), // origin

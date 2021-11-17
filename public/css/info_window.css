@@ -16,11 +16,14 @@
   /* 125 100 */
   /* width: 120px;
   height: 96px; */
+  margin-top: 12px;
   margin-bottom: 1px;
 }
 
 .house-info p {
-  margin-top: 2px;
+  margin-top: 4px;
+  max-width: 125px;
+  line-height: 15px;
 }
 
 .house-info a {
@@ -28,7 +31,7 @@
   text-decoration: none;
   font-weight: bold;
   margin-top: 1px;
-  margin-left: 2px;
+  /* margin-left: 2px; */
   display: inline;
   height: 20px;
   /* margin-right: 127px; */
@@ -57,4 +60,28 @@ button {
   justify-content: space-between;
   height: 20px;
   align-items: center;
+  margin-top: 2px;
+  margin-bottom: 6px;
+}
+
+/* .gm-style-iw-d {
+  padding-bottom: 5px;
+} */
+
+.gm-style-iw-d {
+  overflow-x: hidden !important;
+  
+}
+
+.gm-style-iw-c {
+  padding-top: 0 !important;
+}
+
+/* .gm-style-iw{
+  padding: 12px;
+} */
+
+.life-function {
+  margin-bottom: 6px;
+  margin-top: 6px;
 }

@@ -80,3 +80,21 @@ async function getHouseIdsToDelete(cleansedDataOld, cleansedDataNew) {
 // bulkUpdate()
 // array()
 // test()
+
+async function getLongestTitle() {
+  const [result] = await pool.query('SELECT address FROM house')
+  let maxLength = 0
+  let longestAddress
+  result.forEach(({address}) => {
+    // console.log(address)
+    if (address.length > maxLength) {
+      maxLength = address.length
+      longestAddress = address
+
+    }
+  })
+  console.log(maxLength)
+  console.log(longestAddress)
+}
+
+getLongestTitle()
