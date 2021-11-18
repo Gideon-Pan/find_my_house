@@ -7,6 +7,7 @@ from mongo import db
 import requests
 import json
 from datetime import date
+import datetime
 from selenium.webdriver.chrome.options import Options
 import sys
 import os
@@ -41,7 +42,7 @@ HEADERS2 = {
 }
 
 
-def insertData(collection, houseData):
+def insertMongo(collection, houseData):
     houses = db[collection]
     if (len(houseData) == 0):
         return
@@ -94,8 +95,8 @@ def get_house_info(id):
 
 def insertMongo(collection, houseData):
     houses = db[collection]
-    print (collection)
-    print(houseData)
+    # print (collection)
+    # print(houseData)
     if (len(houseData) == 0):
         return
     houses.insert_many(houseData)
@@ -135,15 +136,15 @@ def insertData(url):
         # return
         # print(id)
         except Exception as e:
-            ex_type, ex_value, ex_traceback = sys.exc_info()
+            # ex_type, ex_value, ex_traceback = sys.exc_info()
             print("Unexpected error:", str(e))
-            print(sys.exc_info()[1], "......")
-            errorMessage = [{
-                'date': str(today),
-                'url': f"https://bff.591.com.tw/v1/house/rent/detail?id=" + str(id),
-                'errorMessage': str(e)
-            }]
-            insertMongo("Error" + str(today), errorMessage)
+            # print(sys.exc_info()[1], "......")
+            # errorMessage = [{
+            #     'date': str(today),
+            #     'url': f"https://bff.591.com.tw/v1/house/rent/detail?id=" + str(id),
+            #     'errorMessage': str(e)
+            # }]
+            # insertMongo("Error" + str(today), errorMessage)
             continue
     
     print("Today's date:", today)
@@ -209,23 +210,24 @@ def insertDataOfRegion(region, kind):
         #     continue
         except Exception as e:
             # Get current system exception
-            ex_type, ex_value, ex_traceback = sys.exc_info()
+            # ex_type, ex_value, ex_traceback = sys.exc_info()
 
-            # Extract unformatter stack traces as tuples
-            trace_back = traceback.extract_tb(ex_traceback)
+            # # Extract unformatter stack traces as tuples
+            # trace_back = traceback.extract_tb(ex_traceback)
 
-            # Format stacktrace
-            stack_trace = list()
+            # # Format stacktrace
+            # stack_trace = list()
 
-            for trace in trace_back:
-                stack_trace.append("File : %s , Line : %d, Func.Name : %s, Message : %s" % (trace[0], trace[1], trace[2], trace[3]))
+            # for trace in trace_back:
+            #     stack_trace.append("File : %s , Line : %d, Func.Name : %s, Message : %s" % (trace[0], trace[1], trace[2], trace[3]))
 
             # print("Exception type : %s " % ex_type.__name__)
             # print("Exception message : %s" %ex_value)
-            print('error message:', str(e))
+            # print('error message:', str(e))
             # print("Stack trace : %s" %stack_trace)
-            exit()
-            return
+            # exit()
+            # return
+            continue
 
 # getData('https://rent.591.com.tw/')
 
@@ -237,5 +239,8 @@ kinds = [2, 3, 4]
 for region in regions:
     for kind in kinds:
         insertDataOfRegion(region, kind)
+today = date.today()
+delete_date = today - datetime.timedelta(days=3)
+db["houseDataRaw" + str(delete_date)].drop()
 exit()
 

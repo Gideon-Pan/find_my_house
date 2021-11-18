@@ -6,7 +6,7 @@ const {
   insertMongo
 } = require('../../../server/models/db/mongo')
 
-async function cleanseData(rawDataCollection) {
+async function cleanseData(rawDataCollection, today) {
 	console.log('q')
   console.log('591_raw')
 	console.log(rawDataCollection)
@@ -109,16 +109,16 @@ async function cleanseData(rawDataCollection) {
   }
   console.log('start inserting')
 
-  const date = new Date()
-  // console.log(data.getDay())
-  const day = date.getDate()
-  // console.log('day: ', day);
-  const month = date.getMonth()
-  // console.log('month: ', month);
-  const year = date.getFullYear()
-  // console.log('year: ', year);
-  const finalDate = `${year}-${month + 1}-${day}`
-  await insertMongo('591_cleansed', `${finalDate}houseDatacleansed`, housesData)
+  // const date = new Date()
+  // // console.log(data.getDay())
+  // const day = date.getDate()
+  // // console.log('day: ', day);
+  // const month = date.getMonth()
+  // // console.log('month: ', month);
+  // const year = date.getFullYear()
+  // // console.log('year: ', year);
+  // const finalDate = `${year}-${month + 1}-${day}`
+  await insertMongo('591_cleansed', `${today}houseDatacleansed`, housesData)
 }
 
 const date = new Date()

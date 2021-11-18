@@ -351,6 +351,9 @@ async function deleteHouse(cleansedDataOld, cleansedDataNew) {
     cleansedDataNew
   )
   // console.log('###')
+  if (houseIdsToDelete.length === 0) {
+    console.log('no house need to be deleted')
+  }
 	console.log(houseIdsToDelete.length, "houses to be deleted")
   const q =
     `DELETE FROM house

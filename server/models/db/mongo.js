@@ -92,6 +92,13 @@ async function get591MongoData(collection) {
   return data
 }
 
+async function dropMongoCollection(database, collection) {
+  await client.connect()
+  const db = client.db(database)
+  await db.collection(collection).drop()
+  await client.close()
+}
+
 // async function getCollectionSize(collectionName) {
 //   await client.connect()
 //   const db = client.db("ptx")
@@ -110,5 +117,6 @@ module.exports = {
   insertMongo,
   getMongo,
   getMongoOne,
-  getHouseIds
+  getHouseIds,
+  dropMongoCollection
 }

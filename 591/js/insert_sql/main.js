@@ -1,6 +1,6 @@
-const { getMongo, getHouseIds } = require('../../../server/models/db/mongo')
+const { getMongo, getHouseIds, dropMongoCollection } = require('../../../server/models/db/mongo')
 const { cleanseData } = require('../cleanse/cleanse')
-const { today, yesterday } = require('../time')
+const { today, yesterday, deleteDateComplete } = require('../time')
 const { insertStationHouseDistance } = require('./station_house_distance')
 const {
   deleteHouse,
@@ -17,7 +17,7 @@ async function updateAllTables(cleansedDataOld, cleansedDataNew, today) {
   const cleansedData = await getHouseIds('591_cleansed', `${today}houseDatacleansed`)
   if (cleansedData.length === 0) {
     console.log('start cleansing')
-    await cleanseData(`houseDataRaw${today}`)
+    await cleanseData(`houseDataRaw${today}`, today)
     console.log('finish cleansing today data')
   }
 
@@ -53,7 +53,13 @@ async function updateAllTables(cleansedDataOld, cleansedDataNew, today) {
   await insertHouseLifeFunction(cleansedDataNew)
   console.log('finish update all house tables')
   await insertStationHouseDistance()
+  await dropMongoCollection('591_cleansed', `${deleteDateComplete}houseDatacleansed`)
   process.exit()
 }
 
-updateAllTables(`${yesterday}houseDatacleansed`, `${today}houseDatacleansed`, today)
+if (process.argv[2]) {
+  updateAllTables(`${process.argv[2]}houseDatacleansed`, `${process.argv[3]}houseDatacleansed`, process.argv[3])
+} else {
+  updateAllTables(`${yesterday}houseDatacleansed`, `${today}houseDatacleansed`, today)
+}
+
