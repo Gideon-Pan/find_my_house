@@ -1,11 +1,13 @@
 // const { default: axios } = require("axios")
 
+// const { sleep } = require("../../591/js/sleep")
+
 // const { getLikes } = require("../../server/controllers/user_controller")
 
 let map
 let markers = []
 const markerMap = {}
-let houseMarkers = []
+// let houseMarkers = []
 let houseInfowindow
 let houseInfowindows = []
 let circles = []
@@ -26,28 +28,19 @@ let userId
 let latestMarker
 // let latestId
 let houseDataMap = {}
+let latestHouseIdMap = {}
+let idsToAddMap = {}
+let idsToRemoveMap = {}
 // const renderHouseDataMap = {}
 let houseInfoStatus = false
 let lastOpenedInfoWindow
-const renderLimit = 7500000
+const renderLimit = 1000
 // let  = true
 let totalTime = 0
 let counter = 0
-
-// const Justin = {
-//   lat: 25.00921512991647,
-//   lng: 121.52107052708763
-// }
-// const Justin = {
-//   lat: 25.00252559374069,
-//   lng: 121.52802281285423
-// }
-
-// 板橋
-// const Justin = {
-//   lat: 25.035230849112928,
-//   lng: 121.47554807568687
-// }
+let totalHouse
+let searchOnce = true
+let clearClusterAll = true
 
 // 學校
 const Justin = {
@@ -70,20 +63,20 @@ function setMapOnAll(map) {
 }
 
 // Removes the markers from the map, but keeps them in the array.
-function hideMarkers() {
-  setMapOnAll(null)
-}
+// function hideMarkers() {
+//   setMapOnAll(null)
+// }
 
-function setMapOnAllCircle(map) {
-  for (let i = 0; i < circles.length; i++) {
-    circles[i].setMap(map)
-  }
-}
+// function setMapOnAllCircle(map) {
+//   for (let i = 0; i < circles.length; i++) {
+//     circles[i].setMap(map)
+//   }
+// }
 
 // Removes the markers from the map, but keeps them in the array.
-function hideCircles() {
-  setMapOnAllCircle(null)
-}
+// function hideCircles() {
+//   setMapOnAllCircle(null)
+// }
 
 function initMap() {
   // console.log('fuc')
@@ -111,10 +104,23 @@ function initMap() {
     zIndex: 99999999
   })
 
+  officeMarker.addListener('dragstart', () => {
+    clearHouseDataMap()
+    removeRadio()
+    clearLifeFunction()
+    removeReachableArea()
+    removeHouses()
+    if (markerCluster) {
+      markerCluster.clearMarkers()
+    }
+    google.maps.event.clearListeners(map, 'zoom_changed', handleZoomChange)
+    google.maps.event.clearListeners(map, 'dragend', handleDrag)
+  })
+
   officeMarker.addListener('dragend', (mapsMouseEvent) => {
     officeLat = mapsMouseEvent.latLng.toJSON().lat
     officeLng = mapsMouseEvent.latLng.toJSON().lng
-    search()
+    search(false)
   })
 
   houseInfowindow = new google.maps.InfoWindow()
@@ -129,9 +135,16 @@ function initMap() {
   // google.maps.event.clearListener(map, 'idle', reRenderHouses);
 }
 
-async function search() {
-  houseDataMap = {}
-  houseInfoStatus = false
+function clearHouseDataMap() {
+  Object.keys(houseDataMap).forEach(key => {
+    delete houseDataMap[key]
+  })
+}
+
+async function search(isOldSearch) {
+  // houseDataMap = {}
+  
+  houseInfoStatus = isOldSearch ? houseInfoStatus : false 
   // return
   // const test = $('#test').val()
   // console.log(test)
@@ -197,43 +210,93 @@ async function search() {
     // alert('請選擇步行距離')
     return
   }
-  const url = `/search?period=${period}&commuteTime=${commuteTime}&commuteWay=${commuteWay}&maxWalkDistance=${maxWalkDistance}&budget=${budget}&officeLat=${officeLat}&officeLng=${officeLng}&houseType=${houseType}&fire=${fire}&shortRent=${shortRent}&directRent=${directRent}&pet=${pet}&newItem=${newItem}`
+  const latitudeNW = map.getBounds().getNorthEast().lat()
+  const longitudeNW = map.getBounds().getNorthEast().lng()
+  const latitudeSE = map.getBounds().getSouthWest().lat()
+  const longitudeSE = map.getBounds().getSouthWest().lng()
+  latestLatitudeNW = latitudeNW
+  latestLongitudeNW = longitudeNW
+  height = Math.abs(latitudeNW - latitudeSE)
+  width = Math.abs(longitudeNW - longitudeSE)
+  const url = `/search?period=${period}&commuteTime=${commuteTime}&commuteWay=${commuteWay}&maxWalkDistance=${maxWalkDistance}&budget=${budget}&officeLat=${officeLat}&officeLng=${officeLng}&houseType=${houseType}&fire=${fire}&shortRent=${shortRent}&directRent=${directRent}&pet=${pet}&newItem=${newItem}
+    &latitudeNW=${latitudeNW}&longitudeNW=${longitudeNW}&latitudeSE=${latitudeSE}&longitudeSE=${longitudeSE}`
   // const walk_distance = $("walk_distance").val()
 
   console.log(url)
+  clearHouseDataMap()
   removeRadio()
-  showBlock()
-  $('.spinner').css('display', 'inline')
+  clearLifeFunction()
+  if (!isOldSearch) {
+    removeReachableArea()
+  }
+  removeHouses()
+  // await sleep(1)
+  // return
+  // if (!isOldSearch) {
+    showBlock()
+    $('.spinner').css('display', 'inline')
+  // }
+  // console.time('api')
   const { data } = await axios.get(url)
+  // console.timeEnd('api')
+  // console.time('remove block')
+  removeReachableArea()
   removeBlock()
   $('.spinner').css('display', 'none')
+  // console.timeEnd('remove block')
   console.log(data)
   // if (data.length)
   const { positionData, houseData } = data
-  
-
+  totalHouse = data.totalHouse
   // hideCircles()
   // circles = []
   // removeLines()
-  removeRadio()
-  clearLifeFunction()
-  removeReachableArea()
-  removeHouses()
-  selectedHouseId = null
+  // removeRadio()
+  const currentHouseIdMap = {}
+  houseData.forEach(house => {
+    currentHouseIdMap[house.id] = true
+    if (!latestHouseIdMap[house.id]) {
+      idsToAddMap[house.id] = true
+    }
+  })
+
+  if (latestHouseIdMap) {
+    Object.keys(latestHouseIdMap).forEach(latestId => {
+      if (!currentHouseIdMap[latestId]) {
+        idsToRemoveMap[latestId] = true
+      }
+    })
+  }
+  // 條件判斷是否要重新render整個cluster
+  // if (Object.keys(idsToRemoveMap).length < 100 && Object.keys(idsToAddMap).length < 100) {
+  //   clearClusterAll = false
+  // }
+  latestHouseIdMap = currentHouseIdMap
+  // console.log(123)
+  // clearHouseDataMap()
+  if (isOldSearch && !clearClusterAll) {
+    console.log('!!!!!')
+    clearClusterPartly(idsToRemoveMap)
+  } else {
+    clearCluster()
+  }
+  // console.log(456)
+  
+  selectedHouseId = isOldSearch ? selectedHouseId : null
   // if (latestMarker) {
   //   latestMarker.setZIndex(2)
   //   // selectedHouseId = null
   //   // latestHouseId = selectedHouseId
   //   // selectedHouseId = null
-  //   const icon = makeHouseIcon(latestHouseId)
+    // const icon = makeHouseIcon(latestHouseId)
   //   latestMarker.setIcon(icon)
   // }
   // console.log()
   if (houseData.length === 0) {
     houseInfoStatus = false
-    if (markerCluster) {
-      markerCluster.clearMarkers()
-    }
+    // if (markerCluster) {
+    //   markerCluster.clearMarkers()
+    // }
     Swal.fire({
       title: '沒有符合的房屋',
       text: `放寬搜尋條件以找到房屋`,
@@ -243,7 +306,7 @@ async function search() {
     // alert('請選擇步行距離')
     return
   }
-  if (houseData.length > 1000) {
+  if (totalHouse > 1000) {
     houseInfoStatus = false
     if (markerCluster) {
       markerCluster.clearMarkers()
@@ -254,9 +317,16 @@ async function search() {
     //   // text: 'Something went wrong!',
     //   // footer: '<a href="">Why do I have this issue?</a>'
     // })
+    // Swal.fire({
+    //   title: '請限縮搜尋條件',
+    //   text: `目前共找到${houseData.length}間，限縮搜尋條件以找到最適合您的房屋`,
+    //   icon: 'info',
+    //   confirmButtonText: '我知道了'
+    // })
     Swal.fire({
-      title: '請限縮搜尋條件',
-      text: `目前共找到${houseData.length}間，限縮搜尋條件以找到最適合您的房屋`,
+      title: '請新增房屋條件',
+      text: `搜尋結果高達${totalHouse}筆，新增房屋條件以找到最適合的房屋
+      `,
       icon: 'info',
       confirmButtonText: '我知道了'
     })
@@ -265,14 +335,6 @@ async function search() {
   }
   renderHouses(houseData)
   // console.log(houseDataMap)
-  const latitudeNW = map.getBounds().getNorthEast().lat()
-  const longitudeNW = map.getBounds().getNorthEast().lng()
-  const latitudeSE = map.getBounds().getSouthWest().lat()
-  const longitudeSE = map.getBounds().getSouthWest().lng()
-  latestLatitudeNW = latitudeNW
-  latestLongitudeNW = longitudeNW
-  height = Math.abs(latitudeNW - latitudeSE)
-  width = Math.abs(longitudeNW - longitudeSE)
 
   return showReachableArea(positionData, time1)
   data.forEach((station) => {
@@ -294,8 +356,25 @@ async function search() {
   console.log('It takes total :', (time2 - time1) / 1000, 'seconds')
 }
 
+function clearCluster() {
+  if (markerCluster) {
+    markerCluster.clearMarkers()
+  }
+}
+
+function clearClusterPartly(houseIdMap) {
+  console.time('clear cluster partly')
+  Object.keys(houseIdMap).forEach(id => {
+    // console.log(id)
+    console.log(id)
+    markerCluster.removeMarker(markerMap[id])
+  })
+  console.timeEnd('clear cluster partly')
+  // console.log('h1')
+}
+
 function removeHouses() {
-  for (let houseMarker of houseMarkers) {
+  for (let houseMarker of markers) {
     houseMarker.setMap(null)
   }
   // Object.keys(markerMap).forEach(id => {
@@ -303,8 +382,10 @@ function removeHouses() {
   //   delete houseMarkerMap[id]
   // })
   // if ()
-
-  houseMarkers = []
+  while (markers.length !== 0) {
+    markers.pop()
+  }
+  // houseMarkers = []
 }
 
 function clearLifeFunction() {
@@ -336,8 +417,12 @@ function makeContentString(house) {
   `
 }
 
+let inBoundTime = 0
+let otherTime = 0
+
 // here
 function renderHouse(house) {
+  const timer0 = Date.now()
   // (house) => {
   // console.log('a')
   let {
@@ -353,12 +438,21 @@ function renderHouse(house) {
     id
   } = house
   const latlng = new google.maps.LatLng(latitude, longitude)
-  if (
-    !map.getBounds().contains(latlng) &&
-    Object.keys(houseDataMap).length > renderLimit
-  ) {
-    return
-  }
+  // console.time('in bound')
+
+  // const isInBound = map.getBounds().contains(latlng)
+  // console.timeEnd('in bound')
+  const timer1 = Date.now()
+  inBoundTime += timer1 - timer0
+  // if (
+  //   !isInBound &&
+  //   Object.keys(houseDataMap).length > renderLimit
+  // ) {
+  //   return
+  // }
+
+  
+  // console.log('render a house')
   // currentId = id
   if (area % 1 !== 0) {
     area = area.toFixed(1)
@@ -376,7 +470,7 @@ function renderHouse(house) {
   //   anchor: new google.maps.Point(15, 20) // anchor
   //   // anchor: new google.maps.Point(15, 20) // anchor
   // }
-  const time1 = Date.now()
+  // const timer1 = Date.now()
   const marker = new google.maps.Marker({
     // position: { lat: 25.042482379737326, lng: 121.5647583475222 },
     position: {
@@ -389,26 +483,8 @@ function renderHouse(house) {
     // label: `${i}`
   })
 
-  // console.log(likeMap[id])
-  //   const contentString = `
-  // <div class="house-info">
-  //     <img src="${image}" onerror="this.src='./assets/no-img.png'" width="125" height="100" />
-  //     <p>房型：${category}, ${area}坪</p>
-  //     <p>價格：${price}元/月</p>
-  //     <p>地址：${address}</p>
-  //     <div class="option">
-  //       <a href="${link}" target="_blank">查看更多</a>
-  //       <img src="./assets/heart.png" class="like heart" id ="${id}-like" style="display: ${likeMap[id] ? 'none' : 'ineline'};" onclick="like()">
-  //       <img src="./assets/heart_red.png" class="dislike heart" id ="${id}-dislike" style="display: ${likeMap[id] ? 'ineline' : 'none'};" onclick="dislike()">
-  //     </div>
+  
 
-  //   </div>
-  // `
-  // const contentString = makeContentString(house)
-  // <a href="flat-share.html" target="_blank">徵室友</a>
-  // const houseInfowindow = new google.maps.InfoWindow({
-  //   content: contentString
-  // })
   houseInfowindow.addListener('domready', () => {
     var test = $('.test')
     // test.html('test')
@@ -424,9 +500,9 @@ function renderHouse(house) {
     'click',
     (function (id, marker) {
       return function () {
-        console.log(houseDataMap[id])
+        // console.log(houseDataMap[id])
         const latestHouseId = selectedHouseId
-        
+
         // 更新房屋圖像
         marker.setZIndex(1000)
         selectedHouseId = id
@@ -450,6 +526,9 @@ function renderHouse(house) {
         //   lat: latitude,
         //   lng: longitude
         // })
+
+        // test
+        markerCluster.addMarker(marker);
       }
     })(id, marker)
   )
@@ -534,54 +613,26 @@ function renderHouse(house) {
       }
     })(id)
   )
-  // console.log(lastOpenedInfoWindow)
-  // google.maps.event.addListener(marker, 'click', async () => {
-  //   // console.log(currentId)
-  //   const {data} = await axios.get(`/api/1.0/house/life-function?id=${currentId}`)
-  //   console.log(data)
-  //   const  {coordinate} = data
-  //   const houseCoordinate = {lat: coordinate.latitude, lng: coordinate.longitude}
-  //   const stations = data['交通']['捷運']
-  //   // const currentId
-  //   stations.forEach(station => {
-  //     const {id, name, latitude, longitude, distance, subtype, type} = station
-  //     // coordinates.push({lat: latitude, lng: longitude})
-  //     const spotCoordinate = {lat: latitude, lng: longitude}
-  //     const flightPath = new google.maps.Polyline({
-  //       path: [houseCoordinate, spotCoordinate],
-  //       geodesic: true,
-  //       strokeColor: "#FF0000",
-  //       strokeOpacity: 1.0,
-  //       strokeWeight: 2,
-  //     });
-
-  //     flightPath.setMap(map);
-  //     console.log('here')
-  //   })
-  //   // const flightPlanCoordinates = [
-  //   //   { lat: 37.772, lng: -122.214 },
-  //   //   { lat: 21.291, lng: -157.821 },
-  //   //   { lat: -18.142, lng: 178.431 },
-  //   //   { lat: -27.467, lng: 153.027 },
-  //   // ];
-
-  // })
 
   markerMap[id] = marker
   // console.log(marker.getPosition())
+  if (markerCluster & !clearClusterAll) {
+    markerCluster.addMarker(marker)
+  }
   markers.push(marker)
   // houseInfowindows.push(houseInfowindow)
-  google.maps.event.clearListeners(map, 'zoom_changed', handleZoomChange)
-  google.maps.event.clearListeners(map, 'dragend', handleDrag)
-  google.maps.event.addListener(map, 'zoom_changed', handleZoomChange)
-  google.maps.event.addListener(map, 'dragend', handleDrag)
+
   // google.maps.event.clearListeners(map, 'zoom_changed', () => {console.log('h1')})
   // google.maps.event.addListener(map, 'zoom_changed', () => {console.log('h1')})
-  const time2 = Date.now()
+  // const time2 = Date.now()
   // console.log('rennder a marker', (time2 - time1), 'ms')
   counter++
-  totalTime += time2 - time1
+  // totalTime += time2 - time1
   // console.log(lastOpenedInfoWindow)
+  const timer2 = Date.now()
+  otherTime += timer2 - timer1
+  // console.log(timer2 - timer1, 'this time')
+  // console.log(inBoundTime, 'total')
 }
 
 function closeLastOpenedInfoWindow() {
@@ -595,58 +646,54 @@ function closeLastOpenedInfoWindow() {
 }
 
 function renderHouses(houses) {
+  inBoundTime = 0
+  otherTime = 0
   counter = 0
+  const timer1 = Date.now()
+  console.time('inside render houses function')
   while (markers.length !== 0) {
     markers.pop()
   }
   // markerClusterer.clearMarkers();
+  // latestHouseIdMap = {}
   houses.forEach((house, i) => {
     // if (i % 1000 === 0) console.log(Date.now())
     // console.log(house)
     houseDataMap[house.id] = house
-    renderHouse(house)
+    // latestHouseIdMap[house.id] = true
+    if (idsToAddMap[house.id]) {
+      renderHouse(house)
+    }
   })
+  google.maps.event.clearListeners(map, 'zoom_changed', handleZoomChange)
+  google.maps.event.clearListeners(map, 'dragend', handleDrag)
+  google.maps.event.addListener(map, 'zoom_changed', handleZoomChange)
+  google.maps.event.addListener(map, 'dragend', handleDrag)
+  console.timeEnd('inside render houses function')
+  // console.log(otherTime, 'ms for rendering house markers')
+  // console.log(inBoundTime, 'ms for checking in bound')
   // console.log('total render house time', totalTime / 1000,  'seconds')
   // console.log(counter, 'render marker')
   // Add a marker clusterer to manage the markers.
   // console.log(markers)
   // new markerClusterer.MarkerClusterer({ houseMarkers, map })
   // new markerClusterer.MarkerClusterer(map, markers)
-  mcOptions = {
-    styles: [
-      {
-        height: 53,
-        // url: "http://google-maps-utility-library-v3.googlecode.com/svn/trunk/markerclusterer/images/m1.png",
-        width: 53
-      },
-      {
-        height: 56,
-        // url: "https://github.com/googlemaps/js-marker-clusterer/tree/gh-pages/images/m2.png",
-        width: 56
-      },
-      {
-        height: 66,
-        // url: "https://github.com/googlemaps/js-marker-clusterer/tree/gh-pages/images/m3.png",
-        width: 66
-      },
-      {
-        height: 78,
-        // url: "https://github.com/googlemaps/js-marker-clusterer/tree/gh-pages/images/m4.png",
-        width: 78
-      },
-      {
-        height: 90,
-        // url: "https://github.com/googlemaps/js-marker-clusterer/tree/gh-pages/images/m5.png",
-        width: 90
-      }
-    ]
-  }
   const timeBeforeCluster = Date.now()
-  if (markerCluster) {
-    markerCluster.clearMarkers()
+  // removeHouses()
+  
+  // console.time('render houses with cluster')
+  // console.log(markers.length, 'markers are rendered')
+  // if (Object.keys(houseDataMap).length < 100) {
+  //   return
+  // }
+  // clearCluster()
+  if (!markerCluster || clearClusterAll) {
+    markerCluster = new markerClusterer.MarkerClusterer({ markers, map })
   }
-  markerCluster = new markerClusterer.MarkerClusterer({ markers, map })
+  
   const timeAfterCluster = Date.now()
+  // console.timeEnd('render houses with cluster')
+  
   // console.log('cluster time', timeAfterCluster - timeBeforeCluster)
   // markerCluster = new markerClusterer.MarkerClusterer({map})
   // markerCluster.addMarkers(markers.filter(marker => {
@@ -662,14 +709,42 @@ let width
 let latestLatitudeNW
 let latestLongitudeNW
 
-function handleDrag() {
-  console.log('enter drag')
-  const startTime = Date.now()
-  if (Object.keys(houseDataMap).length < renderLimit) return
+async function handleDrag() {
+  // return
+  if (searchOnce && totalHouse < renderLimit) {
+    // console.log('not too many houses, no action')
+    return
+  }
   const latitudeNW = map.getBounds().getNorthEast().lat()
   const longitudeNW = map.getBounds().getNorthEast().lng()
   const latitudeSE = map.getBounds().getSouthWest().lat()
   const longitudeSE = map.getBounds().getSouthWest().lng()
+  if (
+    Math.abs(latitudeNW - latestLatitudeNW) / height < 0.1 &&
+    Math.abs(longitudeNW - latestLongitudeNW) / width < 0.1
+  ) {
+    latestLatitudeNW = latitudeNW
+    latestLongitudeNW = longitudeNW
+    height = Math.abs(latitudeNW - latitudeSE)
+    width = Math.abs(longitudeNW - longitudeSE)
+    console.log('less')
+    return
+  }
+  latestLatitudeNW = latitudeNW
+  latestLongitudeNW = longitudeNW
+  height = Math.abs(latitudeNW - latitudeSE)
+  width = Math.abs(longitudeNW - longitudeSE)
+  // console.log(latitudeNew)
+  console.log('much')
+  await search(true)
+  return
+  console.log('enter drag')
+  const startTime = Date.now()
+  
+  // const latitudeNW = map.getBounds().getNorthEast().lat()
+  // const longitudeNW = map.getBounds().getNorthEast().lng()
+  // const latitudeSE = map.getBounds().getSouthWest().lat()
+  // const longitudeSE = map.getBounds().getSouthWest().lng()
   // console.log(Math.abs(latitudeNW - latestLatitudeNW))
   // console.log(height)
   // console.log(longitudeNW)
@@ -698,10 +773,33 @@ function handleDrag() {
   console.log((finishTime - startTime) / 1000, 'seconds')
 }
 
-function handleZoomChange() {
+async function handleZoomChange() {
+  if (searchOnce && totalHouse < renderLimit) {
+    // console.log('not too many houses, no action')
+    return
+  }
+  await search(true)
+  return
   console.log('enter zoom')
+  // console.timeEnd('159')
+  // return
+  removeRadio()
+  clearLifeFunction()
+  // removeReachableArea()
+  removeHouses()
+  if (markerCluster) {
+    markerCluster.clearMarkers()
+  }
+  // clearHouseDataMap()
+  // await sleep(0)
+  // alert('h1')
+  // return
+  // return
+  // alert('j1')
+  // return
+
   const startTime = Date.now()
-  if (Object.keys(houseDataMap).length < renderLimit) return
+  // if (Object.keys(houseDataMap).length < renderLimit) return
   const latitudeNW = map.getBounds().getNorthEast().lat()
   const longitudeNW = map.getBounds().getNorthEast().lng()
   const latitudeSE = map.getBounds().getSouthWest().lat()
@@ -710,10 +808,16 @@ function handleZoomChange() {
   latestLongitudeNW = longitudeNW
   height = Math.abs(latitudeNW - latitudeSE)
   width = Math.abs(longitudeNW - longitudeSE)
-  renderHouses(Object.values(houseDataMap))
-  console.log('finish')
+  // console.log(123)
+  
+  const houses = Object.values(houseDataMap)
+  console.time('render houses function')
+  renderHouses(houses)
+  console.timeEnd('render houses function')
+  // console.log('render houses function')
   const finishTime = Date.now()
   console.log((finishTime - startTime) / 1000, 'seconds')
+  // console.timeEnd('159')
 }
 
 // function reRenderHouses() {
@@ -924,7 +1028,11 @@ function showLifeFunction(type, subtype) {
           infowindow.setContent(content)
           infowindow.open(map, marker)
         }
-      })(lifeFunction, `<p class="life-function">${name}</p>`, lifeFunctionInfowindow)
+      })(
+        lifeFunction,
+        `<p class="life-function">${name}</p>`,
+        lifeFunctionInfowindow
+      )
     )
     // assuming you also want to hide the infowindow when user mouses-out
     lifeFunction.addListener('mouseout', function () {
@@ -1068,7 +1176,7 @@ function showButton() {}
 
 function makeHouseIcon(id) {
   let url
-  console.log(likeMap[id])
+  // console.log(likeMap[id])
   if (likeMap[id] && id === selectedHouseId) {
     url = './assets/house-like-active.png'
   } else if (likeMap[id]) {
@@ -1124,6 +1232,14 @@ function removeBlock() {
   let blockUI = document.querySelector('.blockUI')
   blockUI.setAttribute('style', 'display:none')
   $('.loading').css('display', 'none')
+}
+
+async function sleep(n) {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      resolve()
+    }, n * 1000)
+  })
 }
 
 // showBlock()

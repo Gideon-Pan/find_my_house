@@ -52,6 +52,7 @@ let numToStopIdMap
 let houseIdToNumMap
 let numToHouseIdMap
 let houseStopDistanceMap
+let housePositionMap
 async function main() {
   const time0_0 = Date.now()
   // graphsForBus = await makeGraph('bus', 2)
@@ -81,7 +82,7 @@ async function main() {
   // console.log('numToHouseIdMap: ', numToHouseIdMap.size);
   houseStopDistanceMap = maps.houseStopDistanceMap
   // console.log('houseStopMap: ', houseStopDistanceMap.length);
-
+  housePositionMap = maps.housePositionMap
   // // console.log(map)
   // const time0_2 = Date.now()
   // console.log(
@@ -107,7 +108,8 @@ app.get('/test', async (req, res) => {
 
 app.get('/search', async (req, res) => {
   // const g = req.query.commuteWay === 'bus' ? graphForBus : graphForMetro
-  let { commuteTime, officeLat, officeLng, maxWalkDistance, period, commuteWay, budget, houseType, fire, shortRent, directRent, pet, newItem } = req.query
+  let { commuteTime, officeLat, officeLng, maxWalkDistance, period, commuteWay, budget, houseType, 
+    fire, shortRent, directRent, pet, newItem, latitudeNW, longitudeNW, latitudeSE, longitudeSE } = req.query
   // console.log(budget)
   const tags = []
   if (fire === 'true') tags.push(7)
@@ -220,10 +222,14 @@ app.get('/search', async (req, res) => {
       stopRadiusMap[stationId] = distanceLeft
     })
     // console.log(positionData.length)
-    const houses = await getHousesInBudget(budget, houseType, tags)
-    const houseData = await getHousesInRange(positionData, houses, stopRadiusMap)
+    let houses = await getHousesInBudget(budget, houseType, tags)
+    // console.log(houses.length)
+    houses = await getHousesInRange(positionData, houses, stopRadiusMap)
+    // console.log(houses.length)
+    const houseData = getHousesInBound(houses, Number(latitudeNW), Number(latitudeSE), Number(longitudeNW), Number(longitudeSE))
     const end = Date.now()
     console.log('It totally takes', (end - start) / 1000, 'seconds')
+    console.log('...')
     console.log('respond')
     return res.send({
       positionData,
@@ -302,19 +308,24 @@ app.get('/search', async (req, res) => {
   // console.log(budget)
   const time1 = Date.now()
   // console.log((time1 - start) / 1000, '!!!')
-  const  houses = await getHousesInBudget(budget, houseType, tags)
+  let houses = await getHousesInBudget(budget, houseType, tags)
   const time2 = Date.now()
   console.log((time2 - time1) / 1000, "seconds to get house in house constraint")
   // console.log(houses)
-  let houseData
+
+  
   // console.log(houses.length)
   if (houses.length !== 0) {
     // console.log(houses.lastIndexOf)
-    houseData = await getHousesInRange(positionData, houses, stopRadiusMap)
+    houses = await getHousesInRange(positionData, houses, stopRadiusMap)
     // console.log(houseData)
-  } else {
-    houseData = houses
-  }
+  } 
+
+  console.log(houses.length)
+  const houseData = getHousesInBound(houses, Number(latitudeNW), Number(latitudeSE), Number(longitudeNW), Number(longitudeSE))
+  console.log(houseData.length)
+
+
   const time3 = Date.now()
   console.log((time3 - time2) / 1000, "seconds to filter house in range")
   
@@ -326,7 +337,8 @@ app.get('/search', async (req, res) => {
   // console.log(houseData)
   return res.send({
     positionData,
-    houseData
+    houseData,
+    totalHouse: houses.length
   })
   // {stationId: 'G08', lat: 25.020733, lng: 121.528143, distanceLeft: 134}
 })
@@ -408,6 +420,33 @@ async function getHousesInBudget(budget, houseType, validTags) {
   const timet2 = Date.now()
   // console.log((timet2 - timet1) / 1000, 'seconds for filtering tags')
   return houses
+}
+
+function getHousesInBound(houses, latitudeNW, latitudeSE, longitudeNW, longitudeSE) {
+  if (houses.length <= 1000) {
+    return houses
+  }
+  
+  console.log('latitudeNW: ', latitudeNW);
+  console.log(' latitudeSE: ',  latitudeSE);
+  console.log('longitudeNW: ', longitudeNW);
+  console.log('longitudeSE: ', longitudeSE);
+  const houseInBound = houses.filter((house, i) => {
+    const houseLat = housePositionMap[house.id].latitude
+
+    const houseLon = housePositionMap[house.id].longitude
+    if (i === 0) {
+      console.log('houseLat: ', houseLat);
+      console.log('houseLon: ', houseLon);
+    }
+
+
+    if (houseLat < latitudeNW && houseLat > latitudeSE && houseLon > longitudeSE && houseLon < longitudeNW) {
+      return true
+    }
+    return false
+  })
+  return houseInBound
 }
 
 async function getHousesInRange(positionData, houses, stopRadiusMap) {

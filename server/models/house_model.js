@@ -66,6 +66,7 @@ async function makeHouseStopDistanceMap() {
   const houseIdToNumMap = new Map()
   // const numToHouseIdMap = new Map()
   const houseStopDistanceMap = []
+  const housePositionMap = {}
   const time0 = Date.now()
   // const q0 = `SELECT stop.ptx_stop_id AS stop_id, station_house_distance.house_id, distance from station_house_distance
   //   JOIN station
@@ -88,6 +89,7 @@ async function makeHouseStopDistanceMap() {
   const [result1] = await pool.query(q1)
   const q2 = 'SELECT id, latitude, longitude FROM house'
   const [houses] = await pool.query(q2)
+  
   console.log('finish fetching houses info')
   const map = {}
   
@@ -99,6 +101,12 @@ async function makeHouseStopDistanceMap() {
       ON station.id = stop.station_id
       ${process.argv[2] === 'metro' ? 'WHERE type = "metro"' : ''}`
   const [result2] = await pool.query(q2)
+  result2.forEach(data => {
+    housePositionMap[data.id] = {
+      latitude: data.latitude,
+      longitude: data.longitude
+    }
+  })
   const [result3] = await pool.query(q3)
   const stationStops = {}
   result3.forEach(data => {
@@ -188,6 +196,7 @@ async function makeHouseStopDistanceMap() {
     
   // }
   // console.log(map)
+  // console.log(housePositionMap)
   const time2 = Date.now()
   // console.log((time2 - time1) / 1000, 'seconds')
   console.log('finish loading stop house distance:', (time2 - time1) / 1000, 'seconds')
@@ -196,7 +205,8 @@ async function makeHouseStopDistanceMap() {
     // numToStopIdMap,
     houseIdToNumMap,
     // numToHouseIdMap,
-    houseStopDistanceMap
+    houseStopDistanceMap,
+    housePositionMap
   }
 }
 
