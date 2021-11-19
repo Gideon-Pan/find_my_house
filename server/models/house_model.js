@@ -210,10 +210,53 @@ async function makeHouseStopDistanceMap() {
   }
 }
 
+async function makeHouseMap() {
+  console.time('make house map')
+  const q = `SELECT house.id, title, price, area, link, image, house.address, house.latitude, house.longitude, category.name AS category, tag.name AS tag_name, tag.id AS tag_id FROM house 
+    JOIN category
+      ON house.category_id = category.id
+    JOIN house_tag
+      ON house.id = house_tag.house_id
+    JOIN tag
+      ON tag.id = house_tag.tag_id`
+  const [result] = await pool.query(q)
+  const houseMap = {}
+  const tags = ['可開伙','可短租','屋主直租','可養寵物','新上架']
+  result.forEach(data => {
+    if (!houseMap[data.id]) {
+      houseMap[data.id] = {
+        id: data.id,
+        title: data.title,
+        price: data.price,
+        area: data.area,
+        link: data.link,
+        image: data.image,
+        address: data.address,
+        latitude: data.latitude,
+        longitude: data.longitude,
+        category: data.category,
+        tagIds: []
+      }
+    }
+    // console.log(data.tag_name)
+    if (tags.includes(data.tag_name)) {
+      // console.log(data.tag_name)
+      houseMap[data.id].tagIds.push(data.tag_id)
+    }
+    
+  })
+  Object.values(houseMap)[0]
+  // console.log(Object.values(houseMap).length)
+  // console.log('Object.values(houseMap)[0]: ', Object.values(houseMap)[0]);
+  console.timeEnd('make house map')
+  return houseMap
+}
+
 
 
 
 module.exports = {
   getLifeFunction,
-  makeHouseStopDistanceMap
+  makeHouseStopDistanceMap,
+  makeHouseMap
 }

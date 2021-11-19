@@ -10,7 +10,7 @@ const { getShortestPath } = require('./server/dijkstra/shortest_path')
 // const { Edge } = require('./graph')
 // const { makeGraph } = require('./makeGraph')
 const db = require('./server/models/db/mysql')
-const { makeHouseStopDistanceMap } = require('./server/models/house_model')
+const { makeHouseStopDistanceMap, makeHouseMap } = require('./server/models/house_model')
 // console.log(makeGraph)
 const {API_VERSION} = process.env
 // console.log(API_VERSION)
@@ -53,7 +53,11 @@ let houseIdToNumMap
 let numToHouseIdMap
 let houseStopDistanceMap
 let housePositionMap
+let houseMapCache
 async function main() {
+  houseMapCache = await makeHouseMap()
+  // console.log(houseMapCache)
+  // return
   const time0_0 = Date.now()
   // graphsForBus = await makeGraph('bus', 2)
   // graphsForMetro = await makeGraph('metro', 2)
@@ -91,6 +95,7 @@ async function main() {
   //   'seconds'
   // )
   // console.log(waitingTimeMaps)
+  
 }
 
 main()
@@ -356,8 +361,7 @@ app.listen(3000, () => {
 })
 
 async function getHousesInBudget(budget, houseType, validTags) {
-  // console.log(houseType)
-  // console.log(validTags)
+  // console.log('houseMapCache: ', houseMapCache);
   switch (houseType) {
     case 'shared-suite':
       houseType = '分租套房'
@@ -371,6 +375,37 @@ async function getHousesInBudget(budget, houseType, validTags) {
     default:
       break
   }
+  if (houseMapCache) {
+    
+    let counter = 0
+    const houses = Object.values(houseMapCache).filter(house => {
+      // console.log(house.tagIds)
+      if (houseType && houseType !== house.category) {
+        // console.log(houseType)
+        // console.log(house.category)
+        // console.log('~')
+        return false
+      }
+      // console.log(house)
+      if (house.price > budget) {
+        return false
+      }
+      
+      for (let tag of validTags) {
+        counter++
+        if (!house.tagIds.includes(tag)) {
+          return false
+        }
+      }
+      return true
+    })
+    console.log(counter, 'times for filtering tag')
+    return houses
+  }
+  // if (houseType !==  && houseType)
+  // console.log(houseType)
+  // console.log(validTags)
+  
   // console.log(houseType)
   // const condition = budget ? `WHERE price <= ${budget}` : ''
   // console.log(budget)
