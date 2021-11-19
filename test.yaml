@@ -6,8 +6,8 @@ config:
     pool: 20
     timeout: 20
   phases:
-    - duration: 5
-      arrivalRate: 3
+    - duration: 20
+      arrivalRate: 2
 scenarios:
   - flow:
     - get:

@@ -802,7 +802,7 @@ function closeLastOpenedInfoWindow() {
   if (lastOpenedInfoWindow) {
     lastOpenedInfoWindow.close()
     houseInfoStatus = false
-    console.log(houseInfoStatus)
+    // console.log(houseInfoStatus)
   }
 }
 
