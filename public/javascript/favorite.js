@@ -48,7 +48,7 @@ async function getFavorite() {
     console.log(e)
     console.log('fail')
 
-    // location.href= '/'
+    location.href= '/'
   }
 }
 

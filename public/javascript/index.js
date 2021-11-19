@@ -43,14 +43,92 @@ let searchOnce = true
 let clearClusterAll = true
 
 // 學校
-const Justin = {
-  lat: 25.04222965263713,
-  lng: 121.5648119917025
-}
-let officeLat = Justin.lat
-let officeLng = Justin.lng
+// const Justin = {
+//   lat:,
+//   lng: 
+// }
+let officeLat
+let officeLng
 
-const Appworks = { lat: 25.042482379737326, lng: 121.5647583475222 }
+// console.log($('#commuter_time option[value="40"]'))
+// $('#commute-time option:selected').removeAttr('selected');
+// $('#commute-time option:nth-child(2)').attr('selected','true')
+// const commuteTime = localStorage.getItem('commuteTime')
+// commuteTime = window.localStorage.getItem('commuteTime')
+// if (commuteTime) {
+//   const commuteTimeSelect = document.getElementById('commute-time')
+//   for (let i = 0; i < commuteTimeSelect.options.length; i++) {
+//     const option = commuteTimeSelect.options[i]
+//     console.log(option.value)
+//     console.log(commuteTime)
+//     console.log(option.value === commuteTime)
+//     if (option.value === commuteTime) {
+//       // console.log('21312')
+//       console.log(i)
+//       commuteTimeSelect.selectedIndex = i
+//       break
+//     }
+//   }
+// }
+
+
+
+// setInitialOption('commute-time', 'commuteTime')
+
+function setInitialOption(selectId, localStorageKey) {
+  const value = window.localStorage.getItem(localStorageKey)
+  if (!value) return
+  const select = document.getElementById(selectId)
+  for (let i = 0; i < select.options.length; i++) {
+    const option = select.options[i]
+    if (option.value === value) {
+      // console.log('21312')
+      // console.log(i)
+      select.selectedIndex = i
+      break
+    }
+  }
+}
+
+function setInitialCheck(checkId, localStorageKey) {
+  const value = window.localStorage.getItem(localStorageKey)
+  // console.log(values)
+  // console.log(document.getElementById(checkId).checked)
+  // console.log(value)
+  // if (value) {
+  document.getElementById(checkId).checked = value === 'true'
+  // }
+  //  = value
+  console.log(document.getElementById(checkId).checked)
+}
+
+function setInitialOptions() {
+  // console.log(1)
+  if (!window.localStorage.getItem('commuteTime')) {
+    return
+  }
+  // console.log(2)
+  setInitialOption('period', 'period')
+  setInitialOption('commute-time', 'commuteTime')
+  setInitialOption('commute-way', 'commuteWay')
+  setInitialOption('walk-distance', 'maxWalkDistance')
+  setInitialOption('house-type', 'houseType')
+  setInitialOption('budget', 'budget')
+  setInitialCheck('fire', 'fire')
+  setInitialCheck('short-rent', 'shortRent')
+  setInitialCheck('direct-rent', 'directRent')
+  setInitialCheck('pet', 'pet')
+  setInitialCheck('new-item', 'newItem')
+}
+
+setInitialOptions()
+
+// document.getElementById('commute-time').selectedIndex = 2
+// console.log($('#commuter_time option:nth-child(5)'))
+// $('#commuter_time').val("40")
+// console.log($('#commuter_time'))
+
+// const Appworks = { lat: 25.042482379737326, lng: 121.5647583475222 }
 
 function setMapOnAll(map) {
   // for (let i = 0; i < markers.length; i++) {
@@ -95,9 +173,16 @@ function initMap() {
     origin: new google.maps.Point(0, 0) // origin
     // anchor: new google.maps.Point(20, 25) // anchor
   }
+  officeLat = window.localStorage.getItem('officeLat') ? Number(window.localStorage.getItem('officeLat')) : 25.04222965263713
+  officeLng = window.localStorage.getItem('officeLng') ? Number(window.localStorage.getItem('officeLng')) : 121.5648119917025
+  const office = {
+    lat: officeLat,
+    lng: officeLng
+  }
+  console.log(office)
   const officeMarker = new google.maps.Marker({
     // position: { lat: 25.042482379737326, lng: 121.5647583475222 },
-    position: Justin,
+    position: office,
     map: map,
     icon: icon,
     draggable: true,
@@ -143,16 +228,28 @@ function clearHouseDataMap() {
 
 async function search(isOldSearch) {
   // houseDataMap = {}
-  
+  if (officeLat < 24.82779066186457 || officeLat > 25.286790197826466 || officeLng < 121.26674450569816 || officeLng > 121.93818339149594) {
+    Swal.fire({
+      title: '請搜尋雙北地區',
+      // text: `放寬搜尋條件以找到房屋`,
+      icon: 'info',
+      confirmButtonText: '我知道了'
+    })
+    // alert('請選擇步行距離')
+    return
+  }
+
+
   houseInfoStatus = isOldSearch ? houseInfoStatus : false 
   // return
   // const test = $('#test').val()
   // console.log(test)
   const time1 = Date.now()
   const period = $('#period').val()
-  const commuteTime = $('#commute_time').val() * 60
-  const commuteWay = $('#commute_way').val()
-  const maxWalkDistance = $('#walk_distance').val()
+  const commuteTime = $('#commute-time').val()
+  // console.log(commuteTime)
+  const commuteWay = $('#commute-way').val()
+  const maxWalkDistance = $('#walk-distance').val()
   const budget = $('#budget').val()
   // console.log(budget)
   const houseType = $('#house-type').val()
@@ -218,9 +315,9 @@ async function search(isOldSearch) {
   latestLongitudeNW = longitudeNW
   height = Math.abs(latitudeNW - latitudeSE)
   width = Math.abs(longitudeNW - longitudeSE)
-  const url = `/search?period=${period}&commuteTime=${commuteTime}&commuteWay=${commuteWay}&maxWalkDistance=${maxWalkDistance}&budget=${budget}&officeLat=${officeLat}&officeLng=${officeLng}&houseType=${houseType}&fire=${fire}&shortRent=${shortRent}&directRent=${directRent}&pet=${pet}&newItem=${newItem}
+  const url = `/search?period=${period}&commuteTime=${commuteTime * 60}&commuteWay=${commuteWay}&maxWalkDistance=${maxWalkDistance}&budget=${budget}&officeLat=${officeLat}&officeLng=${officeLng}&houseType=${houseType}&fire=${fire}&shortRent=${shortRent}&directRent=${directRent}&pet=${pet}&newItem=${newItem}
     &latitudeNW=${latitudeNW}&longitudeNW=${longitudeNW}&latitudeSE=${latitudeSE}&longitudeSE=${longitudeSE}`
-  // const walk_distance = $("walk_distance").val()
+  // const walk-distance = $("walk-distance").val()
 
   console.log(url)
   clearHouseDataMap()
@@ -240,6 +337,23 @@ async function search(isOldSearch) {
   const { data } = await axios.get(url)
   // console.timeEnd('api')
   // console.time('remove block')
+
+  // 更新公司資料於local storage
+  window.localStorage.setItem('officeLat', officeLat)
+  window.localStorage.setItem('officeLng', officeLng)
+  window.localStorage.setItem('period', period)
+  window.localStorage.setItem('commuteTime', commuteTime)
+  window.localStorage.setItem('commuteWay', commuteWay)
+  window.localStorage.setItem('maxWalkDistance', maxWalkDistance)
+  window.localStorage.setItem('houseType', houseType)
+  window.localStorage.setItem('budget', budget)
+  window.localStorage.setItem('fire', fire)
+  window.localStorage.setItem('shortRent', shortRent)
+  window.localStorage.setItem('directRent', directRent)
+  window.localStorage.setItem('pet', pet)
+  window.localStorage.setItem('newItem', newItem)
+  console.log(newItem)
+
   removeReachableArea()
   removeBlock()
   $('.spinner').css('display', 'none')
@@ -454,8 +568,11 @@ function renderHouse(house) {
   
   // console.log('render a house')
   // currentId = id
-  if (area % 1 !== 0) {
-    area = area.toFixed(1)
+  if (house.area % 1 !== 0) {
+    house.area = house.area.toFixed(0)
+  }
+  if (id == 11603378) {
+    console.log(area)
   }
 
   const houseIcon = makeHouseIcon(id)
@@ -479,7 +596,7 @@ function renderHouse(house) {
     },
     map: map,
     icon: houseIcon,
-    zIndex: 2
+    zIndex: likeMap[id] ? 100 : 2
     // label: `${i}`
   })
 
@@ -493,13 +610,16 @@ function renderHouse(house) {
     houseInfowindow.open({
       anchor: marker,
       map,
-      shouldFocus: false
+      shouldFocus: false,
+      disableAutoPan: true
     })
   })
   marker.addListener(
     'click',
     (function (id, marker) {
       return function () {
+        renderLifeFunction(id)
+        
         // console.log(houseDataMap[id])
         const latestHouseId = selectedHouseId
 
@@ -511,13 +631,17 @@ function renderHouse(house) {
 
         // 更新上一個選擇房屋的圖像
         if (latestMarker) {
-          latestMarker.setZIndex(2)
+          const index = likeMap[latestHouseId] ? 200 : 2
+          latestMarker.setZIndex(index)
           // selectedHouseId = null
           // latestHouseId = selectedHouseId
           // selectedHouseId = null
           const icon = makeHouseIcon(latestHouseId)
           latestMarker.setIcon(icon)
         }
+
+        
+        
 
         latestMarker = marker
         const { latitude, longitude } = houseDataMap[id]
@@ -582,34 +706,37 @@ function renderHouse(house) {
     'click',
     (function (id) {
       return async function () {
-        clearLifeFunction()
-        // removeLines()
-        // console.log(id)
-        const { data } = await axios.get(`/api/1.0/house/details?id=${id}`)
-        console.log(data)
-        document
-          .querySelector('.radio')
-          .setAttribute('style', 'display: inline;')
-        // console.log($('.radio').attr("display"))
+        // if (id === selectedHouseId) {
+        //   return
+        // }
+        // clearLifeFunction()
+        // // removeLines()
+        // // console.log(id)
+        // const { data } = await axios.get(`/api/1.0/house/details?id=${id}`)
+        // console.log(data)
+        // document
+        //   .querySelector('.radio')
+        //   .setAttribute('style', 'display: inline;')
+        // // console.log($('.radio').attr("display"))
 
-        if (!currentLifeFunctionType) {
-          currentLifeFunctionType = 'traffic'
-        }
+        // if (!currentLifeFunctionType) {
+        //   currentLifeFunctionType = 'traffic'
+        // }
 
-        currentHouse = data
-        switch (currentLifeFunctionType) {
-          case 'traffic':
-            getTraffic()
-            break
-          case 'life':
-            getLife()
-            break
-          case 'food':
-            getFood()
-            break
-          default:
-            console.log('what')
-        }
+        // currentHouse = data
+        // switch (currentLifeFunctionType) {
+        //   case 'traffic':
+        //     getTraffic()
+        //     break
+        //   case 'life':
+        //     getLife()
+        //     break
+        //   case 'food':
+        //     getFood()
+        //     break
+        //   default:
+        //     console.log('what')
+        // }
       }
     })(id)
   )
@@ -633,6 +760,40 @@ function renderHouse(house) {
   otherTime += timer2 - timer1
   // console.log(timer2 - timer1, 'this time')
   // console.log(inBoundTime, 'total')
+}
+
+async function renderLifeFunction(id) {
+  if (id === selectedHouseId) {
+    return
+  }
+  clearLifeFunction()
+  // removeLines()
+  // console.log(id)
+  const { data } = await axios.get(`/api/1.0/house/details?id=${id}`)
+  console.log(data)
+  document
+    .querySelector('.radio')
+    .setAttribute('style', 'display: inline;')
+  // console.log($('.radio').attr("display"))
+
+  if (!currentLifeFunctionType) {
+    currentLifeFunctionType = 'traffic'
+  }
+
+  currentHouse = data
+  switch (currentLifeFunctionType) {
+    case 'traffic':
+      getTraffic()
+      break
+    case 'life':
+      getLife()
+      break
+    case 'food':
+      getFood()
+      break
+    default:
+      console.log('what')
+  }
 }
 
 function closeLastOpenedInfoWindow() {
@@ -963,6 +1124,7 @@ function showLifeFunction(type, subtype) {
   // clearLifeFunction()
   // removeLines()
   // removeRadio()
+  console.log(currentHouse)
   const { coordinate } = currentHouse
 
   const houseCoordinate = {
@@ -1015,7 +1177,8 @@ function showLifeFunction(type, subtype) {
     const lifeFunction = new google.maps.Marker({
       position: spotCoordinate,
       // label: name,
-      map: map
+      map: map,
+      disableAutoPan: true
       // icon
     })
     // console.log(lifeFunctionInfowindow)
@@ -1064,6 +1227,26 @@ function getFood() {
 
 async function like() {
   const access_token = window.localStorage.getItem('access_token')
+  if (!access_token) {
+    console.log(123)
+    Swal.fire({
+      title: '加入收藏前請先登入',
+      // showDenyButton: true,
+      showCancelButton: true,
+      confirmButtonText: '前往登入',
+      // denyButtonText: `不了謝謝`,
+      cancelButtonText: '不了謝謝'
+    }).then((result) => {
+      /* Read more about isConfirmed, isDenied below */
+      if (result.isConfirmed) {
+        location.href = '/signin.html'
+      }
+    })
+    return
+  }
+  
+  likeMap[selectedHouseId] = true
+  setLike(selectedHouseId)
   // console.log('here')
   // console.log(access_token)
   console.log(selectedHouseId)
@@ -1079,11 +1262,12 @@ async function like() {
         }
       }
     )
-    likeMap[selectedHouseId] = true
-    setLike(selectedHouseId)
+    // likeMap[selectedHouseId] = true
+    // setLike(selectedHouseId)
     console.log('successfully like')
   } catch (e) {
     console.log(e)
+    console.log(456)
     Swal.fire({
       title: '加入收藏前請先登入',
       // showDenyButton: true,
@@ -1097,12 +1281,32 @@ async function like() {
         location.href = '/signin.html'
       }
     })
-    console.log('fail')
+    likeMap[selectedHouseId] = false
+    setDislike(selectedHouseId)
+    // console.log('fail')
   }
 }
 
 async function dislike() {
   const access_token = window.localStorage.getItem('access_token')
+  if (!access_token) {
+    Swal.fire({
+      title: '移除收藏前請先登入',
+      // showDenyButton: true,
+      showCancelButton: true,
+      confirmButtonText: '前往登入',
+      // denyButtonText: `不了謝謝`,
+      cancelButtonText: '不了謝謝'
+    }).then((result) => {
+      /* Read more about isConfirmed, isDenied below */
+      if (result.isConfirmed) {
+        location.href = '/signin.html'
+      }
+    })
+    return
+  }
+  likeMap[selectedHouseId] = false
+  setDislike(selectedHouseId)
   // console.log('here')
   // console.log(access_token)
   console.log(selectedHouseId)
@@ -1115,12 +1319,28 @@ async function dislike() {
         Authorization: `Bearer ${access_token}`
       }
     })
-    likeMap[selectedHouseId] = false
-    setDislike(selectedHouseId)
+    // likeMap[selectedHouseId] = false
+    // setDislike(selectedHouseId)
     console.log('successfully dislike')
   } catch (e) {
     console.log(e)
-    console.log('fail')
+    // console.log('fail')
+    Swal.fire({
+      title: '移除收藏前請先登入',
+      // showDenyButton: true,
+      showCancelButton: true,
+      confirmButtonText: '前往登入',
+      // denyButtonText: `不了謝謝`,
+      cancelButtonText: '不了謝謝'
+    }).then((result) => {
+      /* Read more about isConfirmed, isDenied below */
+      if (result.isConfirmed) {
+        location.href = '/signin.html'
+      }
+    })
+    likeMap[selectedHouseId] = true
+    setLike(selectedHouseId)
+    console.log('successfully dislike')
   }
 }
 
