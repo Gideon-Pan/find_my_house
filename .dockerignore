@@ -9,5 +9,3 @@ dump/
 bus_velocity.json
 .env.ec2
 .env.crawler_and_cleanser
-.env.docker-compose
-.env.docker
