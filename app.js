@@ -1,7 +1,10 @@
 const express = require('express')
 require('dotenv').config()
 // const { getDistance } = require('geolib')
-const { makeGraphs, makeWaitingTimeMap } = require('./server/dijkstra/make_graph')
+const {
+  makeGraphs,
+  makeWaitingTimeMap
+} = require('./server/dijkstra/make_graph')
 // const getShortestPathBus = require('./ptx_testing/bus/bus_sp')
 // const { PQ } = require('./controller/priority_queue')
 // const { metro } = require('./ptx_testing/metro_app')
@@ -11,58 +14,66 @@ const { getShortestPath } = require('./server/dijkstra/shortest_path')
 // const { makeGraph } = require('./makeGraph')
 const db = require('./server/models/db/mysql')
 const Redis = require('./util/redis')
-const { makeHouseStopDistanceMap, makeHouseMap, makeStopStationMap, makeHouseStationDistanceMap } = require('./server/models/house_model')
+const {
+  makeHouseStopDistanceMap,
+  makeHouseMap,
+  makeStopStationMap,
+  makeHouseStationDistanceMap
+} = require('./server/models/house_model')
 const { rateLimiter } = require('./util/util')
 // console.log(makeGraph)
-const {API_VERSION} = process.env
+const { API_VERSION } = process.env
 // console.log(API_VERSION)
 
 function getDistance(position1, position2) {
   return Math.sqrt(
-    (position1.latitude - position2.latitude) * (position1.latitude - position2.latitude) * 111319.5 * 111319.5 +
-      (position1.longitude - position2.longitude) * (position1.longitude - position2.longitude) * 100848.6 * 100848.6
+    (position1.latitude - position2.latitude) *
+      (position1.latitude - position2.latitude) *
+      111319.5 *
+      111319.5 +
+      (position1.longitude - position2.longitude) *
+        (position1.longitude - position2.longitude) *
+        100848.6 *
+        100848.6
   )
 }
 
 const app = express()
 app.use(express.json())
-app.use(express.urlencoded({extended:true}))
+app.use(express.urlencoded({ extended: true }))
 app.use(express.static(__dirname + '/public'))
 
 // API routes
-app.use('/api/' + API_VERSION,
-    rateLimiter,
-    [
-      require('./server/routes/user_route'),
-      require('./server/routes/house_route')
-        // require('./server/routes/admin_route'),
-        // require('./server/routes/product_route'),
-        // require('./server/routes/marketing_route'),
-        // require('./server/routes/user_route'),
-        // require('./server/routes/order_route'),
-    ]
-);
+app.use('/api/' + API_VERSION, rateLimiter, [
+  require('./server/routes/user_route'),
+  require('./server/routes/house_route')
+  // require('./server/routes/admin_route'),
+  // require('./server/routes/product_route'),
+  // require('./server/routes/marketing_route'),
+  // require('./server/routes/user_route'),
+  // require('./server/routes/order_route'),
+])
 
 // app.get('/house/life-function', async (req, res) => {
 //   // console.log('qhhq')
 //   // console.log(req.query)
-  
+
 // })
 
 const walkVelocity = 1.25 / 1.414
 
-let graphsForBus
-let graphForMetro
-let graphForMix
+// let graphsForBus
+// let graphForMetro
+// let graphForMix
 let waitingTimeMaps
 let graphs
-let stopIdToNumMap
-let numToStopIdMap
+// let stopIdToNumMap
+// let numToStopIdMap
 let houseIdToNumMap
-let numToHouseIdMap
-let houseStopDistanceMap
-let houseStationDistanceMap
-let housePositionMap
+// let numToHouseIdMap
+// let houseStopDistanceMap
+// let houseStationDistanceMap
+// let housePositionMap
 // let stopStationMap
 // let stationStopMap
 // let houseMapCache
@@ -73,7 +84,7 @@ async function main() {
   if (Redis.client.connected) {
     Redis.set('houseMap', houseMapJSON)
   }
-  
+
   // console.log(houseMapCache)
   // return
   const time0_0 = Date.now()
@@ -90,13 +101,16 @@ async function main() {
     Math.floor(time0_1 - time0_0) / 1000,
     'seconds'
   )
-  
 
-  const maps = await makeHouseStopDistanceMap()
-  stopIdToNumMap = maps.stopIdToNumMap
-  houseIdToNumMap = maps.houseIdToNumMap
-  houseStopDistanceMap = maps.houseStopDistanceMap
-  housePositionMap = maps.housePositionMap
+  if (Redis.client.connected) {
+    // const maps = await makeHouseStopDistanceMap()
+    await makeHouseStopDistanceMap()
+  }
+
+  // stopIdToNumMap = maps.stopIdToNumMap
+  // houseIdToNumMap = maps.houseIdToNumMap
+  // houseStopDistanceMap = maps.houseStopDistanceMap
+  // housePositionMap = maps.housePositionMap
 
   // const maps = await makeHouseStationDistanceMap()
   // houseIdToNumMap = maps.houseIdToNumMap
@@ -109,7 +123,6 @@ async function main() {
   //   'seconds'
   // )
   // console.log(waitingTimeMaps)
-  
 }
 
 main()
@@ -127,8 +140,25 @@ app.get('/test', async (req, res) => {
 
 app.get('/api/1.0/search', async (req, res) => {
   // const g = req.query.commuteWay === 'bus' ? graphForBus : graphForMetro
-  let { commuteTime, officeLat, officeLng, maxWalkDistance, period, commuteWay, budget, houseType, 
-    fire, shortRent, directRent, pet, newItem, latitudeNW, longitudeNW, latitudeSE, longitudeSE } = req.query
+  let {
+    commuteTime,
+    officeLat,
+    officeLng,
+    maxWalkDistance,
+    period,
+    commuteWay,
+    budget,
+    houseType,
+    fire,
+    shortRent,
+    directRent,
+    pet,
+    newItem,
+    latitudeNW,
+    longitudeNW,
+    latitudeSE,
+    longitudeSE
+  } = req.query
   // console.log(req.query)
   // console.log(budget)
   const tags = []
@@ -160,7 +190,7 @@ app.get('/api/1.0/search', async (req, res) => {
   //     g = graphsForMix
   // }
   // console.log(g)
-  
+
   const start = Date.now()
   console.log('receive')
 
@@ -176,7 +206,7 @@ app.get('/api/1.0/search', async (req, res) => {
   }
 
   const idMap = {}
-  
+
   const distToStationMap = {}
   let counter = 0
   for (let id of g.getAllIds()) {
@@ -224,13 +254,13 @@ app.get('/api/1.0/search', async (req, res) => {
 
   // console.log(distToStationMap)
   const nearByStationCount = counter - 1
-  
+
   // can't get to any station but itself
 
   const timerNearby = Date.now()
   console.log((timerNearby - start) / 1000, 'seconds for get nearby station')
   console.log('nearByStationCount: ', nearByStationCount)
-  
+
   if (nearByStationCount === 0) {
     const positionData = [
       {
@@ -241,14 +271,18 @@ app.get('/api/1.0/search', async (req, res) => {
       }
     ]
     const stopRadiusMap = {}
-    positionData.forEach(({stationId, distanceLeft}) => {
+    positionData.forEach(({ stationId, distanceLeft }) => {
       stopRadiusMap[stationId] = distanceLeft
     })
     // return res.send()
     // console.log(positionData.length)
     let houses = await getHousesInBudget(budget, houseType, tags)
     // console.log(houses.length)
-    const houseData = await getHousesInRange(positionData, houses, stopRadiusMap)
+    const houseData = await getHousesInRange(
+      positionData,
+      houses,
+      stopRadiusMap
+    )
     // console.log(houses.length)
     // const houseData = getHousesInBound(houses, Number(latitudeNW), Number(latitudeSE), Number(longitudeNW), Number(longitudeSE))
     const end = Date.now()
@@ -267,8 +301,8 @@ app.get('/api/1.0/search', async (req, res) => {
   const timer1 = Date.now()
   console.log((timer1 - timer0) / 1000, 'seconds for Dijkstra')
   const reachableStationsMap = {}
-  console.log("reachable stops count:", reachableStations.length)
-  
+  console.log('reachable stops count:', reachableStations.length)
+
   reachableStations.forEach((reachableStation) => {
     const { id, startStationId, timeSpent, walkDistance } = reachableStation
 
@@ -318,10 +352,10 @@ app.get('/api/1.0/search', async (req, res) => {
       distanceLeft
     }
   })
-  
+
   const positionData = Object.values(reachableStationsMap)
   const stopRadiusMap = {}
-  positionData.forEach(({stationId, distanceLeft}) => {
+  positionData.forEach(({ stationId, distanceLeft }) => {
     stopRadiusMap[stationId] = distanceLeft
   })
   // positionData.push({
@@ -337,25 +371,33 @@ app.get('/api/1.0/search', async (req, res) => {
   // console.log((time1 - start) / 1000, '!!!')
   let houses = await getHousesInBudget(budget, houseType, tags)
   const time2 = Date.now()
-  console.log((time2 - time1) / 1000, "seconds to get house in house constraint")
+  console.log(
+    (time2 - time1) / 1000,
+    'seconds to get house in house constraint'
+  )
   // console.log(houses)
 
-  
   // console.log(houses.length)
   if (houses.length !== 0) {
     // console.log(houses.lastIndexOf)
     houses = await getHousesInRange(positionData, houses, stopRadiusMap)
     // console.log(houseData)
-  } 
+  }
 
   console.log(houses.length)
-  const houseData = getHousesInBound(houses, Number(latitudeNW), Number(latitudeSE), Number(longitudeNW), Number(longitudeSE))
+  const houseData = getHousesInBound(
+    houses,
+    Number(latitudeNW),
+    Number(latitudeSE),
+    Number(longitudeNW),
+    Number(longitudeSE)
+  )
   console.log(houseData.length)
   // return res.send()
 
   const time3 = Date.now()
-  console.log((time3 - time2) / 1000, "seconds to filter house in range")
-  
+  console.log((time3 - time2) / 1000, 'seconds to filter house in range')
+
   // console.log(positionData)
   // console.log(respondData.length)
   const end = Date.now()
@@ -401,48 +443,48 @@ async function getHousesInBudget(budget, houseType, validTags) {
       console.log('caching house map')
       const houseMapCache = JSON.parse(houseMapString)
       let counter = 0
-    // const houses = []
-    // for (let house of Object.values(houseMapCache)) {
-    //   if (houseTypeId && houseTypeId !== house.categoryId) continue
-    //   if (house.price > budget) continue
-    //   let toContinue
-    //   for (let tag of validTags) {
-    //     counter++
-    //     if (!house.tagIds.includes(tag)) {
-    //       // toContinue = 
-    //       continue
-    //     }
-    //   }
-    // }
-    const houses = Object.values(houseMapCache).filter(house => {
-      // console.log(house.tagIds)
-      if (houseTypeId && houseTypeId !== house.categoryId) {
-        // console.log(houseType)
-        // console.log(house.category)
-        // console.log('~')
-        return false
-      }
-      // console.log(house)
-      if (house.price > budget) {
-        return false
-      }
-      
-      for (let tag of validTags) {
-        counter++
-        if (!house.tagIds.includes(tag)) {
+      // const houses = []
+      // for (let house of Object.values(houseMapCache)) {
+      //   if (houseTypeId && houseTypeId !== house.categoryId) continue
+      //   if (house.price > budget) continue
+      //   let toContinue
+      //   for (let tag of validTags) {
+      //     counter++
+      //     if (!house.tagIds.includes(tag)) {
+      //       // toContinue =
+      //       continue
+      //     }
+      //   }
+      // }
+      const houses = Object.values(houseMapCache).filter((house) => {
+        // console.log(house.tagIds)
+        if (houseTypeId && houseTypeId !== house.categoryId) {
+          // console.log(houseType)
+          // console.log(house.category)
+          // console.log('~')
           return false
         }
-      }
-      return true
-    })
-    console.log(counter, 'times for filtering tag')
-    return houses
+        // console.log(house)
+        if (house.price > budget) {
+          return false
+        }
+
+        for (let tag of validTags) {
+          counter++
+          if (!house.tagIds.includes(tag)) {
+            return false
+          }
+        }
+        return true
+      })
+      console.log(counter, 'times for filtering tag')
+      return houses
     }
   }
   // if (houseType !==  && houseType)
   // console.log(houseType)
   // console.log(validTags)
-  
+
   // console.log(houseType)
   // const condition = budget ? `WHERE price <= ${budget}` : ''
   // console.log(budget)
@@ -456,7 +498,7 @@ async function getHousesInBudget(budget, houseType, validTags) {
       ON tag.id = house_tag.tag_id
     WHERE price <= ${budget}
       ${validTags.length !== 0 ? 'AND tag.id IN  (?)' : ''}
-      ${houseType ? `AND category.name = '${houseType}'` : ""}
+      ${houseType ? `AND category.name = '${houseType}'` : ''}
   `
   //       ${budget ? `` : ''}
   // latitude IS NOT NULL AND longitude IS NOT NULL
@@ -469,7 +511,7 @@ async function getHousesInBudget(budget, houseType, validTags) {
   const houseMap = {}
   // const validTags =
   const timet1 = Date.now()
-  result.forEach(house => {
+  result.forEach((house) => {
     // if (!validTags.includes(house.tag)) return
     // if (house.tag in )
     if (!houseMap[house.id]) {
@@ -483,8 +525,8 @@ async function getHousesInBudget(budget, houseType, validTags) {
       houseMap[house.id].counter++
     }
   })
-  console.log(result.length, "rows from sql")
-  const houses = Object.values(houseMap).filter(house => {
+  console.log(result.length, 'rows from sql')
+  const houses = Object.values(houseMap).filter((house) => {
     // console.log(house.counter)
     // console.log(validTags.length)
     // console.log('~~~')
@@ -496,36 +538,46 @@ async function getHousesInBudget(budget, houseType, validTags) {
   // Object.values(houseMap).forEach(house => {
   //   console.log(house)
   // })
-  console.log(houses.length, "houses satisfy tag filters")
+  console.log(houses.length, 'houses satisfy tag filters')
   const timet2 = Date.now()
   // console.log((timet2 - timet1) / 1000, 'seconds for filtering tags')
   return houses
 }
 
-function getHousesInBound(houses, latitudeNW, latitudeSE, longitudeNW, longitudeSE) {
+function getHousesInBound(
+  houses,
+  latitudeNW,
+  latitudeSE,
+  longitudeNW,
+  longitudeSE
+) {
   if (houses.length <= 1000) {
     return houses
   }
   return houses
-  console.log('latitudeNW: ', latitudeNW);
-  console.log(' latitudeSE: ',  latitudeSE);
-  console.log('longitudeNW: ', longitudeNW);
-  console.log('longitudeSE: ', longitudeSE);
+  console.log('latitudeNW: ', latitudeNW)
+  console.log(' latitudeSE: ', latitudeSE)
+  console.log('longitudeNW: ', longitudeNW)
+  console.log('longitudeSE: ', longitudeSE)
   const houseInBound = houses.filter((house, i) => {
     console.log(housePositionMap)
     if (!housePositionMap[house.id]) {
-      return 
+      return
     }
     const houseLat = housePositionMap[house.id].latitude
 
     const houseLon = housePositionMap[house.id].longitude
     if (i === 0) {
-      console.log('houseLat: ', houseLat);
-      console.log('houseLon: ', houseLon);
+      console.log('houseLat: ', houseLat)
+      console.log('houseLon: ', houseLon)
     }
 
-
-    if (houseLat < latitudeNW && houseLat > latitudeSE && houseLon > longitudeSE && houseLon < longitudeNW) {
+    if (
+      houseLat < latitudeNW &&
+      houseLat > latitudeSE &&
+      houseLon > longitudeSE &&
+      houseLon < longitudeNW
+    ) {
       return true
     }
     return false
@@ -535,6 +587,60 @@ function getHousesInBound(houses, latitudeNW, latitudeSE, longitudeNW, longitude
 
 async function getHousesInRange(positionData, houses, stopRadiusMap) {
   console.log('reachable stations count', positionData.length)
+  if (Redis.client.connected) {
+    // console.log('~~~~~~~~~~~~~~~')
+    const houseIdToNumMapJSON = await Redis.get('houseIdToNumMap')
+    const houseStopDistanceMapJSON = await Redis.get('houseStopDistanceMap')
+    if (houseIdToNumMapJSON && houseStopDistanceMapJSON) {
+      // console.log('@@@@@')
+      const houseIdToNumMap = JSON.parse(houseIdToNumMapJSON)
+      // console.log(houseIdToNumMap)
+      const houseStopDistanceMap = JSON.parse(houseStopDistanceMapJSON)
+      let counter = 0
+      const houseData = houses.filter((house) => {
+        const { latitude, longitude } = house
+        const houseNum = houseIdToNumMap[house.id]
+        // console.log(houseNum)
+        // if (!houseStopDistanceMap[houseNum]) {
+        //   const position = positionData[0]
+        //   if (getDistance({latitude, longitude}, {latitude: position.lat, longitude: position.lng}) < position.distanceLeft) {
+        //     return true
+        //   }
+        //   return false
+        // }
+        // console.log(houseNum, 'dfsd')
+        if (houseStopDistanceMap[houseNum]) {
+          for (let i = 0; i < houseStopDistanceMap[houseNum].length; i++) {
+            const stopId = houseStopDistanceMap[houseNum][i][0]
+            const radius = stopRadiusMap[stopId]
+            const distance = houseStopDistanceMap[houseNum][i][1]
+            counter++
+            if (distance < radius) {
+              return true
+            }
+          }
+        }
+        const position = positionData[0]
+        // console.log(position)
+        if (
+          getDistance(
+            { latitude, longitude },
+            { latitude: position.lat, longitude: position.lng }
+          ) < position.distanceLeft
+        ) {
+          // console.log(getDistance({latitude, longitude}, {latitude: position.lat, longitude: position.lng}))
+          return true
+        }
+        return false
+      })
+      // console.log(houseData)
+      console.log(`computing ${counter} times`)
+      // console.log(houseData)
+      return houseData
+    }
+  }
+
+  let counter = 0
   // const stationMap = {}
   // const stationData = []
   // for (let stop of positionData) {
@@ -549,10 +655,9 @@ async function getHousesInRange(positionData, houses, stopRadiusMap) {
   //   if (houseStationDistanceMap[houseNum]) {
   //     for (let i = 0; i < houseStationDistanceMap[houseNum].length; i++) {
   //       const stationId = houseStationDistanceMap[houseNum][i][0]
-  //       const stopId = 
+  //       const stopId =
   //       const distance = houseStationDistanceMap[houseNum][i][1]
-  //       const radius = 
-
+  //       const radius =
 
   //       const stopId = houseStopDistanceMap[houseNum][i][0]
   //       const radius = stopRadiusMap[stopId]
@@ -565,20 +670,19 @@ async function getHousesInRange(positionData, houses, stopRadiusMap) {
   //   }
   // }
 
-
-  // const q = `SELECT * FROM house 
-  // WHERE latitude IS NOT NULL 
+  // const q = `SELECT * FROM house
+  // WHERE latitude IS NOT NULL
   //   AND longitude IS NOT NULL
   // `
-  // // console.log(db)
-  // const [houses] = await db.query(q)
-  // console.log(positionData)
+  // // // console.log(db)
+  // const [result] = await db.query(q)
+  // // console.log(positionData)
 
-  let counter = 0
-  // const houseData = houses.filter(house => {
+  // const houseData = result.filter(house => {
   //   // console.log(house.category)
   //   const {latitude, longitude} = house
-  //   const houseNum = houseIdToNumMap.get(house.id)
+  //   // const houseIdToNumMap = await makeHou
+  //   // const houseNum = houseIdToNumMap.get(house.id)
   //   if (!houseStopDistanceMap[houseNum]) {
   //     const position = positionData[0]
   //     // console.log(position)
@@ -598,7 +702,7 @@ async function getHousesInRange(positionData, houses, stopRadiusMap) {
   //     // console.log(stopNum)
   //     // console.log(houseStopDistanceMap[houseNum])
   //     if (houseStopDistanceMap[houseNum][stopNum] < radius) {
-        
+
   //       return true
   //     }
   //     if (positionData[i].stationId === '-2' && getDistance({latitude, longitude}, {latitude: position.lat, longitude: position.lng}) < radius) {
@@ -609,38 +713,5 @@ async function getHousesInRange(positionData, houses, stopRadiusMap) {
   //   }
   //   return false
   // })
-  // if (Redis.client.connected && Redis.get('houseStopDistanceMap') && Redis.get('houseIdToNumMap') && )
-  const houseData = houses.filter(house => {
-    const {latitude, longitude} = house
-    const houseNum = houseIdToNumMap.get(house.id)
-    // if (!houseStopDistanceMap[houseNum]) {
-    //   const position = positionData[0]
-    //   if (getDistance({latitude, longitude}, {latitude: position.lat, longitude: position.lng}) < position.distanceLeft) {
-    //     return true
-    //   }
-    //   return false
-    // }
-    // console.log(houseNum, 'dfsd')
-    if (houseStopDistanceMap[houseNum]) {
-      for (let i = 0; i < houseStopDistanceMap[houseNum].length; i++) {
-        const stopId = houseStopDistanceMap[houseNum][i][0]
-        const radius = stopRadiusMap[stopId]
-        const distance = houseStopDistanceMap[houseNum][i][1]
-        counter++
-        if (distance < radius) {
-          return true
-        }
-      }
-    }
-    const position = positionData[0]
-      // console.log(position)
-    if (getDistance({latitude, longitude}, {latitude: position.lat, longitude: position.lng}) < position.distanceLeft) {
-        // console.log(getDistance({latitude, longitude}, {latitude: position.lat, longitude: position.lng}))
-      return true
-    }
-    return false
-  })
-  // console.log(houseData)
-  console.log(`computing ${counter} times`)
-  return houseData
+  // return houseData
 }

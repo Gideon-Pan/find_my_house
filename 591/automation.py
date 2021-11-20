@@ -166,7 +166,7 @@ def getDataAmount(firstPageUrl):
     else:
         driver = webdriver.Chrome(executable_path='/usr/bin/chromedriver', options=chrome_options)  # 開啟chrome瀏覽器
     driver.get(firstPageUrl)  # 開啟連結
-    time.sleep(2)
+    time.sleep(5)
     soup = BeautifulSoup(driver.page_source, 'html.parser')
     # print(soup.select_one('div.item-area span'))
     # print(soup.select_one('div.switch-amount span'))
@@ -238,7 +238,10 @@ regions = [1, 3]
 kinds = [2, 3, 4]
 for region in regions:
     for kind in kinds:
-        insertDataOfRegion(region, kind)
+        try:
+            insertDataOfRegion(region, kind)
+        except:
+            continue
 today = date.today()
 delete_date = today - datetime.timedelta(days=3)
 db["houseDataRaw" + str(delete_date)].drop()

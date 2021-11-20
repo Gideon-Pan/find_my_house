@@ -2,6 +2,7 @@ const { PQ } = require('../dijkstra/priority_queue')
 const pool = require('./db/mysql')
 const { getDistance } = require('geolib')
 // const { Db } = require('mongodb')
+const Redis = require('../../util/redis')
 
 async function getLifeFunction(id) {
   const q = `SELECT house.latitude AS house_lat, house.longitude AS house_lng, life_function.id, life_function.name, life_function.latitude, life_function.longitude, distance, life_function_type.name AS type_name, life_function_subtype.name AS subtype_name, like_table.status AS like_status FROM life_function
@@ -61,9 +62,9 @@ async function getLifeFunction(id) {
 }
 
 async function makeHouseStopDistanceMap() {
-  const stopIdToNumMap = new Map()
+  const stopIdToNumMap = {}
   // const numToStopIdMap = new Map()
-  const houseIdToNumMap = new Map()
+  const houseIdToNumMap = {}
   // const numToHouseIdMap = new Map()
   const houseStopDistanceMap = []
   const housePositionMap = {}
@@ -149,21 +150,21 @@ async function makeHouseStopDistanceMap() {
     stationStops[data.station_id].forEach(stop_id => {
       // console.log(data.station_id)
       // console.log(stop_id)
-      if (!stopIdToNumMap.get(stop_id)) {
-        stopIdToNumMap.set(stop_id, stopCounter)
+      if (!stopIdToNumMap[stop_id]) {
+        stopIdToNumMap[stop_id] = stopCounter
         // numToStopIdMap.set(stopCounter, data.stop_id)
         stopCounter++
       }
-      if (!houseIdToNumMap.get(data.house_id)) {
-        houseIdToNumMap.set(data.house_id, houseCounter)
+      if (!houseIdToNumMap[data.house_id]) {
+        houseIdToNumMap[data.house_id] = houseCounter
         // numToHouseIdMap.set(houseCounter, data.house_id)
         houseCounter++
       }
-      if (!houseStopDistanceMap[houseIdToNumMap.get(data.house_id)]) {
-        houseStopDistanceMap[houseIdToNumMap.get(data.house_id)] = []
+      if (!houseStopDistanceMap[houseIdToNumMap[data.house_id]]) {
+        houseStopDistanceMap[houseIdToNumMap[data.house_id]] = []
       }
       // houseStopDistanceMap[houseIdToNumMap.get(data.house_id)][stopIdToNumMap.get(stop_id)] = data.distance
-      houseStopDistanceMap[houseIdToNumMap.get(data.house_id)].push([stop_id, data.distance])
+      houseStopDistanceMap[houseIdToNumMap[data.house_id]].push([stop_id, data.distance])
       counter++
     })
     // console.log()
@@ -199,52 +200,58 @@ async function makeHouseStopDistanceMap() {
   // console.log(housePositionMap)
   const time2 = Date.now()
   // console.log((time2 - time1) / 1000, 'seconds')
+  // console.log(houseIdToNumMap)
   console.log('finish loading stop house distance:', (time2 - time1) / 1000, 'seconds')
-  return {
-    stopIdToNumMap,
-    // numToStopIdMap,
-    houseIdToNumMap,
-    // numToHouseIdMap,
-    houseStopDistanceMap,
-    housePositionMap
-  }
+  const houseIdToNumMapJSON = JSON.stringify(houseIdToNumMap)
+  // console.log(stopIdToNumMap)
+  Redis.set('houseIdToNumMap', houseIdToNumMapJSON) 
+  const houseStopDistanceMapJSON = JSON.stringify(houseStopDistanceMap)
+  Redis.set('houseStopDistanceMap', houseStopDistanceMapJSON)
+  // return {
+  //   stopIdToNumMap,
+  //   // numToStopIdMap,
+  //   houseIdToNumMap,
+  //   // numToHouseIdMap,
+  //   houseStopDistanceMap,
+  //   housePositionMap
+  // }
 }
 
-async function makeHouseStationDistanceMap() {
-  const q = `SELECT station_id, house_id, distance from station_house_distance
-    JOIN station
-      ON station.id = station_house_distance.station_id
-    ${process.argv[2] === 'metro' ? 'WHERE type = "metro"' : ''}
-  `
-  const stationIdToNumMap = {}
-  const houseIdToNumMap = {}
-  const houseStationDistanceMap = []
-  let stationCounter = 0
-  let houseCounter = 0
-  const [result] = await pool.query(q)
-  result.forEach(data => {
-    if (!stationIdToNumMap[data.station_id]) {
-      stationIdToNumMap[data.station_id] = stationCounter
-      stationCounter++
-    }
-    if (!houseIdToNumMap[data.house_id]) {
-      houseIdToNumMap[data.house_id] = houseCounter
-      houseCounter++
-    }
-    if (!houseStationDistanceMap[houseIdToNumMap[data.house_id]]) {
-      houseStationDistanceMap[houseIdToNumMap[data.house_id]] = []
-    }
-    houseStationDistanceMap[houseIdToNumMap[data.house_id]].push([data.station_id, data.distance])
+// async function makeHouseStationDistanceMap() {
+//   const q = `SELECT station_id, house_id, distance from station_house_distance
+//     JOIN station
+//       ON station.id = station_house_distance.station_id
+//     ${process.argv[2] === 'metro' ? 'WHERE type = "metro"' : ''}
+//   `
+//   const stationIdToNumMap = {}
+//   const houseIdToNumMap = {}
+//   const houseStationDistanceMap = []
+//   let stationCounter = 0
+//   let houseCounter = 0
+//   const [result] = await pool.query(q)
+//   result.forEach(data => {
+//     if (!stationIdToNumMap[data.station_id]) {
+//       stationIdToNumMap[data.station_id] = stationCounter
+//       stationCounter++
+//     }
+//     if (!houseIdToNumMap[data.house_id]) {
+//       houseIdToNumMap[data.house_id] = houseCounter
+//       houseCounter++
+//     }
+//     if (!houseStationDistanceMap[houseIdToNumMap[data.house_id]]) {
+//       houseStationDistanceMap[houseIdToNumMap[data.house_id]] = []
+//     }
+//     houseStationDistanceMap[houseIdToNumMap[data.house_id]].push([data.station_id, data.distance])
     
-  })
-  // console.log(houseStationDistanceMap)
-  return {
-    houseStationDistanceMap,
-    houseIdToNumMap
-  }
-}
+//   })
+//   // console.log(houseStationDistanceMap)
+//   return {
+//     houseStationDistanceMap,
+//     houseIdToNumMap
+//   }
+// }
 
-makeHouseStationDistanceMap()
+// makeHouseStationDistanceMap()
 
 async function makeHouseMap() {
   console.time('make house map')
@@ -317,12 +324,13 @@ async function makeStationStopMap() {
   return map
 }
 
+// async function makeHouseIdToNumMap
 
 
 module.exports = {
   getLifeFunction,
   makeHouseStopDistanceMap,
-  makeHouseStationDistanceMap,
+  // makeHouseStationDistanceMap,
   makeHouseMap,
   makeStopStationMap
 }
