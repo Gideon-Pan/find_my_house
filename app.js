@@ -168,7 +168,7 @@ app.get('/api/1.0/search', async (req, res) => {
   if (directRent === 'true') tags.push(1)
   if (pet === 'true') tags.push(13)
   if (newItem === 'true') tags.push(12)
-  // console.log(tags)
+
   // return
   // console.log(waitingTimeMaps)
   const waitingTimeMap = waitingTimeMaps[period]
@@ -384,7 +384,7 @@ app.get('/api/1.0/search', async (req, res) => {
     // console.log(houseData)
   }
 
-  console.log(houses.length)
+  // console.log(houses.length)
   const houseData = getHousesInBound(
     houses,
     Number(latitudeNW),
@@ -392,7 +392,7 @@ app.get('/api/1.0/search', async (req, res) => {
     Number(longitudeNW),
     Number(longitudeSE)
   )
-  console.log(houseData.length)
+  // console.log(houseData.length)
   // return res.send()
 
   const time3 = Date.now()
@@ -457,6 +457,9 @@ async function getHousesInBudget(budget, houseType, validTags) {
       //   }
       // }
       const houses = Object.values(houseMapCache).filter((house) => {
+        // if (house.id == 11643802) {
+        //   console.log(house)
+        // }
         // console.log(house.tagIds)
         if (houseTypeId && houseTypeId !== house.categoryId) {
           // console.log(houseType)
@@ -468,7 +471,7 @@ async function getHousesInBudget(budget, houseType, validTags) {
         if (house.price > budget) {
           return false
         }
-
+        
         for (let tag of validTags) {
           counter++
           if (!house.tagIds.includes(tag)) {

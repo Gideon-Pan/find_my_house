@@ -317,8 +317,7 @@ async function search(isOldSearch) {
   latestLongitudeNW = longitudeNW
   height = Math.abs(latitudeNW - latitudeSE)
   width = Math.abs(longitudeNW - longitudeSE)
-  const url = `/api/1.0/search?period=${period}&commuteTime=${commuteTime * 60}&commuteWay=${commuteWay}&maxWalkDistance=${maxWalkDistance}&budget=${budget}&officeLat=${officeLat}&officeLng=${officeLng}&houseType=${houseType}&fire=${fire}&shortRent=${shortRent}&directRent=${directRent}&pet=${pet}&newItem=${newItem}
-    &latitudeNW=${latitudeNW}&longitudeNW=${longitudeNW}&latitudeSE=${latitudeSE}&longitudeSE=${longitudeSE}`
+  const url = `/api/1.0/search?period=${period}&commuteTime=${commuteTime * 60}&commuteWay=${commuteWay}&maxWalkDistance=${maxWalkDistance}&budget=${budget}&officeLat=${officeLat}&officeLng=${officeLng}&houseType=${houseType}&fire=${fire}&shortRent=${shortRent}&directRent=${directRent}&pet=${pet}&newItem=${newItem}&latitudeNW=${latitudeNW}&longitudeNW=${longitudeNW}&latitudeSE=${latitudeSE}&longitudeSE=${longitudeSE}`
   // const walk-distance = $("walk-distance").val()
 
   console.log(url)
