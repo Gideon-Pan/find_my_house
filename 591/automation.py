@@ -238,7 +238,10 @@ regions = [1, 3]
 kinds = [2, 3, 4]
 for region in regions:
     for kind in kinds:
-        insertDataOfRegion(region, kind)
+        try : 
+            insertDataOfRegion(region, kind)
+        except:
+            continue
 today = date.today()
 delete_date = today - datetime.timedelta(days=3)
 db["houseDataRaw" + str(delete_date)].drop()
