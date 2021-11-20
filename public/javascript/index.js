@@ -99,7 +99,7 @@ function setInitialCheck(checkId, localStorageKey) {
   document.getElementById(checkId).checked = value === 'true'
   // }
   //  = value
-  console.log(document.getElementById(checkId).checked)
+  // console.log(document.getElementById(checkId).checked)
 }
 
 function setInitialOptions() {
@@ -158,11 +158,18 @@ function setMapOnAll(map) {
 
 function initMap() {
   // console.log('fuc')
-  const myLatlng = { lat: 25.03746, lng: 121.532558 }
+  // const myLatlng = { lat: 25.03746, lng: 121.532558 }
   // console.log(google)
+  officeLat = window.localStorage.getItem('officeLat') ? Number(window.localStorage.getItem('officeLat')) : 25.04222965263713
+  officeLng = window.localStorage.getItem('officeLng') ? Number(window.localStorage.getItem('officeLng')) : 121.5648119917025
+  const office = {
+    lat: officeLat,
+    lng: officeLng
+  }
   map = new google.maps.Map(document.getElementById('map'), {
     zoom: 13,
-    center: myLatlng,
+    // center: myLatlng,
+    center: office,
     disableDefaultUI: true,
     scaleControl: true
   })
@@ -173,12 +180,7 @@ function initMap() {
     origin: new google.maps.Point(0, 0) // origin
     // anchor: new google.maps.Point(20, 25) // anchor
   }
-  officeLat = window.localStorage.getItem('officeLat') ? Number(window.localStorage.getItem('officeLat')) : 25.04222965263713
-  officeLng = window.localStorage.getItem('officeLng') ? Number(window.localStorage.getItem('officeLng')) : 121.5648119917025
-  const office = {
-    lat: officeLat,
-    lng: officeLng
-  }
+  
   console.log(office)
   const officeMarker = new google.maps.Marker({
     // position: { lat: 25.042482379737326, lng: 121.5647583475222 },
@@ -315,7 +317,7 @@ async function search(isOldSearch) {
   latestLongitudeNW = longitudeNW
   height = Math.abs(latitudeNW - latitudeSE)
   width = Math.abs(longitudeNW - longitudeSE)
-  const url = `/search?period=${period}&commuteTime=${commuteTime * 60}&commuteWay=${commuteWay}&maxWalkDistance=${maxWalkDistance}&budget=${budget}&officeLat=${officeLat}&officeLng=${officeLng}&houseType=${houseType}&fire=${fire}&shortRent=${shortRent}&directRent=${directRent}&pet=${pet}&newItem=${newItem}
+  const url = `/api/1.0/search?period=${period}&commuteTime=${commuteTime * 60}&commuteWay=${commuteWay}&maxWalkDistance=${maxWalkDistance}&budget=${budget}&officeLat=${officeLat}&officeLng=${officeLng}&houseType=${houseType}&fire=${fire}&shortRent=${shortRent}&directRent=${directRent}&pet=${pet}&newItem=${newItem}
     &latitudeNW=${latitudeNW}&longitudeNW=${longitudeNW}&latitudeSE=${latitudeSE}&longitudeSE=${longitudeSE}`
   // const walk-distance = $("walk-distance").val()
 

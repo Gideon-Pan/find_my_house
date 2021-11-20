@@ -117,12 +117,16 @@ main {
   z-index: 200;
   /* background-color: aliceblue; */
   /* background-color: #D8E6FC; */
-  background-color: #aeced2;
+  
+  /* background-color: #aeced2; */
+  background-color: #d8e6fc;
+  /* background-color: #D98E6F; */
+
   /* background-color: #85A4B3; */
   /* border-color: black; */
   /* border: 2px solid #85A4B3; */
+
   box-shadow: 3px 2px 2px rgb(53, 51, 51);
-  /* background-color: #aeced2; */
   height: 30px;
   width: 175px;
   font-size: 17px;
@@ -141,6 +145,13 @@ main {
   margin-top: 3px;
   /* font-size: 15px; */
   /* margin-bottom: 1px; */
+}
+
+.check input:checked {
+  /* user-select: none; */
+  /* color: black; */
+  /* background-color: #D98E6F; */
+  /* background-color: red; */
 }
 
 .radio {

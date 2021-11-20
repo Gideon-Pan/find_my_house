@@ -35,7 +35,7 @@ body {
   display: flex;
   /* margin-right: 500px; */
 
-  margin-left: 100px;
+  margin-left: 30px;
 }
 
 .logo:hover {
@@ -43,8 +43,9 @@ body {
 }
 
 .logo p {
-  margin-top: 14px;
-  font-size: 20px;
+  margin-top: 9px;
+  margin-bottom: 0;
+  font-size: 22px;
 }
 
 .blank {
