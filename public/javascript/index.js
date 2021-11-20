@@ -39,7 +39,7 @@ const renderLimit = 1000
 let totalTime = 0
 let counter = 0
 let totalHouse
-let searchOnce = trueb 
+let searchOnce = true
 let clearClusterAll = true
 
 // 學校
@@ -49,7 +49,6 @@ let clearClusterAll = true
 // }
 let officeLat
 let officeLng
-
 
 // console.log($('#commuter_time option[value="40"]'))
 // $('#commute-time option:selected').removeAttr('selected');
@@ -174,7 +173,6 @@ function initMap() {
     origin: new google.maps.Point(0, 0) // origin
     // anchor: new google.maps.Point(20, 25) // anchor
   }
-  // console.log(officeLat)
   officeLat = window.localStorage.getItem('officeLat') ? Number(window.localStorage.getItem('officeLat')) : 25.04222965263713
   officeLng = window.localStorage.getItem('officeLng') ? Number(window.localStorage.getItem('officeLng')) : 121.5648119917025
   const office = {
@@ -182,7 +180,6 @@ function initMap() {
     lng: officeLng
   }
   console.log(office)
-
   const officeMarker = new google.maps.Marker({
     // position: { lat: 25.042482379737326, lng: 121.5647583475222 },
     position: office,
@@ -395,9 +392,7 @@ async function search(isOldSearch) {
     console.log('!!!!!')
     clearClusterPartly(idsToRemoveMap)
   } else {
-    
     clearCluster()
-    
   }
   // console.log(456)
   
@@ -477,7 +472,6 @@ async function search(isOldSearch) {
 
 function clearCluster() {
   if (markerCluster) {
-    markerCluster.setMap(null)
     markerCluster.clearMarkers()
   }
 }
@@ -945,7 +939,6 @@ async function handleZoomChange() {
     // console.log('not too many houses, no action')
     return
   }
-  clearCluster()
   await search(true)
   return
   console.log('enter zoom')
@@ -1470,4 +1463,3 @@ async function sleep(n) {
 }
 
 // showBlock()
-
