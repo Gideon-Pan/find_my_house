@@ -202,19 +202,19 @@ async function makeHouseStopDistanceMap() {
   // console.log((time2 - time1) / 1000, 'seconds')
   // console.log(houseIdToNumMap)
   console.log('finish loading stop house distance:', (time2 - time1) / 1000, 'seconds')
-  const houseIdToNumMapJSON = JSON.stringify(houseIdToNumMap)
+  // const houseIdToNumMapJSON = JSON.stringify(houseIdToNumMap)
   // console.log(stopIdToNumMap)
-  Redis.set('houseIdToNumMap', houseIdToNumMapJSON) 
-  const houseStopDistanceMapJSON = JSON.stringify(houseStopDistanceMap)
-  Redis.set('houseStopDistanceMap', houseStopDistanceMapJSON)
-  // return {
-  //   stopIdToNumMap,
-  //   // numToStopIdMap,
-  //   houseIdToNumMap,
-  //   // numToHouseIdMap,
-  //   houseStopDistanceMap,
-  //   housePositionMap
-  // }
+  // Redis.set('houseIdToNumMap', houseIdToNumMapJSON) 
+  // const houseStopDistanceMapJSON = JSON.stringify(houseStopDistanceMap)
+  // Redis.set('houseStopDistanceMap', houseStopDistanceMapJSON)
+  return {
+    stopIdToNumMap,
+    // numToStopIdMap,
+    houseIdToNumMap,
+    // numToHouseIdMap,
+    houseStopDistanceMap,
+    housePositionMap
+  }
 }
 
 // async function makeHouseStationDistanceMap() {

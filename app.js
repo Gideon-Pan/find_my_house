@@ -71,13 +71,16 @@ let graphs
 // let numToStopIdMap
 let houseIdToNumMap
 // let numToHouseIdMap
-// let houseStopDistanceMap
+let houseStopDistanceMap
 // let houseStationDistanceMap
 // let housePositionMap
 // let stopStationMap
 // let stationStopMap
 // let houseMapCache
 async function main() {
+  // houseIdToNumMap = JSON.parse(houseIdToNumMapJSON)
+      // console.log(houseIdToNumMap)
+  // houseStopDistanceMap = JSON.parse(houseStopDistanceMapJSON)
   // stopStationMap = await makeStopStationMap()
   const houseMap = await makeHouseMap()
   const houseMapJSON = JSON.stringify(houseMap)
@@ -102,14 +105,15 @@ async function main() {
     'seconds'
   )
 
-  if (Redis.client.connected) {
-    // const maps = await makeHouseStopDistanceMap()
-    await makeHouseStopDistanceMap()
-  }
+  // if (Redis.client.connected) {
+  //   // const maps = await makeHouseStopDistanceMap()
+  //   await makeHouseStopDistanceMap()
+  // }
 
+  const maps = await makeHouseStopDistanceMap()
   // stopIdToNumMap = maps.stopIdToNumMap
-  // houseIdToNumMap = maps.houseIdToNumMap
-  // houseStopDistanceMap = maps.houseStopDistanceMap
+  houseIdToNumMap = maps.houseIdToNumMap
+  houseStopDistanceMap = maps.houseStopDistanceMap
   // housePositionMap = maps.housePositionMap
 
   // const maps = await makeHouseStationDistanceMap()
@@ -596,10 +600,10 @@ async function getHousesInRange(positionData, houses, stopRadiusMap) {
     const houseStopDistanceMapJSON = await Redis.get('houseStopDistanceMap')
     if (houseIdToNumMapJSON && houseStopDistanceMapJSON) {
       // console.log('@@@@@')
-      const houseIdToNumMap = JSON.parse(houseIdToNumMapJSON)
-      // console.log(houseIdToNumMap)
-      const houseStopDistanceMap = JSON.parse(houseStopDistanceMapJSON)
+      // console.log('jfoiw')
+      
       let counter = 0
+      // console.log('~~~~~~~~~~')
       const houseData = houses.filter((house) => {
         const { latitude, longitude } = house
         const houseNum = houseIdToNumMap[house.id]
