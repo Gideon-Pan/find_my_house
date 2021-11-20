@@ -10,19 +10,21 @@ const { getShortestPath } = require('./server/dijkstra/shortest_path')
 // const { Edge } = require('./graph')
 // const { makeGraph } = require('./makeGraph')
 const db = require('./server/models/db/mysql')
+const Redis = require('./util/redis')
 const { makeHouseStopDistanceMap, makeHouseMap } = require('./server/models/house_model')
+const { rateLimiter } = require('./util/util')
 // console.log(makeGraph)
 const {API_VERSION} = process.env
 // console.log(API_VERSION)
 
 const app = express()
 app.use(express.json())
-
+app.use(express.urlencoded({extended:true}))
 app.use(express.static(__dirname + '/public'))
 
 // API routes
 app.use('/api/' + API_VERSION,
-    // rateLimiterRoute,
+    rateLimiter,
     [
       require('./server/routes/user_route'),
       require('./server/routes/house_route')
@@ -111,7 +113,7 @@ app.get('/test', async (req, res) => {
   res.send(data)
 })
 
-app.get('/search', async (req, res) => {
+app.get('/api/1.0/search', async (req, res) => {
   // const g = req.query.commuteWay === 'bus' ? graphForBus : graphForMetro
   let { commuteTime, officeLat, officeLng, maxWalkDistance, period, commuteWay, budget, houseType, 
     fire, shortRent, directRent, pet, newItem, latitudeNW, longitudeNW, latitudeSE, longitudeSE } = req.query

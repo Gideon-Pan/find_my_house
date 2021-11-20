@@ -1,38 +1,12 @@
 require('dotenv').config();
-// const crypto = require('crypto');
-// const fs = require('fs');
-// const multer = require('multer');
-// const path = require('path');
-// const port = process.env.PORT;
+const jwt = require('jsonwebtoken');
+const Redis = require('./redis')
 const User = require('../server/models/user_model');
 const {TOKEN_SECRET} = process.env; // 30 days by seconds
-const jwt = require('jsonwebtoken');
 
-// const upload = multer({
-//     storage: multer.diskStorage({
-//         destination: (req, file, cb) => {
-//             const productId = req.body.product_id;
-//             const imagePath = path.join(__dirname, `../public/assets/${productId}`);
-//             if (!fs.existsSync(imagePath)) {
-//                 fs.mkdirSync(imagePath);
-//             }
-//             cb(null, imagePath);
-//         },
-//         filename: (req, file, cb) => {
-//             const customFileName = crypto.randomBytes(18).toString('hex').substr(0, 8);
-//             const fileExtension = file.mimetype.split('/')[1]; // get file extension from original file name
-//             cb(null, customFileName + '.' + fileExtension);
-//         }
-//     })
-// });
 
-// const getImagePath = (protocol, hostname, productId) => {
-//     if (protocol == 'http') {
-//         return protocol + '://' + hostname + ':' + port + '/assets/' + productId + '/';
-//     } else {
-//         return protocol + '://' + hostname + '/assets/' + productId + '/';
-//     }
-// };
+const N = Number(process.env.N)
+const M = Number(process.env.M)
 
 // reference: https://thecodebarbarian.com/80-20-guide-to-express-error-handling
 const wrapAsync = (fn) => {
@@ -42,6 +16,29 @@ const wrapAsync = (fn) => {
         fn(req, res, next).catch(next);
     };
 };
+
+async function rateLimiter(req, res, next) {
+  if (!Redis.client.connected) {
+    return next()
+  }
+
+  // rate limiter
+  const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress || null
+  console.log(ip)
+  const counter = await Redis.get(`counter-${ip}`)
+
+  if (counter >= N) {
+    console.log('rate limit')
+    return res.status(400).send()
+  }
+
+  await Redis.incr(`counter-${ip}`)
+  setTimeout(() => {
+    Redis.decr(`counter-${ip}`)
+  }, M * 1000)
+
+  next()
+}
 
 const authentication = (roleId) => {
     return async function (req, res, next) {
@@ -94,8 +91,7 @@ const authentication = (roleId) => {
 };
 
 module.exports = {
-    // upload,
-    // getImagePath,
     wrapAsync,
-    authentication
+    authentication,
+    rateLimiter
 };
