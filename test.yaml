@@ -1,15 +1,16 @@
 config:
   # target: "https://gideon-stylish.site"
   # target: "http://stylish-app-alb-1867434991.us-east-2.elb.amazonaws.com"
-  target: "https://find-my-house.site"
+  # target: "https://find-my-house.site"
+  target: "http://localhost:3000"
   http:
     pool: 20
     timeout: 20
   phases:
-    - duration: 20
-      arrivalRate: 2
+    - duration: 1
+      arrivalRate: 3
 scenarios:
   - flow:
     - get:
         # url: "/api/1.0/order/payments"
-        url: "/search?period=weekdaysPeak&commuteTime=2700&commuteWay=mix&maxWalkDistance=1000&budget=100000000&officeLat=25.045340103783655&officeLng=121.51691846753258&houseType=&fire=false&shortRent=false&directRent=false&pet=false&newItem=false%20%20%20%20&latitudeNW=25.067777423514244&longitudeNW=121.58451418025025&latitudeSE=25.00713508129387&longitudeSE=121.48060181974971"
+        url: "/api/1.0/search?period=weekdaysPeak&commuteTime=2700&commuteWay=mix&maxWalkDistance=1000&budget=100000000&officeLat=25.045340103783655&officeLng=121.51691846753258&houseType=&fire=false&shortRent=false&directRent=false&pet=false&newItem=false%20%20%20%20&latitudeNW=25.067777423514244&longitudeNW=121.58451418025025&latitudeSE=25.00713508129387&longitudeSE=121.48060181974971"

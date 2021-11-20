@@ -641,6 +641,29 @@ async function getHousesInRange(positionData, houses, stopRadiusMap) {
   }
 
   let counter = 0
+  const houseData = houses.filter(house => {
+    const {latitude, longitude} = house
+    for (let i = 0; i < positionData.length; i++) {
+      const position = positionData[i]
+      const radius = position.distanceLeft
+      counter++
+      if (getDistance({latitude, longitude}, {latitude: position.lat, longitude: position.lng}) < radius) {
+        return true
+      }
+      // if (houseStopDistanceMap[house.id] && houseStopDistanceMap[house.id][positionData[i].stationId] < radius) {
+      //   // console.log(house.id)
+      //   // console.log(positionData[i].stationId)
+      //   // console.log('houseStopDistanceMap[house.id][positionData[i].stationId]: ', houseStopDistanceMap[house.id][positionData[i].stationId]);
+      //   // console.log('radius: ', radius);
+      //   // console.log('~~~')
+      //   return true
+      // }
+    }
+    // console.log('waht')
+    return false
+  })
+  console.log(`computing ${counter} times`)
+  return houseData
   // const stationMap = {}
   // const stationData = []
   // for (let stop of positionData) {
