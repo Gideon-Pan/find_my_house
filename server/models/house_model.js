@@ -210,9 +210,45 @@ async function makeHouseStopDistanceMap() {
   }
 }
 
+async function makeHouseStationDistanceMap() {
+  const q = `SELECT station_id, house_id, distance from station_house_distance
+    JOIN station
+      ON station.id = station_house_distance.station_id
+    ${process.argv[2] === 'metro' ? 'WHERE type = "metro"' : ''}
+  `
+  const stationIdToNumMap = {}
+  const houseIdToNumMap = {}
+  const houseStationDistanceMap = []
+  let stationCounter = 0
+  let houseCounter = 0
+  const [result] = await pool.query(q)
+  result.forEach(data => {
+    if (!stationIdToNumMap[data.station_id]) {
+      stationIdToNumMap[data.station_id] = stationCounter
+      stationCounter++
+    }
+    if (!houseIdToNumMap[data.house_id]) {
+      houseIdToNumMap[data.house_id] = houseCounter
+      houseCounter++
+    }
+    if (!houseStationDistanceMap[houseIdToNumMap[data.house_id]]) {
+      houseStationDistanceMap[houseIdToNumMap[data.house_id]] = []
+    }
+    houseStationDistanceMap[houseIdToNumMap[data.house_id]].push([data.station_id, data.distance])
+    
+  })
+  // console.log(houseStationDistanceMap)
+  return {
+    houseStationDistanceMap,
+    houseIdToNumMap
+  }
+}
+
+makeHouseStationDistanceMap()
+
 async function makeHouseMap() {
   console.time('make house map')
-  const q = `SELECT house.id, title, price, area, link, image, house.address, house.latitude, house.longitude, category.name AS category, tag.name AS tag_name, tag.id AS tag_id FROM house 
+  const q = `SELECT house.id, title, price, area, link, image, house.address, house.latitude, house.longitude, category.name AS category, category.id AS category_id, tag.name AS tag_name, tag.id AS tag_id FROM house 
     JOIN category
       ON house.category_id = category.id
     JOIN house_tag
@@ -235,6 +271,7 @@ async function makeHouseMap() {
         latitude: data.latitude,
         longitude: data.longitude,
         category: data.category,
+        categoryId: data.category_id,
         tagIds: []
       }
     }
@@ -254,9 +291,38 @@ async function makeHouseMap() {
 
 
 
+async function makeStopStationMap() {
+  const stopStationMap = {}
+  const q = `SELECT ptx_stop_id, ptx_station_id FROM stop
+    JOIN station
+      ON station.id = stop.station_id`
+  const [result] = await pool.query(q)
+  result.forEach(data => {
+    stopStationMap[data.ptx_stop_id] = data.ptx_station_id
+  })
+  // console.log(stopStationMap)
+  return stopStationMap
+}
+
+async function makeStationStopMap() {
+  const map = {}
+  const q = `SELECT ptx_stop_id, ptx_station_id FROM stop
+    JOIN station
+      ON station.id = stop.station_id`
+  const [result] = await pool.query(q)
+  result.forEach(data => {
+    map[data.ptx_station_id] = data.ptx_stop_id
+  })
+  // console.log(stopStationMap)
+  return map
+}
+
+
 
 module.exports = {
   getLifeFunction,
   makeHouseStopDistanceMap,
-  makeHouseMap
+  makeHouseStationDistanceMap,
+  makeHouseMap,
+  makeStopStationMap
 }

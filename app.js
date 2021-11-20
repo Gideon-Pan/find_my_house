@@ -1,6 +1,6 @@
 const express = require('express')
 require('dotenv').config()
-const { getDistance } = require('geolib')
+// const { getDistance } = require('geolib')
 const { makeGraphs, makeWaitingTimeMap } = require('./server/dijkstra/make_graph')
 // const getShortestPathBus = require('./ptx_testing/bus/bus_sp')
 // const { PQ } = require('./controller/priority_queue')
@@ -11,11 +11,18 @@ const { getShortestPath } = require('./server/dijkstra/shortest_path')
 // const { makeGraph } = require('./makeGraph')
 const db = require('./server/models/db/mysql')
 const Redis = require('./util/redis')
-const { makeHouseStopDistanceMap, makeHouseMap } = require('./server/models/house_model')
+const { makeHouseStopDistanceMap, makeHouseMap, makeStopStationMap, makeHouseStationDistanceMap } = require('./server/models/house_model')
 const { rateLimiter } = require('./util/util')
 // console.log(makeGraph)
 const {API_VERSION} = process.env
 // console.log(API_VERSION)
+
+function getDistance(position1, position2) {
+  return Math.sqrt(
+    (position1.latitude - position2.latitude) * (position1.latitude - position2.latitude) * 111319.5 * 111319.5 +
+      (position1.longitude - position2.longitude) * (position1.longitude - position2.longitude) * 100848.6 * 100848.6
+  )
+}
 
 const app = express()
 app.use(express.json())
@@ -54,10 +61,19 @@ let numToStopIdMap
 let houseIdToNumMap
 let numToHouseIdMap
 let houseStopDistanceMap
+let houseStationDistanceMap
 let housePositionMap
-let houseMapCache
+// let stopStationMap
+// let stationStopMap
+// let houseMapCache
 async function main() {
-  houseMapCache = await makeHouseMap()
+  // stopStationMap = await makeStopStationMap()
+  const houseMap = await makeHouseMap()
+  const houseMapJSON = JSON.stringify(houseMap)
+  if (Redis.client.connected) {
+    Redis.set('houseMap', houseMapJSON)
+  }
+  
   // console.log(houseMapCache)
   // return
   const time0_0 = Date.now()
@@ -76,19 +92,15 @@ async function main() {
   )
   
 
-  // houseStopDistanceMap = await makeHouseStopDistanceMap()
   const maps = await makeHouseStopDistanceMap()
   stopIdToNumMap = maps.stopIdToNumMap
-  // console.log('stopIdToNumMap: ', stopIdToNumMap.size);
-  // numToStopIdMap = maps.numToStopIdMap
-  // console.log('numToStopIdMap: ', numToStopIdMap.size);
   houseIdToNumMap = maps.houseIdToNumMap
-  // console.log('houseIdToNumMap: ', houseIdToNumMap.size);
-  // numToHouseIdMap = maps.numToHouseIdMap
-  // console.log('numToHouseIdMap: ', numToHouseIdMap.size);
   houseStopDistanceMap = maps.houseStopDistanceMap
-  // console.log('houseStopMap: ', houseStopDistanceMap.length);
   housePositionMap = maps.housePositionMap
+
+  // const maps = await makeHouseStationDistanceMap()
+  // houseIdToNumMap = maps.houseIdToNumMap
+  // houseStationDistanceMap = maps.houseStationDistanceMap
   // // console.log(map)
   // const time0_2 = Date.now()
   // console.log(
@@ -364,25 +376,47 @@ app.listen(3000, () => {
 
 async function getHousesInBudget(budget, houseType, validTags) {
   // console.log('houseMapCache: ', houseMapCache);
+  let houseTypeId
   switch (houseType) {
     case 'shared-suite':
       houseType = '分租套房'
+      houseTypeId = 3
       break
     case 'independant-suite':
       houseType = '獨立套房'
+      houseTypeId = 1
       break
     case 'studio':
       houseType = '雅房'
+      houseTypeId = 5
       break
     default:
       break
   }
-  if (houseMapCache) {
-    
-    let counter = 0
+
+  if (Redis.client.connected) {
+    const houseMapString = await Redis.get('houseMap')
+    if (houseMapString) {
+      // console.log(houseMapString)
+      console.log('caching house map')
+      const houseMapCache = JSON.parse(houseMapString)
+      let counter = 0
+    // const houses = []
+    // for (let house of Object.values(houseMapCache)) {
+    //   if (houseTypeId && houseTypeId !== house.categoryId) continue
+    //   if (house.price > budget) continue
+    //   let toContinue
+    //   for (let tag of validTags) {
+    //     counter++
+    //     if (!house.tagIds.includes(tag)) {
+    //       // toContinue = 
+    //       continue
+    //     }
+    //   }
+    // }
     const houses = Object.values(houseMapCache).filter(house => {
       // console.log(house.tagIds)
-      if (houseType && houseType !== house.category) {
+      if (houseTypeId && houseTypeId !== house.categoryId) {
         // console.log(houseType)
         // console.log(house.category)
         // console.log('~')
@@ -403,6 +437,7 @@ async function getHousesInBudget(budget, houseType, validTags) {
     })
     console.log(counter, 'times for filtering tag')
     return houses
+    }
   }
   // if (houseType !==  && houseType)
   // console.log(houseType)
@@ -500,6 +535,37 @@ function getHousesInBound(houses, latitudeNW, latitudeSE, longitudeNW, longitude
 
 async function getHousesInRange(positionData, houses, stopRadiusMap) {
   console.log('reachable stations count', positionData.length)
+  // const stationMap = {}
+  // const stationData = []
+  // for (let stop of positionData) {
+  //   if (!stationMap[stopStationMap[stop.id]]) {
+  //     stationMap[stopStationMap[stop.id]] = true
+  //     stationData.push(stopStationMap[stop.id])
+  //   }
+  // }
+  // const stationMap = {}
+  // for (let house of houses) {
+  //   const houseNum = houseIdToNumMap[house.id]
+  //   if (houseStationDistanceMap[houseNum]) {
+  //     for (let i = 0; i < houseStationDistanceMap[houseNum].length; i++) {
+  //       const stationId = houseStationDistanceMap[houseNum][i][0]
+  //       const stopId = 
+  //       const distance = houseStationDistanceMap[houseNum][i][1]
+  //       const radius = 
+
+
+  //       const stopId = houseStopDistanceMap[houseNum][i][0]
+  //       const radius = stopRadiusMap[stopId]
+  //       const distance = houseStopDistanceMap[houseNum][i][1]
+  //       counter++
+  //       if (distance < radius) {
+  //         return true
+  //       }
+  //     }
+  //   }
+  // }
+
+
   // const q = `SELECT * FROM house 
   // WHERE latitude IS NOT NULL 
   //   AND longitude IS NOT NULL
@@ -543,6 +609,7 @@ async function getHousesInRange(positionData, houses, stopRadiusMap) {
   //   }
   //   return false
   // })
+  // if (Redis.client.connected && Redis.get('houseStopDistanceMap') && Redis.get('houseIdToNumMap') && )
   const houseData = houses.filter(house => {
     const {latitude, longitude} = house
     const houseNum = houseIdToNumMap.get(house.id)
