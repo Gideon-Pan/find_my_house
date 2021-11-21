@@ -653,7 +653,7 @@ function renderHouse(house) {
         // })
 
         // test
-        markerCluster.addMarker(marker);
+        // markerCluster.addMarker(marker);
       }
     })(id, marker)
   )
@@ -850,7 +850,8 @@ function renderHouses(houses) {
   // }
   // clearCluster()
   if (!markerCluster || clearClusterAll) {
-    markerCluster = new markerClusterer.MarkerClusterer({ markers, map })
+    markerCluster = new markerClusterer.MarkerClusterer({ markers, map})
+    // markerCluster = MarkerClusterer(map, markers, {})
   }
   
   const timeAfterCluster = Date.now()

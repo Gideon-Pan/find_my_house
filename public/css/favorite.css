@@ -164,7 +164,12 @@ main {
   /* background-color: #85A4B3; */
   background-color: #aeced2;
   border-radius: 300px;
-  padding: 10px 10px 10px 20px;
+  padding: 10px 10px 9px 20px;
+  box-shadow: 3px 3px 3px gray;
+}
+
+.form-check {
+  margin-top: 2px;
 }
 
 .radio label {

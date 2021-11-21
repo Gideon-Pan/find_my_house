@@ -113,7 +113,7 @@ main {
   width: 70%; */
   display: flex;
   /* flex-wrap: wrap; */
-  margin: 5px 0 auto 20px;
+  margin: 5px 0 auto 10px;
   justify-content: space-around;
   align-items: center;
   /* border: #ccc; */
@@ -135,7 +135,7 @@ main {
 }
 
 .selects select {
-  width: 120px;
+  width: 130px;
   /* height: 35px; */
   /* height: 100%; */
   /* margin: 0 10px; */
@@ -166,8 +166,8 @@ main {
 }
 
 .search {
-  margin-left: 50px;
-  margin-right: 30px;
+  margin-left: 15px;
+  margin-right: 25px;
   height: 60px;
   width: 60px;
   /* background-color: bisque; */
@@ -223,7 +223,12 @@ main {
   /* background-color: #85A4B3; */
   background-color: #aeced2;
   border-radius: 300px;
-  padding: 10px 10px 10px 20px;
+  padding: 10px 10px 9px 20px;
+  box-shadow: 3px 3px 3px gray;
+}
+
+.form-check {
+  margin-top: 2px;
 }
 
 .radio label {
