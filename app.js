@@ -18,7 +18,7 @@ const {
   makeHouseStopDistanceMap,
   makeHouseMap,
   makeStopStationMap,
-  makeHouseStationDistanceMap
+  // makeHouseStationDistanceMap
 } = require('./server/models/house_model')
 const { rateLimiter } = require('./util/util')
 // console.log(makeGraph)
@@ -109,7 +109,7 @@ async function main() {
   // graphsForMix = await makeGraph('mix', 2)
   graphs = await makeGraphs(2)
   console.log('finish making graph step 0')
-  waitingTimeMaps = await makeWaitingTimeMap(2)
+  // waitingTimeMaps = await makeWaitingTimeMap(2)
   // waitingTimeMap = waitingTimeMaps[]
   const time0_1 = Date.now()
   console.log(
@@ -190,7 +190,10 @@ app.get('/api/1.0/search', async (req, res) => {
 
   // return
   // console.log(waitingTimeMaps)
-  const waitingTimeMap = waitingTimeMaps[period]
+
+  // !!!!
+  // const waitingTimeMap = waitingTimeMaps[period]
+
   // console.log(waitingTimeMap)
   // console.log(graphs)
   // console.log(commuteWay)
@@ -247,15 +250,18 @@ app.get('/api/1.0/search', async (req, res) => {
 
       // 走到車站的時間 + 等車時間
       // console.log(waitingTimeMap)
-      const waitingTime = waitingTimeMap[id] || 0
+
+      // const waitingTime = waitingTimeMap[id] || 0
       // console.log(id)
+
       // console.log(waitingTime)
       // return
       const edge = new Edge(
         '-2',
         id,
         period,
-        distToStation / walkVelocity + waitingTime
+        // distToStation / walkVelocity + waitingTime
+        distToStation / walkVelocity
       )
 
       g.addEdge(edge)
@@ -302,6 +308,7 @@ app.get('/api/1.0/search', async (req, res) => {
       houses,
       stopRadiusMap
     )
+    
     // console.log(houses.length)
     // const houseData = getHousesInBound(houses, Number(latitudeNW), Number(latitudeSE), Number(longitudeNW), Number(longitudeSE))
     const end = Date.now()

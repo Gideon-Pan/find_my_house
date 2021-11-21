@@ -1,7 +1,18 @@
-const { makeGraph } = require('./make_graph')
+const { makeGraph, makeWaitingTimeMap } = require('./make_graph')
 const { PQ } = require('./priority_queue')
 
+let waitingTimeMaps
+async function main() {
+  waitingTimeMaps = await makeWaitingTimeMap(2)
+  // console.log('h1')
+}
+main()
+
+
 function getShortestPath(g, fromId, timeLeft, period) {
+  // console.log(timeLeft)
+  // console.log(waitingTimeMaps)
+  const waitingTimeMap = waitingTimeMaps[period]
   const ids = g.getAllIds()
   const pq = new PQ()
   const timeTo = {}
@@ -30,7 +41,8 @@ function getShortestPath(g, fromId, timeLeft, period) {
     //   console.log("current:", timeTo[currentId])
     //   console.log("time left:", timeLeft)
     // }
-    if (timeTo[currentId] > timeLeft) {
+    const waitingTime = waitingTimeMap[currentId] || 0
+    if (timeTo[currentId] > timeLeft ) {
       // console.log("time to stop:",timeTo[currentId])
       // console.log("time left", timeLeft)
       break
@@ -101,10 +113,16 @@ function getShortestPath(g, fromId, timeLeft, period) {
 
       // console.log(distance)
     }
+    const waitingTime = waitingTimeMap[reachableStationId] || 0
+    if (timeTo[reachableStationId] + waitingTime > timeLeft) {
+      // console.log('waitingTimeMap[reachableStationId]: ', waitingTimeMap[reachableStationId]);
+      // console.log('timeTo[reachableStationId]: ', timeTo[reachableStationId]);
+      continue
+    }
     reachableStations.push({
       id: reachableStationId,
       startStationId: route[route.length - 2],
-      timeSpent: timeTo[reachableStationId],
+      timeSpent: timeTo[reachableStationId] + waitingTime,
       walkDistance: walkDistance[reachableStationId]
     })
     // if (reachableStationId === '16911') {
