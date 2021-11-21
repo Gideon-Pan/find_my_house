@@ -299,6 +299,12 @@ async function makeHouseMap() {
   Object.values(houseMap)[0]
   // console.log(Object.values(houseMap).length)
   // console.log('Object.values(houseMap)[0]: ', Object.values(houseMap)[0]);
+  // console.log(Redis.client.connected)
+  if (Redis.client.connected) {
+    Redis.set('houseMap', JSON.stringify(houseMap))
+
+  }
+  
   console.timeEnd('make house map')
   // console.log(counter)
   return houseMap

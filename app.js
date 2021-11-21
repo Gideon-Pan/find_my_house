@@ -82,9 +82,9 @@ let waitingTimeMaps
 let graphs
 // let stopIdToNumMap
 // let numToStopIdMap
-let houseIdToNumMap
+// let houseIdToNumMap
 // let numToHouseIdMap
-let houseStopDistanceMap
+// let houseStopDistanceMap
 // let houseStationDistanceMap
 // let housePositionMap
 // let stopStationMap
@@ -95,11 +95,12 @@ async function main() {
       // console.log(houseIdToNumMap)
   // houseStopDistanceMap = JSON.parse(houseStopDistanceMapJSON)
   // stopStationMap = await makeStopStationMap()
-  const houseMap = await makeHouseMap()
-  const houseMapJSON = JSON.stringify(houseMap)
-  if (Redis.client.connected) {
-    Redis.set('houseMap', houseMapJSON)
-  }
+  // console.log('Redis.client.connected: ', Redis.client.connected);
+  // console.log(Redis.client)
+  
+  
+  // const houseMapJSON = JSON.stringify(houseMap)
+  
 
   // console.log(houseMapCache)
   // return
@@ -117,6 +118,11 @@ async function main() {
     Math.floor(time0_1 - time0_0) / 1000,
     'seconds'
   )
+
+  if (Redis.client.connected) {
+    console.log('interesting')
+    await makeHouseMap()
+  }
 
   // if (Redis.client.connected) {
   //   // const maps = await makeHouseStopDistanceMap()
@@ -444,6 +450,7 @@ app.listen(3000, () => {
 
 async function getHousesInBudget(budget, houseType, validTags) {
   // console.log('houseMapCache: ', houseMapCache);
+  // console.log('123123213123')
   let houseTypeId
   switch (houseType) {
     case 'shared-suite':
@@ -466,8 +473,9 @@ async function getHousesInBudget(budget, houseType, validTags) {
     const houseMapString = await Redis.get('houseMap')
     if (houseMapString) {
       // console.log(houseMapString)
-      console.log('caching house map')
+      console.log('caching house map~~~~~')
       const houseMapCache = JSON.parse(houseMapString)
+      console.log(Object.keys(houseMapCache).length, 'length of houseMap')
       let counter = 0
       // const houses = []
       // for (let house of Object.values(houseMapCache)) {
@@ -507,6 +515,12 @@ async function getHousesInBudget(budget, houseType, validTags) {
         return true
       })
       console.log(counter, 'times for filtering tag')
+
+      // if (Redis.connected && req.query.update) {
+      //   console.log('building hosue map cache')
+      //   await makeHouseMap()
+      // }
+      
       return houses
     }
   }
@@ -567,8 +581,12 @@ async function getHousesInBudget(budget, houseType, validTags) {
   // Object.values(houseMap).forEach(house => {
   //   console.log(house)
   // })
+  console.log('QQQQQ no cache')
   console.log(houses.length, 'houses satisfy tag filters')
   const timet2 = Date.now()
+  if (Redis.client.connected) {
+    await makeHouseMap()
+  }
   // console.log((timet2 - timet1) / 1000, 'seconds for filtering tags')
   return houses
 }

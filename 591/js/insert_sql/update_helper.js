@@ -1,5 +1,6 @@
 const { getMongo, getMongoOne, getHouseIds } = require('../../../server/models/db/mongo')
 const pool = require('../../../server/models/db/mysql')
+const Redis = require('../../../util/redis')
 const {
   makeCategoryToIdMap,
   makeTagMap,
@@ -8,6 +9,7 @@ const {
 } = require('./map')
 const { today, yesterday } = require('../time')
 const { sleep } = require('../sleep')
+const { makeHouseMap } = require('../../../server/models/house_model')
 
 async function insertHouseFirstTime() {
   const houseMap = {}
@@ -828,6 +830,30 @@ async function dumpMysqlToMongo() {
   console.log(result[0])
 }
 
+async function deleteHouseMapCache() {
+  // console.log(Redis.client.connected)
+  await sleep(3)
+  // if (Redis.client.connected) {
+  //   await makeHouseMap()
+  // }
+  // console.log('not update cache')
+  Redis.del('houseMap')
+  console.log('delete house map cache')
+}
+
+// deleteHouseMapCache()
+
+async function setHouseMapCache() {
+  // console.log(Redis.client.connected)
+  await sleep(3)
+  if (Redis.client.connected) {
+    await makeHouseMap()
+  }
+  // console.log('not update cache')
+}
+
+// setMapCache()
+
 // dumpMysqlToMongo()
 
 module.exports = {
@@ -835,5 +861,7 @@ module.exports = {
   insertHouse,
   insertHouseTag,
   insertNewLifeFunction,
-  insertHouseLifeFunction
+  insertHouseLifeFunction,
+  deleteHouseMapCache,
+  setHouseMapCache
 }

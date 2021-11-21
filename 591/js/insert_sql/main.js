@@ -8,6 +8,8 @@ const {
   insertHouseTag,
   insertNewLifeFunction,
   insertHouseLifeFunction,
+  deleteHouseMapCache,
+  setHouseMapCache,
 } = require('./update_helper')
 
 //deleteHouse(`${yesterday}houseDatacleansed`, `${today}houseDatacleansed`)
@@ -53,6 +55,8 @@ async function updateAllTables(cleansedDataOld, cleansedDataNew, today) {
   await insertHouseLifeFunction(cleansedDataNew)
   console.log('finish update all house tables')
   await insertStationHouseDistance()
+  await deleteHouseMapCache()
+  await setHouseMapCache()
   await dropMongoCollection('591_cleansed', `${deleteDateComplete}houseDatacleansed`)
   process.exit()
 }
