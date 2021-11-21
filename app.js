@@ -38,6 +38,19 @@ function getDistance(position1, position2) {
   )
 }
 
+function getDistanceSquare(position1, position2) {
+  return (
+    (position1.latitude - position2.latitude) *
+      (position1.latitude - position2.latitude) *
+      111319.5 *
+      111319.5 +
+      (position1.longitude - position2.longitude) *
+        (position1.longitude - position2.longitude) *
+        100848.6 *
+        100848.6
+  )
+}
+
 const app = express()
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
@@ -110,10 +123,12 @@ async function main() {
   //   await makeHouseStopDistanceMap()
   // }
 
-  const maps = await makeHouseStopDistanceMap()
+  // const maps = await makeHouseStopDistanceMap()
   // stopIdToNumMap = maps.stopIdToNumMap
-  houseIdToNumMap = maps.houseIdToNumMap
-  houseStopDistanceMap = maps.houseStopDistanceMap
+  // houseIdToNumMap = maps.houseIdToNumMap
+  // houseStopDistanceMap = maps.houseStopDistanceMap
+
+
   // housePositionMap = maps.housePositionMap
 
   // const maps = await makeHouseStationDistanceMap()
@@ -594,10 +609,10 @@ function getHousesInBound(
 
 async function getHousesInRange(positionData, houses, stopRadiusMap) {
   console.log('reachable stations count', positionData.length)
-  if (Redis.client.connected) {
-    // console.log('~~~~~~~~~~~~~~~')
-    const houseIdToNumMapJSON = await Redis.get('houseIdToNumMap')
-    const houseStopDistanceMapJSON = await Redis.get('houseStopDistanceMap')
+  if (Redis.client.connected && false) {
+    console.log('~~~~~~~~~~~~~~~')
+    // const houseIdToNumMapJSON = await Redis.get('houseIdToNumMap')
+    // const houseStopDistanceMapJSON = await Redis.get('houseStopDistanceMap')
     if (houseIdToNumMapJSON && houseStopDistanceMapJSON) {
       // console.log('@@@@@')
       // console.log('jfoiw')
@@ -647,6 +662,7 @@ async function getHousesInRange(positionData, houses, stopRadiusMap) {
     }
   }
 
+  // console.log(houses.length, 'houses')
   let counter = 0
   const houseData = houses.filter(house => {
     const {latitude, longitude} = house
@@ -654,7 +670,7 @@ async function getHousesInRange(positionData, houses, stopRadiusMap) {
       const position = positionData[i]
       const radius = position.distanceLeft
       counter++
-      if (getDistance({latitude, longitude}, {latitude: position.lat, longitude: position.lng}) < radius) {
+      if (getDistanceSquare({latitude, longitude}, {latitude: position.lat, longitude: position.lng}) < radius * radius) {
         return true
       }
       // if (houseStopDistanceMap[house.id] && houseStopDistanceMap[house.id][positionData[i].stationId] < radius) {
@@ -669,6 +685,7 @@ async function getHousesInRange(positionData, houses, stopRadiusMap) {
     // console.log('waht')
     return false
   })
+  // console.log('hahahahh')
   console.log(`computing ${counter} times`)
   return houseData
   // const stationMap = {}
