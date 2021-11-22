@@ -787,3 +787,9 @@ async function getHousesInRange(positionData, houses, stopRadiusMap) {
   // })
   // return houseData
 }
+
+
+app.use((req, res) => {
+  console.log('h1')
+  res.redirect('/404.html')
+})
