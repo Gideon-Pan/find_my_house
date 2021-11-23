@@ -39,6 +39,44 @@ async function main() {
 
 main()
 
+function makeOfficeToNearbyStopEdges(g, startPoint, period, distToStationMap, maxWalkDistance) {
+  let counter = 0
+  // const officeLat = office.lat()
+  // const officeLng = office.lng()
+  for (let id of g.getAllIds()) {
+    const lat = g.getVertex(id).lat()
+    const lng = g.getVertex(id).lng()
+    if (!lat || !lng) continue
+    const distToStation = getDistance(
+      { latitude: lat, longitude: lng },
+      { latitude: startPoint.lat(), longitude: startPoint.lng() }
+    )
+
+    if (distToStation < maxWalkDistance) {
+      const edge = new Edge(
+        '-2',
+        id,
+        period,
+        // distToStation / walkVelocity + waitingTime
+        distToStation / walkVelocity
+      )
+      g.addEdge(edge)
+      distToStationMap[id] = distToStation
+      counter++
+    }
+  }
+
+  // console.log(distToStationMap)
+  const nearByStationCount = counter - 1
+
+  // can't get to any station but itself
+
+  const timerNearby = Date.now()
+  // console.log((timerNearby - start) / 1000, 'seconds for get nearby station')
+  console.log('nearByStationCount: ', nearByStationCount)
+  return counter
+}
+
 const search = async (req, res) => {
   console.log('hihi')
   let {
@@ -78,72 +116,19 @@ const search = async (req, res) => {
   officeLat = Number(officeLat)
   officeLng = Number(officeLng)
   maxWalkDistance = Number(maxWalkDistance)
-  const vertex = new Vertex('-2', 'startPoint', officeLat, officeLng)
+  const office = new Vertex('-2', 'startPoint', officeLat, officeLng)
 
-  g.addVertex(vertex)
+  g.addVertex(office)
 
   if (maxWalkDistance > commuteTime * walkVelocity) {
     maxWalkDistance = commuteTime * walkVelocity
   }
 
-  const idMap = {}
+  // const idMap = {}
 
   const distToStationMap = {}
-  let counter = 0
-  for (let id of g.getAllIds()) {
-    const lat = g.getVertex(id).lat()
-    const lng = g.getVertex(id).lng()
-    if (!lat || !lng) continue
-    const distToStation = getDistance(
-      { latitude: lat, longitude: lng },
-      { latitude: officeLat, longitude: officeLng }
-    )
 
-    if (distToStation < maxWalkDistance) {
-      // NearByStations = distToStation
-      // shortestStationIds.push({
-      //   shortestStationId: id,
-      //   distToShortestStation,
-      //   timeToShortestStation: distToStation / walkVelocity
-      // })
-
-      // 走到車站的時間 + 等車時間
-      // console.log(waitingTimeMap)
-
-      // const waitingTime = waitingTimeMap[id] || 0
-      // console.log(id)
-
-      // console.log(waitingTime)
-      // return
-      const edge = new Edge(
-        '-2',
-        id,
-        period,
-        // distToStation / walkVelocity + waitingTime
-        distToStation / walkVelocity
-      )
-
-      g.addEdge(edge)
-
-      idMap[id] = {
-        stationId: id,
-        distFromOffice: distToStation,
-        walkTimeFromOffice: distToStation / walkVelocity
-      }
-      distToStationMap[id] = distToStation
-
-      counter++
-    }
-  }
-
-  // console.log(distToStationMap)
-  const nearByStationCount = counter - 1
-
-  // can't get to any station but itself
-
-  const timerNearby = Date.now()
-  console.log((timerNearby - start) / 1000, 'seconds for get nearby station')
-  console.log('nearByStationCount: ', nearByStationCount)
+  const nearByStationCount = makeOfficeToNearbyStopEdges(g, office, period, distToStationMap, maxWalkDistance)  
 
   if (nearByStationCount === 0) {
     const positionData = [
