@@ -22,13 +22,14 @@ const {
 } = require('../service/search_service')
 const { makeOfficeToNearbyStopEdges } = require('../service/graph_service')
 const { getTagMap } = require('../service/house_service')
+// const { getInitGraph } = require('../service/init_service')
 // const { getHouseData } = require('../service/house_service')
 
 // const {graphs, walkVelocity} = require('../../util/init')
 let waitingTimeMaps
 const walkVelocity = 1.25 / 1.414
 let graphs
-async function main() {
+async function init() {
   const time0_0 = Date.now()
   graphs = await makeGraphs(2)
   console.log('finish making graph step 0')
@@ -48,9 +49,20 @@ async function main() {
   }
 }
 
-main()
+init()
+// make graphs of version 2
+// const graphs = await getInitGraph(2)
+// init
+// const graphs = require('../service/init_service')
+// console.log(graphs)
+// let graphs
+// async function main() {
+//   graphs = await makeGraphs(2)
+// }
+// main()
 
 const search = async (req, res) => {
+  console.log(graphs)
   let {
     commuteTime,
     officeLat,
