@@ -338,6 +338,34 @@ async function makeStationStopMap() {
   return map
 }
 
+async function makeTagMap() {
+  const tagMap = {}
+  const q = 'SELECT id, name FROM tag'
+  const [result] = await pool.query(q)
+  result.forEach(tag => {
+    switch (tag.name) {
+      case '可開伙':
+        tagMap.fire = tag.id
+        break
+      case '可短租':
+        tagMap.shortRent = tag.id
+        break
+      case '可養寵物':
+        tagMap.pet = tag.id
+        break
+      case '屋主直租':
+        tagMap.directRent = tag.id
+        break
+      case '新上架':
+        tagMap.newItem = tag.id
+        break
+    }
+    // tagMap[tag.name] = tag.id
+  })
+  // console.log(tagMap)
+  return tagMap
+}
+
 // async function makeHouseIdToNumMap
 
 
@@ -346,5 +374,6 @@ module.exports = {
   makeHouseStopDistanceMap,
   // makeHouseStationDistanceMap,
   makeHouseMap,
-  makeStopStationMap
+  makeStopStationMap,
+  makeTagMap
 }

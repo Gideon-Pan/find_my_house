@@ -10,10 +10,11 @@ const { Vertex, Edge } = require('../../util/dijkstra/graph')
 const { getShortestPath } = require('../../util/dijkstra/shortest_path')
 
 const {
-  makeHouseMap,
+  makeHouseMap, makeTagMap,
 } = require('../models/house_model')
 
 // const {graphs, walkVelocity} = require('../../util/init')
+let tagMap
 let waitingTimeMaps
 const walkVelocity = 1.25 / 1.414
 let graphs
@@ -29,7 +30,7 @@ async function main() {
   )
 
   waitingTimeMaps = await makeWaitingTimeMap(2)
-
+  tagMap = await makeTagMap()
   if (Redis.client.connected) {
     // console.log('interesting')
     await makeHouseMap()
@@ -62,13 +63,13 @@ const search = async (req, res) => {
   // console.log(req.query)
   // console.log(budget)
   const tags = []
-  if (fire === 'true') tags.push(7)
+  if (fire === 'true') tags.push(tagMap['fire'])
   // if (fire === 'true') console.log(fire)
-  if (shortRent === 'true') tags.push(5)
-  if (directRent === 'true') tags.push(1)
-  if (pet === 'true') tags.push(13)
-  if (newItem === 'true') tags.push(12)
-  console.log(graphs)
+  if (shortRent === 'true') tags.push(tagMap['shortRent'])
+  if (directRent === 'true') tags.push(tagMap['directRent'])
+  if (pet === 'true') tags.push(tagMap['pet'])
+  if (newItem === 'true') tags.push(tagMap['newItem'])
+  // console.log(graphs)
   const g = graphs[commuteWay][period]
 
   const start = Date.now()
