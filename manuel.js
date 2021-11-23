@@ -26,4 +26,4 @@ async function search() {
 // metro
 // await axios.get('/api/1.0/search?period=weekend&commuteTime=2400&commuteWay=metro&maxWalkDistance=1000&budget=100000000&officeLat=25.045060880370922&officeLng=121.51682166943355&houseType=&fire=false&shortRent=false&directRent=false&pet=false&newItem=false&latitudeNW=25.08361995794381&longitudeNW=121.62256507763668&latitudeSE=25.022356770632978&longitudeSE=121.44678382763668')
 // position data 225
-// house data 6108
+// house data 6108 / 8163(不過濾同經緯度)

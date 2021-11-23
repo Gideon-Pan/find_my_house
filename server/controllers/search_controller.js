@@ -14,6 +14,7 @@ const {
   makeTagMap,
   makeTypeMap
 } = require('../models/house_model')
+const { getHouseInConstraint, getHousesInConstraint } = require('../service/house_service')
 
 // const {graphs, walkVelocity} = require('../../util/init')
 let tagMap
@@ -157,8 +158,10 @@ const search = async (req, res) => {
     positionData.forEach(({ stopId, distanceLeft }) => {
       stopRadiusMap[stopId] = distanceLeft
     })
-    let houses = await getHousesInBudget(budget, houseType, tags)
-    // console.log(houses.length)
+    // let houses = await getHousesInBudget(budget, houseType, tags)
+    // console.log('~~~~~~~~~~~~~~~~~~`')
+    let houses = await getHousesInConstraint(budget, houseType, tags)
+    console.log(houses.length)
     const houseData = await getHousesInRange(
       positionData,
       houses,
@@ -230,7 +233,8 @@ const search = async (req, res) => {
   })
   const time1 = Date.now()
   // console.log((time1 - start) / 1000, '!!!')
-  let houses = await getHousesInBudget(budget, houseType, tags)
+  // let houses = await getHousesInBudget(budget, houseType, tags)
+  let houses = await getHousesInConstraint(budget, houseType, tags)
   const time2 = Date.now()
   console.log(
     (time2 - time1) / 1000,
@@ -267,7 +271,7 @@ const search = async (req, res) => {
 
 async function getHousesInBudget(budget, houseType, validTags) {
   let typeMap
-  if (Redis.client.connected) {
+  if (Redis.client.connected && await Redis.get('houseTypeMap')) {
     // console.log('hi5151581')
     typeMapJSON = await Redis.get('houseTypeMap')
     if (typeMapJSON) {
@@ -280,11 +284,22 @@ async function getHousesInBudget(budget, houseType, validTags) {
     typeMap = await makeTypeMap()
     console.log(typeMap, '#')
   }
+
+  let tagMap
+  if (Redis.client.connected && await Redis.get('tagMap')) {
+    // console.log('111111111111111')
+    tagMap = JSON.parse(await Redis.get('tagMap'))
+  } else {
+    // console.log('222222222222222')
+    tagMap = await makeTagMap()
+  }
+
   console.log(typeMap)
   const houseTypeId = typeMap[houseType]
   // console.log(houseType)
   // console.log(typeMap)
   // console.log(houseTypeId)
+
   if (Redis.client.connected) {
     const houseMapString = await Redis.get('houseMap')
     if (houseMapString) {
@@ -310,12 +325,6 @@ async function getHousesInBudget(budget, houseType, validTags) {
         return true
       })
       console.log(counter, 'times for filtering tag')
-
-      // if (Redis.connected && req.query.update) {
-      //   console.log('building hosue map cache')
-      //   await makeHouseMap()
-      // }
-
       return houses
     }
   }

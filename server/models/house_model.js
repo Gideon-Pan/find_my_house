@@ -265,14 +265,14 @@ async function makeHouseMap() {
   const [result] = await pool.query(q)
   const houseMap = {}
   const tags = ['可開伙','可短租','屋主直租','可養寵物','新上架']
-  const positionMap = {}
+  // const positionMap = {}
   let counter = 0
   result.forEach(data => {
-    if (positionMap[`${data.latitude}-${data.longitude}`] && positionMap[`${data.latitude}-${data.longitude}`] !== data.id) {
-      // console.log('~~~~~~~~~~~~~')
-      counter++
-      return
-    }
+    // if (positionMap[`${data.latitude}-${data.longitude}`] && positionMap[`${data.latitude}-${data.longitude}`] !== data.id) {
+    //   // console.log('~~~~~~~~~~~~~')
+    //   counter++
+    //   return
+    // }
     if (!houseMap[data.id]) {
       houseMap[data.id] = {
         id: data.id,
@@ -294,23 +294,20 @@ async function makeHouseMap() {
       // console.log(data.tag_name)
       houseMap[data.id].tagIds.push(data.tag_id)
     }
-    positionMap[`${data.latitude}-${data.longitude}`] = data.id
+    // positionMap[`${data.latitude}-${data.longitude}`] = data.id
   })
-  Object.values(houseMap)[0]
+  // Object.values(houseMap)[0]
   // console.log(Object.values(houseMap).length)
   // console.log('Object.values(houseMap)[0]: ', Object.values(houseMap)[0]);
   // console.log(Redis.client.connected)
   if (Redis.client.connected) {
     Redis.set('houseMap', JSON.stringify(houseMap))
-
   }
   
   console.timeEnd('make house map')
   // console.log(counter)
   return houseMap
 }
-
-
 
 async function makeStopStationMap() {
   const stopStationMap = {}
@@ -363,6 +360,9 @@ async function makeTagMap() {
     // tagMap[tag.name] = tag.id
   })
   // console.log(tagMap)
+  if (Redis.client.connected) {
+    Redis.set('tagMap', JSON.stringify(tagMap))
+  }
   return tagMap
 }
 
@@ -391,8 +391,8 @@ async function makeTypeMap() {
   if (Redis.client.connected) {
     Redis.set('houseTypeMap', JSON.stringify(typeMap))
   }
-  console.log(typeMap)
-  console.log('191951919519191')
+  // console.log(typeMap)
+  // console.log('191951919519191')
   return typeMap
 }
 
