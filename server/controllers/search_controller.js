@@ -2,22 +2,21 @@ require('dotenv').config()
 // const House = require('../models/house_model')
 const Redis = require('../../util/redis')
 const db = require('../models/db/mysql')
+const {getDistance, getDistanceSquare} = require('../../util/distance')
 const {
   makeGraphs,
   makeWaitingTimeMap
 } = require('../../util/dijkstra/make_graph')
 const { Vertex, Edge } = require('../../util/dijkstra/graph')
 const { getShortestPath } = require('../../util/dijkstra/shortest_path')
-
 const {
   makeHouseMap,
   makeTagMap,
   makeTypeMap
 } = require('../models/house_model')
-const { getHouseInConstraint, getHousesInConstraint } = require('../service/house_service')
+const { getHousesInConstraint, getHousesInRange } = require('../service/search_service')
 
 // const {graphs, walkVelocity} = require('../../util/init')
-let tagMap
 let waitingTimeMaps
 const walkVelocity = 1.25 / 1.414
 let graphs
@@ -33,7 +32,7 @@ async function main() {
   )
 
   waitingTimeMaps = await makeWaitingTimeMap(2)
-  tagMap = await makeTagMap()
+  await makeTagMap()
   await makeTypeMap()
   if (Redis.client.connected) {
     // console.log('interesting')
@@ -131,8 +130,6 @@ const search = async (req, res) => {
   if (maxWalkDistance > commuteTime * walkVelocity) {
     maxWalkDistance = commuteTime * walkVelocity
   }
-
-  // const idMap = {}
 
   const distToStopMap = {}
 
@@ -240,9 +237,10 @@ const search = async (req, res) => {
     (time2 - time1) / 1000,
     'seconds to get house in house constraint'
   )
-  if (houses.length !== 0) {
-    houses = await getHousesInRange(positionData, houses, stopRadiusMap)
-  }
+  // if (houses.length !== 0) {
+    // houses = await getHousesInRange(positionData, houses, stopRadiusMap)
+    houses = await getHousesInRange(positionData, houses)
+  // }
   const houseData = getHousesInBound(
     houses,
     Number(latitudeNW),
@@ -269,6 +267,7 @@ const search = async (req, res) => {
   })
 }
 
+// legacy
 async function getHousesInBudget(budget, houseType, validTags) {
   let typeMap
   if (Redis.client.connected && await Redis.get('houseTypeMap')) {
@@ -382,6 +381,7 @@ async function getHousesInBudget(budget, houseType, validTags) {
   return houses
 }
 
+// not used (to be developed)
 function getHousesInBound(
   houses,
   latitudeNW,
@@ -423,60 +423,61 @@ function getHousesInBound(
   return houseInBound
 }
 
-async function getHousesInRange(positionData, houses, stopRadiusMap) {
+async function getHousesInRangeLagacy(positionData, houses, stopRadiusMap) {
+  // if (houses.length )
   console.log('reachable stops count', positionData.length)
-  if (Redis.client.connected && false) {
-    console.log('~~~~~~~~~~~~~~~')
-    // const houseIdToNumMapJSON = await Redis.get('houseIdToNumMap')
-    // const houseStopDistanceMapJSON = await Redis.get('houseStopDistanceMap')
-    if (houseIdToNumMapJSON && houseStopDistanceMapJSON) {
-      // console.log('@@@@@')
-      // console.log('jfoiw')
+  // if (Redis.client.connected && false) {
+  //   console.log('~~~~~~~~~~~~~~~')
+  //   // const houseIdToNumMapJSON = await Redis.get('houseIdToNumMap')
+  //   // const houseStopDistanceMapJSON = await Redis.get('houseStopDistanceMap')
+  //   if (houseIdToNumMapJSON && houseStopDistanceMapJSON) {
+  //     // console.log('@@@@@')
+  //     // console.log('jfoiw')
 
-      let counter = 0
-      // console.log('~~~~~~~~~~')
-      const houseData = houses.filter((house) => {
-        const { latitude, longitude } = house
-        const houseNum = houseIdToNumMap[house.id]
-        // console.log(houseNum)
-        // if (!houseStopDistanceMap[houseNum]) {
-        //   const position = positionData[0]
-        //   if (getDistance({latitude, longitude}, {latitude: position.lat, longitude: position.lng}) < position.distanceLeft) {
-        //     return true
-        //   }
-        //   return false
-        // }
-        // console.log(houseNum, 'dfsd')
-        if (houseStopDistanceMap[houseNum]) {
-          for (let i = 0; i < houseStopDistanceMap[houseNum].length; i++) {
-            const stopId = houseStopDistanceMap[houseNum][i][0]
-            const radius = stopRadiusMap[stopId]
-            const distance = houseStopDistanceMap[houseNum][i][1]
-            counter++
-            if (distance < radius) {
-              return true
-            }
-          }
-        }
-        const position = positionData[0]
-        // console.log(position)
-        if (
-          getDistance(
-            { latitude, longitude },
-            { latitude: position.lat, longitude: position.lng }
-          ) < position.distanceLeft
-        ) {
-          // console.log(getDistance({latitude, longitude}, {latitude: position.lat, longitude: position.lng}))
-          return true
-        }
-        return false
-      })
-      // console.log(houseData)
-      console.log(`computing ${counter} times`)
-      // console.log(houseData)
-      return houseData
-    }
-  }
+  //     let counter = 0
+  //     // console.log('~~~~~~~~~~')
+  //     const houseData = houses.filter((house) => {
+  //       const { latitude, longitude } = house
+  //       const houseNum = houseIdToNumMap[house.id]
+  //       // console.log(houseNum)
+  //       // if (!houseStopDistanceMap[houseNum]) {
+  //       //   const position = positionData[0]
+  //       //   if (getDistance({latitude, longitude}, {latitude: position.lat, longitude: position.lng}) < position.distanceLeft) {
+  //       //     return true
+  //       //   }
+  //       //   return false
+  //       // }
+  //       // console.log(houseNum, 'dfsd')
+  //       if (houseStopDistanceMap[houseNum]) {
+  //         for (let i = 0; i < houseStopDistanceMap[houseNum].length; i++) {
+  //           const stopId = houseStopDistanceMap[houseNum][i][0]
+  //           const radius = stopRadiusMap[stopId]
+  //           const distance = houseStopDistanceMap[houseNum][i][1]
+  //           counter++
+  //           if (distance < radius) {
+  //             return true
+  //           }
+  //         }
+  //       }
+  //       const position = positionData[0]
+  //       // console.log(position)
+  //       if (
+  //         getDistance(
+  //           { latitude, longitude },
+  //           { latitude: position.lat, longitude: position.lng }
+  //         ) < position.distanceLeft
+  //       ) {
+  //         // console.log(getDistance({latitude, longitude}, {latitude: position.lat, longitude: position.lng}))
+  //         return true
+  //       }
+  //       return false
+  //     })
+  //     // console.log(houseData)
+  //     console.log(`computing ${counter} times`)
+  //     // console.log(houseData)
+  //     return houseData
+  //   }
+  // }
 
   // console.log(houses.length, 'houses')
   let counter = 0
@@ -585,31 +586,7 @@ async function getHousesInRange(positionData, houses, stopRadiusMap) {
   // return houseData
 }
 
-function getDistance(position1, position2) {
-  return Math.sqrt(
-    (position1.latitude - position2.latitude) *
-      (position1.latitude - position2.latitude) *
-      111319.5 *
-      111319.5 +
-      (position1.longitude - position2.longitude) *
-        (position1.longitude - position2.longitude) *
-        100848.6 *
-        100848.6
-  )
-}
 
-function getDistanceSquare(position1, position2) {
-  return (
-    (position1.latitude - position2.latitude) *
-      (position1.latitude - position2.latitude) *
-      111319.5 *
-      111319.5 +
-    (position1.longitude - position2.longitude) *
-      (position1.longitude - position2.longitude) *
-      100848.6 *
-      100848.6
-  )
-}
 
 module.exports = {
   search

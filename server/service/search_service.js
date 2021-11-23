@@ -1,5 +1,6 @@
 const Redis = require('../../util/redis')
 const { makeTypeMap, makeTagMap, makeHouseMap } = require('../models/house_model')
+const {getDistanceSquare} = require('../../util/distance')
 const pool = require('../models/db/mysql')
 
 async function getHousesInConstraintWithRedis(budget, validTags, houseTypeId) {
@@ -104,6 +105,34 @@ async function getHousesInConstraint(budget, houseType, validTags) {
   return houses
 }
 
+
+async function getHousesInRange(positionData, houses) {
+  console.log('reachable stops count', positionData.length)
+  let counter = 0
+  const houseData = houses.filter((house) => {
+    const { latitude, longitude } = house
+    for (let i = 0; i < positionData.length; i++) {
+      const position = positionData[i]
+      const radius = position.distanceLeft
+      counter++
+      if (
+        getDistanceSquare(
+          { latitude, longitude },
+          { latitude: position.lat, longitude: position.lng }
+        ) <
+        radius * radius
+      ) {
+        return true
+      }
+    }
+    return false
+  })
+  // console.log('hahahahh')
+  console.log(`computing ${counter} times for get house in range`)
+  return houseData
+}
+
 module.exports = {
-  getHousesInConstraint
+  getHousesInConstraint,
+  getHousesInRange
 }
