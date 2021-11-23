@@ -1,4 +1,4 @@
-require('dotenv').config();
+require('dotenv').config()
 // const House = require('../models/house_model')
 const Redis = require('../../util/redis')
 const db = require('../models/db/mysql')
@@ -10,7 +10,9 @@ const { Vertex, Edge } = require('../../util/dijkstra/graph')
 const { getShortestPath } = require('../../util/dijkstra/shortest_path')
 
 const {
-  makeHouseMap, makeTagMap, makeTypeMap,
+  makeHouseMap,
+  makeTagMap,
+  makeTypeMap
 } = require('../models/house_model')
 
 // const {graphs, walkVelocity} = require('../../util/init')
@@ -40,7 +42,13 @@ async function main() {
 
 main()
 
-function makeOfficeToNearbyStopEdges(g, startPoint, period, distToStopMap, maxWalkDistance) {
+function makeOfficeToNearbyStopEdges(
+  g,
+  startPoint,
+  period,
+  distToStopMap,
+  maxWalkDistance
+) {
   let counter = 0
   // const officeLat = office.lat()
   // const officeLng = office.lng()
@@ -127,7 +135,13 @@ const search = async (req, res) => {
 
   const distToStopMap = {}
 
-  const nearByStationCount = makeOfficeToNearbyStopEdges(g, office, period, distToStopMap, maxWalkDistance)  
+  const nearByStationCount = makeOfficeToNearbyStopEdges(
+    g,
+    office,
+    period,
+    distToStopMap,
+    maxWalkDistance
+  )
 
   // can't get to any station but itself
   if (nearByStationCount === 0) {
@@ -164,7 +178,13 @@ const search = async (req, res) => {
   // const counter = {}
   const timer0 = Date.now()
   const waitingTimeMap = waitingTimeMaps[period]
-  const reachableStations = getShortestPath(g, '-2', commuteTime, period, waitingTimeMap)
+  const reachableStations = getShortestPath(
+    g,
+    '-2',
+    commuteTime,
+    period,
+    waitingTimeMap
+  )
   const timer1 = Date.now()
   console.log((timer1 - timer0) / 1000, 'seconds for Dijkstra')
   const reachableStationMap = {}
@@ -246,33 +266,25 @@ const search = async (req, res) => {
 }
 
 async function getHousesInBudget(budget, houseType, validTags) {
-  let houseTypeId
   let typeMap
   if (Redis.client.connected) {
     // console.log('hi5151581')
-    typeMapJSON = await Redis.get('hosueTypeMap')
-    typeMap = JSON.parse(typeMapJSON)
+    typeMapJSON = await Redis.get('houseTypeMap')
+    if (typeMapJSON) {
+      typeMap = JSON.parse(typeMapJSON)
+    } else {
+      typeMap = await makeTypeMap()
+      console.log(typeMap, '#')
+    }
   } else {
     typeMap = await makeTypeMap()
+    console.log(typeMap, '#')
   }
-  // const houseTypeId = 
-  // switch (houseType) {
-  //   case 'shared-suite':
-  //     houseType = '分租套房'
-  //     houseTypeId = 3
-  //     break
-  //   case 'independant-suite':
-  //     houseType = '獨立套房'
-  //     houseTypeId = 1
-  //     break
-  //   case 'studio':
-  //     houseType = '雅房'
-  //     houseTypeId = 5
-  //     break
-  //   default:
-  //     break
-  // }
-
+  console.log(typeMap)
+  const houseTypeId = typeMap[houseType]
+  // console.log(houseType)
+  // console.log(typeMap)
+  // console.log(houseTypeId)
   if (Redis.client.connected) {
     const houseMapString = await Redis.get('houseMap')
     if (houseMapString) {
@@ -281,35 +293,14 @@ async function getHousesInBudget(budget, houseType, validTags) {
       const houseMapCache = JSON.parse(houseMapString)
       console.log(Object.keys(houseMapCache).length, 'length of houseMap')
       let counter = 0
-      // const houses = []
-      // for (let house of Object.values(houseMapCache)) {
-      //   if (houseTypeId && houseTypeId !== house.categoryId) continue
-      //   if (house.price > budget) continue
-      //   let toContinue
-      //   for (let tag of validTags) {
-      //     counter++
-      //     if (!house.tagIds.includes(tag)) {
-      //       // toContinue =
-      //       continue
-      //     }
-      //   }
-      // }
       const houses = Object.values(houseMapCache).filter((house) => {
-        // if (house.id == 11643802) {
-        //   console.log(house)
-        // }
-        // console.log(house.tagIds)
         if (houseTypeId && houseTypeId !== house.categoryId) {
-          // console.log(houseType)
-          // console.log(house.category)
-          // console.log('~')
           return false
         }
         // console.log(house)
         if (house.price > budget) {
           return false
         }
-        
         for (let tag of validTags) {
           counter++
           if (!house.tagIds.includes(tag)) {
@@ -324,18 +315,11 @@ async function getHousesInBudget(budget, houseType, validTags) {
       //   console.log('building hosue map cache')
       //   await makeHouseMap()
       // }
-      
+
       return houses
     }
   }
-  // if (houseType !==  && houseType)
-  // console.log(houseType)
-  // console.log(validTags)
 
-  // console.log(houseType)
-  // const condition = budget ? `WHERE price <= ${budget}` : ''
-  // console.log(budget)
-  // console.log('hehehehe')
   const q = `SELECT house.id, title, price, area, link, image, house.address, house.latitude, house.longitude, category.name AS category, tag.id AS tag FROM house 
     JOIN category
       ON house.category_id = category.id
@@ -345,15 +329,12 @@ async function getHousesInBudget(budget, houseType, validTags) {
       ON tag.id = house_tag.tag_id
     WHERE price <= ${budget}
       ${validTags.length !== 0 ? 'AND tag.id IN  (?)' : ''}
-      ${houseType ? `AND category.name = '${houseType}'` : ''}
+      ${houseType ? `AND category.id = '${houseTypeId}'` : ''}
   `
-  //       ${budget ? `` : ''}
-  // latitude IS NOT NULL AND longitude IS NOT NULL
-  // AND (category.name = '獨立套房' OR category.name = '分租套房' OR category.name = '雅房')
-  // console.log(q)
 
   // console.log(db)
   const [result] = await db.query(q, [validTags])
+  console.log(result.length)
 
   const houseMap = {}
   // const validTags =
@@ -382,9 +363,6 @@ async function getHousesInBudget(budget, houseType, validTags) {
     // console.log(house.category)
     return house.counter === validTags.length
   })
-  // Object.values(houseMap).forEach(house => {
-  //   console.log(house)
-  // })
   console.log('QQQQQ no cache')
   console.log(houses.length, 'houses satisfy tag filters')
   const timet2 = Date.now()
@@ -445,7 +423,7 @@ async function getHousesInRange(positionData, houses, stopRadiusMap) {
     if (houseIdToNumMapJSON && houseStopDistanceMapJSON) {
       // console.log('@@@@@')
       // console.log('jfoiw')
-      
+
       let counter = 0
       // console.log('~~~~~~~~~~')
       const houseData = houses.filter((house) => {
@@ -493,13 +471,19 @@ async function getHousesInRange(positionData, houses, stopRadiusMap) {
 
   // console.log(houses.length, 'houses')
   let counter = 0
-  const houseData = houses.filter(house => {
-    const {latitude, longitude} = house
+  const houseData = houses.filter((house) => {
+    const { latitude, longitude } = house
     for (let i = 0; i < positionData.length; i++) {
       const position = positionData[i]
       const radius = position.distanceLeft
       counter++
-      if (getDistanceSquare({latitude, longitude}, {latitude: position.lat, longitude: position.lng}) < radius * radius) {
+      if (
+        getDistanceSquare(
+          { latitude, longitude },
+          { latitude: position.lat, longitude: position.lng }
+        ) <
+        radius * radius
+      ) {
         return true
       }
       // if (houseStopDistanceMap[house.id] && houseStopDistanceMap[house.id][positionData[i].stopId] < radius) {
@@ -611,10 +595,10 @@ function getDistanceSquare(position1, position2) {
       (position1.latitude - position2.latitude) *
       111319.5 *
       111319.5 +
+    (position1.longitude - position2.longitude) *
       (position1.longitude - position2.longitude) *
-        (position1.longitude - position2.longitude) *
-        100848.6 *
-        100848.6
+      100848.6 *
+      100848.6
   )
 }
 

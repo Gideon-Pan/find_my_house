@@ -372,12 +372,27 @@ async function makeTypeMap() {
   const q = 'SELECT id, name FROM category'
   const [result] = await pool.query(q)
   result.forEach(type => {
-    typeMap[type.name] = type.id
+    switch (type.name) {
+      case '獨立套房':
+        typeMap['independant-suite'] = type.id
+        break
+      case '分租套房':
+        typeMap['shared-suite'] = type.id
+        break
+      case '雅房':
+        typeMap['studio'] = type.id
+        break
+      default:
+        break
+    }
+    
   })
   // console.log(typeMap)
   if (Redis.client.connected) {
     Redis.set('houseTypeMap', JSON.stringify(typeMap))
   }
+  console.log(typeMap)
+  console.log('191951919519191')
   return typeMap
 }
 
