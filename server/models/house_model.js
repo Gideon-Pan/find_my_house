@@ -1,4 +1,4 @@
-const { PQ } = require('../dijkstra/priority_queue')
+const { PQ } = require('../../util/dijkstra/priority_queue')
 const pool = require('./db/mysql')
 const { getDistance } = require('geolib')
 // const { Db } = require('mongodb')

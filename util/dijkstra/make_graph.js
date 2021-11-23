@@ -1,5 +1,5 @@
 const { Vertex, Edge, Graph } = require('./graph')
-const db = require('../models/db/mysql')
+const db = require('../../server/models/db/mysql')
 const process = require('process'); 
 
 async function makeVerticeOld(g, type) {
@@ -283,7 +283,7 @@ async function makeWaitingTimeMap(version) {
     AND version = ${version}
     ${process.argv[2] === 'metro' ? 'AND type = "metro"' : ''}
   `
-  // console.log(q)
+  console.log(q)
   const [waitingTimeList] = await db.query(q)
 
   // console.log(waitingTimeList)

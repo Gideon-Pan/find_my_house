@@ -1,18 +1,18 @@
 const { makeGraph, makeWaitingTimeMap } = require('./make_graph')
 const { PQ } = require('./priority_queue')
 
-let waitingTimeMaps
-async function main() {
-  waitingTimeMaps = await makeWaitingTimeMap(2)
-  // console.log('h1')
-}
-main()
+// let waitingTimeMaps
+// async function main() {
+//   waitingTimeMaps = await makeWaitingTimeMap(2)
+//   // console.log('h1')
+// }
+// main()
 
 
-function getShortestPath(g, fromId, timeLeft, period) {
+function getShortestPath(g, fromId, timeLeft, period, waitingTimeMap) {
   // console.log(timeLeft)
   // console.log(waitingTimeMaps)
-  const waitingTimeMap = waitingTimeMaps[period]
+  // const waitingTimeMap = waitingTimeMaps[period]
   const ids = g.getAllIds()
   const pq = new PQ()
   const timeTo = {}

@@ -1,4 +1,4 @@
-const db = require('../models/db/mysql')
+const db = require('../../server/models/db/mysql')
 const { makeIdToPtx } = require('./make_graph')
 
 async function getTime() {
