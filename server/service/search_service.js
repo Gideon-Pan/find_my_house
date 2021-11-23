@@ -1,34 +1,37 @@
 const Redis = require('../../util/redis')
-const { makeTypeMap, makeTagMap, makeHouseMap } = require('../models/house_model')
-const {getDistanceSquare} = require('../../util/distance')
 const pool = require('../models/db/mysql')
+const {
+  makeTypeMap,
+  makeTagMap,
+  makeHouseMap
+} = require('../models/house_model')
+const { getDistanceSquare } = require('../../util/distance')
 
 async function getHousesInConstraintWithRedis(budget, validTags, houseTypeId) {
-  if (Redis.client.connected && await Redis.get('houseMap')) {
-      // console.log(houseMapString)
-      console.log('caching house map~~~~~')
-      const houseMapCache = JSON.parse(await Redis.get('houseMap'))
-      // console.log(Object.keys(houseMapCache).length, 'length of houseMap')
-      let counter = 0
-      const houses = Object.values(houseMapCache).filter((house) => {
-        if (houseTypeId && houseTypeId !== house.categoryId) {
+  if (Redis.client.connected && (await Redis.get('houseMap'))) {
+    // console.log(houseMapString)
+    console.log('caching house map~~~~~')
+    const houseMapCache = JSON.parse(await Redis.get('houseMap'))
+    // console.log(Object.keys(houseMapCache).length, 'length of houseMap')
+    let counter = 0
+    const houses = Object.values(houseMapCache).filter((house) => {
+      if (houseTypeId && houseTypeId !== house.categoryId) {
+        return false
+      }
+      // console.log(house)
+      if (house.price > budget) {
+        return false
+      }
+      for (let tag of validTags) {
+        counter++
+        if (!house.tagIds.includes(tag)) {
           return false
         }
-        // console.log(house)
-        if (house.price > budget) {
-          return false
-        }
-        for (let tag of validTags) {
-          counter++
-          if (!house.tagIds.includes(tag)) {
-            return false
-          }
-        }
-        return true
-      })
-      console.log(counter, 'times for filtering tag')
-      return houses
-    
+      }
+      return true
+    })
+    console.log(counter, 'times for filtering tag')
+    return houses
   }
 }
 
@@ -36,20 +39,24 @@ async function getHousesInConstraint(budget, houseType, validTags) {
   // console.log('susususususuu')
   let typeMap
   // make type map
-  if (Redis.client.connected && await Redis.get('typeMap')) {
+  if (Redis.client.connected && (await Redis.get('typeMap'))) {
     typeMap = JSON.parse(Redis.get('typeMap'))
   } else {
     typeMap = await makeTypeMap()
   }
   const houseTypeId = typeMap[houseType]
 
-  let houses = await getHousesInConstraintWithRedis(budget, validTags, houseTypeId)
+  let houses = await getHousesInConstraintWithRedis(
+    budget,
+    validTags,
+    houseTypeId
+  )
   if (houses) {
     return houses
   }
 
   let tagMap
-  if (Redis.client.connected && await Redis.get('tagMap')) {
+  if (Redis.client.connected && (await Redis.get('tagMap'))) {
     // console.log('111111111111111')
     tagMap = JSON.parse(await Redis.get('tagMap'))
   } else {
@@ -68,7 +75,7 @@ async function getHousesInConstraint(budget, houseType, validTags) {
       ${validTags.length !== 0 ? 'AND tag.id IN  (?)' : ''}
       ${houseType ? `AND category.id = '${houseTypeId}'` : ''}
   `
-  //     
+  //
 
   // console.log(db)
   const [result] = await pool.query(q, [validTags])
@@ -105,7 +112,6 @@ async function getHousesInConstraint(budget, houseType, validTags) {
   return houses
 }
 
-
 async function getHousesInRange(positionData, houses) {
   console.log('reachable stops count', positionData.length)
   let counter = 0
@@ -132,7 +138,65 @@ async function getHousesInRange(positionData, houses) {
   return houseData
 }
 
+function getHousesInBound(
+  houses,
+  latitudeNW,
+  latitudeSE,
+  longitudeNW,
+  longitudeSE
+) {
+  if (houses.length <= 1000) {
+    return houses
+  }
+  console.log('latitudeNW: ', latitudeNW)
+  console.log(' latitudeSE: ', latitudeSE)
+  console.log('longitudeNW: ', longitudeNW)
+  console.log('longitudeSE: ', longitudeSE)
+  const houseInBound = houses.filter((house, i) => {
+    console.log(housePositionMap)
+    if (!housePositionMap[house.id]) {
+      return
+    }
+    const houseLat = housePositionMap[house.id].latitude
+
+    const houseLon = housePositionMap[house.id].longitude
+    if (i === 0) {
+      console.log('houseLat: ', houseLat)
+      console.log('houseLon: ', houseLon)
+    }
+
+    if (
+      houseLat < latitudeNW &&
+      houseLat > latitudeSE &&
+      houseLon > longitudeSE &&
+      houseLon < longitudeNW
+    ) {
+      return true
+    }
+    return false
+  })
+  return houseInBound
+}
+
+async function getHouseData(positionData, budget, houseType, tags) {
+  const stopRadiusMap = {}
+  positionData.forEach(({ stopId, distanceLeft }) => {
+    stopRadiusMap[stopId] = distanceLeft
+  })
+  // let houses = await getHousesInBudget(budget, houseType, tags)
+  // console.log('~~~~~~~~~~~~~~~~~~`')
+  let houses = await getHousesInConstraint(budget, houseType, tags)
+  console.log(houses.length)
+  const houseData = await getHousesInRange(
+    positionData,
+    houses
+    // stopRadiusMap
+  )
+  return houseData
+}
+
 module.exports = {
   getHousesInConstraint,
-  getHousesInRange
+  getHousesInRange,
+  getHouseData
 }

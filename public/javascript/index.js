@@ -45,7 +45,7 @@ let clearClusterAll = true
 // 學校
 // const Justin = {
 //   lat:,
-//   lng: 
+//   lng:
 // }
 let officeLat
 let officeLng
@@ -70,8 +70,6 @@ let officeLng
 //     }
 //   }
 // }
-
-
 
 // setInitialOption('commute-time', 'commuteTime')
 
@@ -160,8 +158,12 @@ function initMap() {
   // console.log('fuc')
   // const myLatlng = { lat: 25.03746, lng: 121.532558 }
   // console.log(google)
-  officeLat = window.localStorage.getItem('officeLat') ? Number(window.localStorage.getItem('officeLat')) : 25.04222965263713
-  officeLng = window.localStorage.getItem('officeLng') ? Number(window.localStorage.getItem('officeLng')) : 121.5648119917025
+  officeLat = window.localStorage.getItem('officeLat')
+    ? Number(window.localStorage.getItem('officeLat'))
+    : 25.04222965263713
+  officeLng = window.localStorage.getItem('officeLng')
+    ? Number(window.localStorage.getItem('officeLng'))
+    : 121.5648119917025
   const office = {
     lat: officeLat,
     lng: officeLng
@@ -180,7 +182,7 @@ function initMap() {
     origin: new google.maps.Point(0, 0) // origin
     // anchor: new google.maps.Point(20, 25) // anchor
   }
-  
+
   console.log(office)
   const officeMarker = new google.maps.Marker({
     // position: { lat: 25.042482379737326, lng: 121.5647583475222 },
@@ -223,14 +225,19 @@ function initMap() {
 }
 
 function clearHouseDataMap() {
-  Object.keys(houseDataMap).forEach(key => {
+  Object.keys(houseDataMap).forEach((key) => {
     delete houseDataMap[key]
   })
 }
 
 async function search(isOldSearch) {
   // houseDataMap = {}
-  if (officeLat < 24.82779066186457 || officeLat > 25.286790197826466 || officeLng < 121.26674450569816 || officeLng > 121.93818339149594) {
+  if (
+    officeLat < 24.82779066186457 ||
+    officeLat > 25.286790197826466 ||
+    officeLng < 121.26674450569816 ||
+    officeLng > 121.93818339149594
+  ) {
     Swal.fire({
       title: '請搜尋雙北地區',
       // text: `放寬搜尋條件以找到房屋`,
@@ -241,8 +248,7 @@ async function search(isOldSearch) {
     return
   }
 
-
-  houseInfoStatus = isOldSearch ? houseInfoStatus : false 
+  houseInfoStatus = isOldSearch ? houseInfoStatus : false
   // return
   // const test = $('#test').val()
   // console.log(test)
@@ -317,7 +323,9 @@ async function search(isOldSearch) {
   latestLongitudeNW = longitudeNW
   height = Math.abs(latitudeNW - latitudeSE)
   width = Math.abs(longitudeNW - longitudeSE)
-  const url = `/api/1.0/search?period=${period}&commuteTime=${commuteTime * 60}&commuteWay=${commuteWay}&maxWalkDistance=${maxWalkDistance}&budget=${budget}&officeLat=${officeLat}&officeLng=${officeLng}&houseType=${houseType}&fire=${fire}&shortRent=${shortRent}&directRent=${directRent}&pet=${pet}&newItem=${newItem}&latitudeNW=${latitudeNW}&longitudeNW=${longitudeNW}&latitudeSE=${latitudeSE}&longitudeSE=${longitudeSE}`
+  const url = `/api/1.0/search?period=${period}&commuteTime=${
+    commuteTime * 60
+  }&commuteWay=${commuteWay}&maxWalkDistance=${maxWalkDistance}&budget=${budget}&officeLat=${officeLat}&officeLng=${officeLng}&houseType=${houseType}&fire=${fire}&shortRent=${shortRent}&directRent=${directRent}&pet=${pet}&newItem=${newItem}&latitudeNW=${latitudeNW}&longitudeNW=${longitudeNW}&latitudeSE=${latitudeSE}&longitudeSE=${longitudeSE}`
   // const walk-distance = $("walk-distance").val()
 
   console.log(url)
@@ -331,8 +339,8 @@ async function search(isOldSearch) {
   // await sleep(1)
   // return
   // if (!isOldSearch) {
-    showBlock()
-    $('.spinner').css('display', 'inline')
+  showBlock()
+  $('.spinner').css('display', 'inline')
   // }
   // console.time('api')
   const { data } = await axios.get(url)
@@ -368,7 +376,7 @@ async function search(isOldSearch) {
   // removeLines()
   // removeRadio()
   const currentHouseIdMap = {}
-  houseData.forEach(house => {
+  houseData.forEach((house) => {
     currentHouseIdMap[house.id] = true
     if (!latestHouseIdMap[house.id]) {
       idsToAddMap[house.id] = true
@@ -376,7 +384,7 @@ async function search(isOldSearch) {
   })
 
   if (latestHouseIdMap) {
-    Object.keys(latestHouseIdMap).forEach(latestId => {
+    Object.keys(latestHouseIdMap).forEach((latestId) => {
       if (!currentHouseIdMap[latestId]) {
         idsToRemoveMap[latestId] = true
       }
@@ -396,14 +404,14 @@ async function search(isOldSearch) {
     clearCluster()
   }
   // console.log(456)
-  
+
   selectedHouseId = isOldSearch ? selectedHouseId : null
   // if (latestMarker) {
   //   latestMarker.setZIndex(2)
   //   // selectedHouseId = null
   //   // latestHouseId = selectedHouseId
   //   // selectedHouseId = null
-    // const icon = makeHouseIcon(latestHouseId)
+  // const icon = makeHouseIcon(latestHouseId)
   //   latestMarker.setIcon(icon)
   // }
   // console.log()
@@ -479,7 +487,7 @@ function clearCluster() {
 
 function clearClusterPartly(houseIdMap) {
   console.time('clear cluster partly')
-  Object.keys(houseIdMap).forEach(id => {
+  Object.keys(houseIdMap).forEach((id) => {
     // console.log(id)
     console.log(id)
     markerCluster.removeMarker(markerMap[id])
@@ -566,7 +574,6 @@ function renderHouse(house) {
   //   return
   // }
 
-  
   // console.log('render a house')
   // currentId = id
   if (house.area % 1 !== 0) {
@@ -601,8 +608,6 @@ function renderHouse(house) {
     // label: `${i}`
   })
 
-  
-
   houseInfowindow.addListener('domready', () => {
     var test = $('.test')
     // test.html('test')
@@ -620,7 +625,7 @@ function renderHouse(house) {
     (function (id, marker) {
       return function () {
         renderLifeFunction(id)
-        
+
         // console.log(houseDataMap[id])
         const latestHouseId = selectedHouseId
 
@@ -640,9 +645,6 @@ function renderHouse(house) {
           const icon = makeHouseIcon(latestHouseId)
           latestMarker.setIcon(icon)
         }
-
-        
-        
 
         latestMarker = marker
         const { latitude, longitude } = houseDataMap[id]
@@ -719,11 +721,9 @@ function renderHouse(house) {
         //   .querySelector('.radio')
         //   .setAttribute('style', 'display: inline;')
         // // console.log($('.radio').attr("display"))
-
         // if (!currentLifeFunctionType) {
         //   currentLifeFunctionType = 'traffic'
         // }
-
         // currentHouse = data
         // switch (currentLifeFunctionType) {
         //   case 'traffic':
@@ -772,9 +772,7 @@ async function renderLifeFunction(id) {
   // console.log(id)
   const { data } = await axios.get(`/api/1.0/house/details?id=${id}`)
   console.log(data)
-  document
-    .querySelector('.radio')
-    .setAttribute('style', 'display: inline;')
+  document.querySelector('.radio').setAttribute('style', 'display: inline;')
   // console.log($('.radio').attr("display"))
 
   if (!currentLifeFunctionType) {
@@ -842,7 +840,7 @@ function renderHouses(houses) {
   // new markerClusterer.MarkerClusterer(map, markers)
   const timeBeforeCluster = Date.now()
   // removeHouses()
-  
+
   // console.time('render houses with cluster')
   // console.log(markers.length, 'markers are rendered')
   // if (Object.keys(houseDataMap).length < 100) {
@@ -850,13 +848,13 @@ function renderHouses(houses) {
   // }
   // clearCluster()
   if (!markerCluster || clearClusterAll) {
-    markerCluster = new markerClusterer.MarkerClusterer({ markers, map})
+    markerCluster = new markerClusterer.MarkerClusterer({ markers, map })
     // markerCluster = MarkerClusterer(map, markers, {})
   }
-  
+
   const timeAfterCluster = Date.now()
   // console.timeEnd('render houses with cluster')
-  
+
   // console.log('cluster time', timeAfterCluster - timeBeforeCluster)
   // markerCluster = new markerClusterer.MarkerClusterer({map})
   // markerCluster.addMarkers(markers.filter(marker => {
@@ -903,7 +901,7 @@ async function handleDrag() {
   return
   console.log('enter drag')
   const startTime = Date.now()
-  
+
   // const latitudeNW = map.getBounds().getNorthEast().lat()
   // const longitudeNW = map.getBounds().getNorthEast().lng()
   // const latitudeSE = map.getBounds().getSouthWest().lat()
@@ -972,7 +970,7 @@ async function handleZoomChange() {
   height = Math.abs(latitudeNW - latitudeSE)
   width = Math.abs(longitudeNW - longitudeSE)
   // console.log(123)
-  
+
   const houses = Object.values(houseDataMap)
   console.time('render houses function')
   renderHouses(houses)
@@ -1246,7 +1244,7 @@ async function like() {
     })
     return
   }
-  
+
   likeMap[selectedHouseId] = true
   setLike(selectedHouseId)
   // console.log('here')

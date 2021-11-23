@@ -2,8 +2,14 @@
 
 function getDistanceManuel(position1, position2) {
   return Math.sqrt(
-    (position1.latitude - position2.latitude) * (position1.latitude - position2.latitude) * 111319.5 * 111319.5 +
-      (position1.longitude - position2.longitude) * (position1.longitude - position2.longitude) * 100848.6 * 100848.6
+    (position1.latitude - position2.latitude) *
+      (position1.latitude - position2.latitude) *
+      111319.5 *
+      111319.5 +
+      (position1.longitude - position2.longitude) *
+        (position1.longitude - position2.longitude) *
+        100848.6 *
+        100848.6
   )
 }
 
