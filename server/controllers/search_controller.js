@@ -17,7 +17,8 @@ const {
 const {
   getHousesInConstraint,
   getHousesInRange,
-  getHouseData
+  getHouseData,
+  getPositionData
 } = require('../service/search_service')
 const { makeOfficeToNearbyStopEdges } = require('../service/graph_service')
 // const { getHouseData } = require('../service/house_service')
@@ -78,9 +79,9 @@ const search = async (req, res) => {
   if (pet === 'true') tags.push(tagMap['pet'])
   if (newItem === 'true') tags.push(tagMap['newItem'])
   // console.log(graphs)
-  const g = graphs[commuteWay][period]
 
-  const start = Date.now()
+  const g = graphs[commuteWay][period]
+  // const start = Date.now()
   console.log('receive')
 
   officeLat = Number(officeLat)
@@ -133,46 +134,18 @@ const search = async (req, res) => {
   )
   const timer1 = Date.now()
   console.log((timer1 - timer0) / 1000, 'seconds for Dijkstra')
-  const reachableStationMap = {}
+  // const reachableStationMap = {}
   console.log('reachable stops count:', reachableStations.length)
 
-  reachableStations.forEach((reachableStation) => {
-    const { id, startStationId, timeSpent, walkDistance } = reachableStation
+  const positionData = getPositionData(
+    reachableStations,
+    commuteTime,
+    maxWalkDistance,
+    walkVelocity,
+    distToStopMap,
+    g
+  )
 
-    let distanceLeft = (commuteTime - timeSpent) * walkVelocity - walkDistance
-
-    distanceLeft =
-      distanceLeft + distToStopMap[startStationId] > maxWalkDistance
-        ? maxWalkDistance - distToStopMap[startStationId]
-        : distanceLeft
-    if (distanceLeft < 0) {
-      // return console.log(req.query)
-      return
-    }
-    // office point
-    if (id == '-2') distanceLeft = maxWalkDistance
-    // if (distanceLeft > 390) console.log(distanceLeft)
-    const lat = g.getVertex(id).lat()
-    const lng = g.getVertex(id).lng()
-    if (
-      reachableStationMap[`${lat}-${lng}`] &&
-      distanceLeft < reachableStationMap[`${lat}-${lng}`].distanceLeft
-    ) {
-      return
-    }
-    reachableStationMap[`${lat}-${lng}`] = {
-      stopId: id,
-      lat: g.getVertex(id).lat(),
-      lng: g.getVertex(id).lng(),
-      distanceLeft
-    }
-  })
-
-  const positionData = Object.values(reachableStationMap)
-  const stopRadiusMap = {}
-  positionData.forEach(({ stopId, distanceLeft }) => {
-    stopRadiusMap[stopId] = distanceLeft
-  })
   const houseData = await getHouseData(positionData, budget, houseType, tags)
   // console.log(houseData)
   return res.send({

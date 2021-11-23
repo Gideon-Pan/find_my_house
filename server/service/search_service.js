@@ -106,7 +106,7 @@ async function getHousesInConstraint(budget, houseType, validTags) {
   console.log(houses.length, 'houses satisfy tag filters')
   const timet2 = Date.now()
   if (Redis.client.connected) {
-    // await makeHouseMap()
+    await makeHouseMap()
   }
   // console.log((timet2 - timet1) / 1000, 'seconds for filtering tags')
   return houses
@@ -195,7 +195,49 @@ async function getHouseData(positionData, budget, houseType, tags) {
   return houseData
 }
 
+function getPositionData(
+  reachableStations,
+  commuteTime,
+  maxWalkDistance,
+  walkVelocity,
+  distToStopMap,
+  g
+) {
+  const reachableStationMap = {}
+  reachableStations.forEach((reachableStation) => {
+    const { id, startStationId, timeSpent, walkDistance } = reachableStation
+    let distanceLeft = (commuteTime - timeSpent) * walkVelocity - walkDistance
+    distanceLeft =
+      distanceLeft + distToStopMap[startStationId] > maxWalkDistance
+        ? maxWalkDistance - distToStopMap[startStationId]
+        : distanceLeft
+    if (distanceLeft < 0) {
+      // return console.log(req.query)
+      return
+    }
+    // office point
+    if (id == '-2') distanceLeft = maxWalkDistance
+    // if (distanceLeft > 390) console.log(distanceLeft)
+    const lat = g.getVertex(id).lat()
+    const lng = g.getVertex(id).lng()
+    if (
+      reachableStationMap[`${lat}-${lng}`] &&
+      distanceLeft < reachableStationMap[`${lat}-${lng}`].distanceLeft
+    ) {
+      return
+    }
+    reachableStationMap[`${lat}-${lng}`] = {
+      stopId: id,
+      lat: g.getVertex(id).lat(),
+      lng: g.getVertex(id).lng(),
+      distanceLeft
+    }
+  })
+  return Object.values(reachableStationMap)
+}
+
 module.exports = {
+  getPositionData,
   getHousesInConstraint,
   getHousesInRange,
   getHouseData

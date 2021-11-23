@@ -24,10 +24,11 @@ async function getLifeFunction(id) {
 
   const idMap = {}
   if (result.length === 0) return {}
-  
+
   const lifeFunctionMap = {}
   result.forEach((lifeFunction) => {
-    const {id, name, latitude, longitude, distance, type_name, subtype_name} = lifeFunction
+    const { id, name, latitude, longitude, distance, type_name, subtype_name } =
+      lifeFunction
     if (!lifeFunctionMap[type_name]) {
       lifeFunctionMap[type_name] = {}
     }
@@ -55,7 +56,7 @@ async function getLifeFunction(id) {
       longitude: result[1].house_lng
     },
     like: result[0].like_status ? true : false,
-    lifeFunction: lifeFunctionMap,
+    lifeFunction: lifeFunctionMap
   }
 
   return house
@@ -90,10 +91,10 @@ async function makeHouseStopDistanceMap() {
   const [result1] = await pool.query(q1)
   const q2 = 'SELECT id, latitude, longitude FROM house'
   const [houses] = await pool.query(q2)
-  
+
   console.log('finish fetching houses info')
   const map = {}
-  
+
   // WHERE category.name IN ?
   // , [[['分租套房', '獨立套房', '雅房']]]
   // const [result1] = await pool.query(q1)
@@ -102,7 +103,7 @@ async function makeHouseStopDistanceMap() {
       ON station.id = stop.station_id
       ${process.argv[2] === 'metro' ? 'WHERE type = "metro"' : ''}`
   const [result2] = await pool.query(q2)
-  result2.forEach(data => {
+  result2.forEach((data) => {
     housePositionMap[data.id] = {
       latitude: data.latitude,
       longitude: data.longitude
@@ -110,15 +111,19 @@ async function makeHouseStopDistanceMap() {
   })
   const [result3] = await pool.query(q3)
   const stationStops = {}
-  result3.forEach(data => {
-    if(!stationStops[data.station_id]) {
+  result3.forEach((data) => {
+    if (!stationStops[data.station_id]) {
       stationStops[data.station_id] = []
     }
     stationStops[data.station_id].push(data.ptx_stop_id)
     // console.log(stationStops)
   })
   const time1 = Date.now()
-  console.log('finish fetching stop house distance:', (time1 - time0) / 1000, 'seconds')
+  console.log(
+    'finish fetching stop house distance:',
+    (time1 - time0) / 1000,
+    'seconds'
+  )
   let stopCounter = 0
   let houseCounter = 0
   // console.log(result1.length)
@@ -137,7 +142,7 @@ async function makeHouseStopDistanceMap() {
   //     houseStopDistanceMap[houseIdToNumMap.get(data.house_id)] = []
   //   }
   //   houseStopDistanceMap[houseIdToNumMap.get(data.house_id)][stopIdToNumMap.get(data.stop_id)] = data.distance
-    
+
   //   // {stop_id, house_id, distance}
   //   // if (!map[house_id]){
   //   //   map[house_id] = {}
@@ -145,9 +150,9 @@ async function makeHouseStopDistanceMap() {
   //   // map[house_id][stop_id] = distance
   //   // if (i % 10000 === 0) console.log(i)
   // })
-  let  counter = 0
+  let counter = 0
   result1.forEach((data, i) => {
-    stationStops[data.station_id].forEach(stop_id => {
+    stationStops[data.station_id].forEach((stop_id) => {
       // console.log(data.station_id)
       // console.log(stop_id)
       if (!stopIdToNumMap[stop_id]) {
@@ -164,7 +169,10 @@ async function makeHouseStopDistanceMap() {
         houseStopDistanceMap[houseIdToNumMap[data.house_id]] = []
       }
       // houseStopDistanceMap[houseIdToNumMap.get(data.house_id)][stopIdToNumMap.get(stop_id)] = data.distance
-      houseStopDistanceMap[houseIdToNumMap[data.house_id]].push([stop_id, data.distance])
+      houseStopDistanceMap[houseIdToNumMap[data.house_id]].push([
+        stop_id,
+        data.distance
+      ])
       counter++
     })
     // console.log()
@@ -194,17 +202,21 @@ async function makeHouseStopDistanceMap() {
   //   if (i % 100 === 0) {
   //     console.log(i)
   //   }
-    
+
   // }
   // console.log(map)
   // console.log(housePositionMap)
   const time2 = Date.now()
   // console.log((time2 - time1) / 1000, 'seconds')
   // console.log(houseIdToNumMap)
-  console.log('finish loading stop house distance:', (time2 - time1) / 1000, 'seconds')
+  console.log(
+    'finish loading stop house distance:',
+    (time2 - time1) / 1000,
+    'seconds'
+  )
   // const houseIdToNumMapJSON = JSON.stringify(houseIdToNumMap)
   // console.log(stopIdToNumMap)
-  // Redis.set('houseIdToNumMap', houseIdToNumMapJSON) 
+  // Redis.set('houseIdToNumMap', houseIdToNumMapJSON)
   // const houseStopDistanceMapJSON = JSON.stringify(houseStopDistanceMap)
   // Redis.set('houseStopDistanceMap', houseStopDistanceMapJSON)
   return {
@@ -242,7 +254,7 @@ async function makeHouseStopDistanceMap() {
 //       houseStationDistanceMap[houseIdToNumMap[data.house_id]] = []
 //     }
 //     houseStationDistanceMap[houseIdToNumMap[data.house_id]].push([data.station_id, data.distance])
-    
+
 //   })
 //   // console.log(houseStationDistanceMap)
 //   return {
@@ -264,10 +276,10 @@ async function makeHouseMap() {
       ON tag.id = house_tag.tag_id`
   const [result] = await pool.query(q)
   const houseMap = {}
-  const tags = ['可開伙','可短租','屋主直租','可養寵物','新上架']
+  const tags = ['可開伙', '可短租', '屋主直租', '可養寵物', '新上架']
   // const positionMap = {}
   let counter = 0
-  result.forEach(data => {
+  result.forEach((data) => {
     // if (positionMap[`${data.latitude}-${data.longitude}`] && positionMap[`${data.latitude}-${data.longitude}`] !== data.id) {
     //   // console.log('~~~~~~~~~~~~~')
     //   counter++
@@ -303,7 +315,7 @@ async function makeHouseMap() {
   if (Redis.client.connected) {
     Redis.set('houseMap', JSON.stringify(houseMap))
   }
-  
+
   console.timeEnd('make house map')
   // console.log(counter)
   return houseMap
@@ -315,7 +327,7 @@ async function makeStopStationMap() {
     JOIN station
       ON station.id = stop.station_id`
   const [result] = await pool.query(q)
-  result.forEach(data => {
+  result.forEach((data) => {
     stopStationMap[data.ptx_stop_id] = data.ptx_station_id
   })
   // console.log(stopStationMap)
@@ -328,7 +340,7 @@ async function makeStationStopMap() {
     JOIN station
       ON station.id = stop.station_id`
   const [result] = await pool.query(q)
-  result.forEach(data => {
+  result.forEach((data) => {
     map[data.ptx_station_id] = data.ptx_stop_id
   })
   // console.log(stopStationMap)
@@ -339,7 +351,7 @@ async function makeTagMap() {
   const tagMap = {}
   const q = 'SELECT id, name FROM tag'
   const [result] = await pool.query(q)
-  result.forEach(tag => {
+  result.forEach((tag) => {
     switch (tag.name) {
       case '可開伙':
         tagMap.fire = tag.id
@@ -371,7 +383,7 @@ async function makeTypeMap() {
   const typeMap = {}
   const q = 'SELECT id, name FROM category'
   const [result] = await pool.query(q)
-  result.forEach(type => {
+  result.forEach((type) => {
     switch (type.name) {
       case '獨立套房':
         typeMap['independant-suite'] = type.id
@@ -385,7 +397,6 @@ async function makeTypeMap() {
       default:
         break
     }
-    
   })
   // console.log(typeMap)
   if (Redis.client.connected) {

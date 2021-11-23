@@ -10,8 +10,4 @@ const { search } = require('../controllers/search_controller');
 router.route('/search')
     .get(search);
 
-
-// router.route('/user/profile')
-//     .get(authentication(), wrapAsync(getUserProfile));
-
 module.exports = router;
