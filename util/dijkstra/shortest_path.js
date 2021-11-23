@@ -1,78 +1,53 @@
 const { makeGraph, makeWaitingTimeMap } = require('./make_graph')
 const { PQ } = require('./priority_queue')
 
-// let waitingTimeMaps
-// async function main() {
-//   waitingTimeMaps = await makeWaitingTimeMap(2)
-//   // console.log('h1')
-// }
-// main()
-
-
 function getShortestPath(g, fromId, timeLeft, period, waitingTimeMap) {
-  // console.log(timeLeft)
-  // console.log(waitingTimeMaps)
-  // const waitingTimeMap = waitingTimeMaps[period]
   const ids = g.getAllIds()
   const pq = new PQ()
   const timeTo = {}
   const walkDistance = {}
+
+  // add stops into priority queue
   for (let i = 0; i < ids.length; i++) {
     if (ids[i] === fromId) {
       pq.enqueue(ids[i], 0)
-      // console.log(pq.peek())
       continue
     }
     timeTo[ids[i]] = Number.MAX_SAFE_INTEGER
     pq.enqueue(ids[i], Number.MAX_SAFE_INTEGER)
   }
-  // pq.enqueue('-2', -1)
 
   const edgeTo = {}
   const marked = {}
   timeTo[fromId] = 0
   let counter = 0
   const reachableStationIds = []
+
+  // use Dijkstra's algorithm to get reachable stop id
   while (pq.size() > 0) {
     // console.log(pq.peek())
     const currentId = pq.dequeue().id()
-    // if (currentId === '-2') console.log(g.adj('-2'))
-    // if (pq.size() % 1000 === 0) {
-    //   console.log("current:", timeTo[currentId])
-    //   console.log("time left:", timeLeft)
-    // }
     const waitingTime = waitingTimeMap[currentId] || 0
-    if (timeTo[currentId] > timeLeft ) {
-      // console.log("time to stop:",timeTo[currentId])
-      // console.log("time left", timeLeft)
+    // stop when time exceed time limit
+    if (timeTo[currentId] > timeLeft) {
       break
     }
-    // console.log(timeTo[currentId])
     reachableStationIds.push(currentId)
-    // console.log(timeTo[currentId])
-    // console.log(currentId)
-    // if (currentId == 21022) {
-    //   console.log('!!!')
-    // }
-    // console.log(currentId)
     counter++
-    // if (console.log(timeTo[currentId]))
     marked[currentId] = true
-    // console.log(g.adj)
+
+    // path relaxation
     for (const edge of g.adj(currentId)) {
-      // console.log(edge)
       const neighborId = edge.to()
-      // console.log(neighborId)
       if (marked[neighborId]) continue
 
       const qElement = pq.getElementById(neighborId)
       if (!qElement) {
         continue
       }
-      // console.log(qElement)
-      // relax
+
+      // update the priority of the stop
       if (timeTo[currentId] + edge.time() < qElement.priority()) {
-        // console.log('hee')
         edgeTo[neighborId] = currentId
         timeTo[neighborId] = timeTo[currentId] + edge.time()
         qElement.setPriority(timeTo[currentId] + edge.time())
@@ -81,85 +56,48 @@ function getShortestPath(g, fromId, timeLeft, period, waitingTimeMap) {
       }
     }
   }
-  // R08 G10
 
-  // console.log(reachableStations)
+  // calculate the consuming time from start point to stops
   const reachableStations = []
   for (let reachableStationId of reachableStationIds) {
-    // if (reachableStationId = 'Y15') console.log(timeTo[reachableStationId])
-    // console.log(reachableStationId)
-    // console.log(timeTo[reachableStationId])
     let currentId = reachableStationId
-    let route = [reachableStationId]
+    let path = [reachableStationId]
+    // calculate consumingtime from start point to a stop
     while (edgeTo[currentId]) {
-      route.push(edgeTo[currentId])
-      // console.log
+      // track the path
+      path.push(edgeTo[currentId])
       const edge = g.getEdge(edgeTo[currentId], currentId, period)
-      // console.log('period: ', period);
-      // console.log('currentId: ', currentId);
-      // console.log('edgeTo[currentId]: ', edgeTo[currentId]);
-      // if (edge._distance && edge._distance !== 0) console.log(edge)
-      
       currentId = edgeTo[currentId]
       if (!walkDistance[reachableStationId]) {
         walkDistance[reachableStationId] = 0
       }
-      // console.log(edge)
+      // skip the edge from start points, whose distance may be undefined 
       if (!edge.distance()) {
-        // console.log(edge)
         continue
       }
+      // sum up the walk distance from start point to a stop
       walkDistance[reachableStationId] += edge.distance()
-
-      // console.log(distance)
     }
+
+    // set default waiting time => to be optimized
     const waitingTime = waitingTimeMap[reachableStationId] || 0
+
+    // skip the stop which exceed time limit because of waiting
     if (timeTo[reachableStationId] + waitingTime > timeLeft) {
-      // console.log('waitingTimeMap[reachableStationId]: ', waitingTimeMap[reachableStationId]);
-      // console.log('timeTo[reachableStationId]: ', timeTo[reachableStationId]);
       continue
     }
     reachableStations.push({
       id: reachableStationId,
-      startStationId: route[route.length - 2],
+      startStationId: path[path.length - 2],
       timeSpent: timeTo[reachableStationId] + waitingTime,
       walkDistance: walkDistance[reachableStationId]
     })
-    // if (reachableStationId === '16911') {
-    //   console.log(route)
-    // }
-    // route = route.reverse()
-    // console.log(route[route.length - 2])
   }
-
-  // const id = 'G15'
-  // let currentId =  id
-  // let route = [id]
-
-  // console.log(edgeTo[currentId])
-  // console.log(counter)
-  // console.log(edgeTo[21022])
-  // console.log(Object.keys(edgeTo).length)
-  // while (edgeTo[currentId]) {
-  //   route.push(edgeTo[currentId])
-  //   currentId = edgeTo[currentId]
-  // }
-
-  // // route = route.reverse()
-  // console.log(route[route.length - 2])
-  // if (toId) {
-  //   route.forEach(stationId => {
-  //     console.log(`${stationId} ${g.getVertex(stationId).name()}`)
-  //   })
-  //   console.log(`總搭乘時間: ${timeTo[toId]}`)
-  // }
-  // console.log(timeTo)
-  // console.log(reachableStations)
   return reachableStations
-  // console.log(`行經站數: ${route.length}站`)
-  // console.log(route)
+  // console.log(`行經站數: ${path.length}站`)
 }
 
+// following is for manuel testing
 // id 21022: 丹鳳國小
 // id 142628: 市政府
 async function spById() {
@@ -170,22 +108,6 @@ async function spById() {
   }
   // console.log(g.getIdsByName("板橋"))
   // getShortestPathMetro(g, "BL01", "BL12")
-}
-
-async function spByName() {
-  const g = await makeGraph()
-  if (process.argv[3] && process.argv[4]) {
-    const fromId = g.getIdsByName(process.argv[3])[0]
-    const toId = g.getIdsByName(process.argv[4])[0]
-    return getShortestPathMetro(g, fromId, toId)
-  }
-}
-
-if (process.argv[2] === 'id') {
-  spById()
-}
-if (process.argv[2] === 'name') {
-  spByName()
 }
 
 module.exports = { getShortestPath }

@@ -21,6 +21,7 @@ const {
   getPositionData
 } = require('../service/search_service')
 const { makeOfficeToNearbyStopEdges } = require('../service/graph_service')
+const { getTagMap } = require('../service/house_service')
 // const { getHouseData } = require('../service/house_service')
 
 // const {graphs, walkVelocity} = require('../../util/init')
@@ -71,7 +72,9 @@ const search = async (req, res) => {
   } = req.query
   // console.log(req.query)
   // console.log(budget)
+  
   const tags = []
+  const tagMap = await getTagMap()
   if (fire === 'true') tags.push(tagMap['fire'])
   // if (fire === 'true') console.log(fire)
   if (shortRent === 'true') tags.push(tagMap['shortRent'])

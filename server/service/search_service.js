@@ -6,8 +6,10 @@ const {
   makeHouseMap
 } = require('../models/house_model')
 const { getDistanceSquare } = require('../../util/distance')
+const { getTypeMap } = require('./house_service')
 
 async function getHousesInConstraintWithRedis(budget, validTags, houseTypeId) {
+  // console.log(validTags)
   if (Redis.client.connected && (await Redis.get('houseMap'))) {
     // console.log(houseMapString)
     console.log('caching house map~~~~~')
@@ -25,6 +27,8 @@ async function getHousesInConstraintWithRedis(budget, validTags, houseTypeId) {
       for (let tag of validTags) {
         counter++
         if (!house.tagIds.includes(tag)) {
+          // console.log('tag: ', tag);
+          // console.log('house.tagIds: ', house.tagIds);
           return false
         }
       }
@@ -36,14 +40,8 @@ async function getHousesInConstraintWithRedis(budget, validTags, houseTypeId) {
 }
 
 async function getHousesInConstraint(budget, houseType, validTags) {
-  // console.log('susususususuu')
-  let typeMap
-  // make type map
-  if (Redis.client.connected && (await Redis.get('typeMap'))) {
-    typeMap = JSON.parse(Redis.get('typeMap'))
-  } else {
-    typeMap = await makeTypeMap()
-  }
+  // console.log(validTags)
+  const typeMap = await getTypeMap()
   const houseTypeId = typeMap[houseType]
 
   let houses = await getHousesInConstraintWithRedis(
@@ -53,15 +51,6 @@ async function getHousesInConstraint(budget, houseType, validTags) {
   )
   if (houses) {
     return houses
-  }
-
-  let tagMap
-  if (Redis.client.connected && (await Redis.get('tagMap'))) {
-    // console.log('111111111111111')
-    tagMap = JSON.parse(await Redis.get('tagMap'))
-  } else {
-    // console.log('222222222222222')
-    tagMap = await makeTagMap()
   }
 
   const q = `SELECT house.id, title, price, area, link, image, house.address, house.latitude, house.longitude, category.name AS category, tag.id AS tag FROM house 
@@ -235,6 +224,8 @@ function getPositionData(
   })
   return Object.values(reachableStationMap)
 }
+
+
 
 module.exports = {
   getPositionData,
