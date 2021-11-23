@@ -10,7 +10,7 @@ const { Vertex, Edge } = require('../../util/dijkstra/graph')
 const { getShortestPath } = require('../../util/dijkstra/shortest_path')
 
 const {
-  makeHouseMap, makeTagMap,
+  makeHouseMap, makeTagMap, makeTypeMap,
 } = require('../models/house_model')
 
 // const {graphs, walkVelocity} = require('../../util/init')
@@ -31,6 +31,7 @@ async function main() {
 
   waitingTimeMaps = await makeWaitingTimeMap(2)
   tagMap = await makeTagMap()
+  await makeTypeMap()
   if (Redis.client.connected) {
     // console.log('interesting')
     await makeHouseMap()
@@ -66,11 +67,9 @@ function makeOfficeToNearbyStopEdges(g, startPoint, period, distToStopMap, maxWa
     }
   }
 
-  // console.log(distToStopMap)
   const nearByStationCount = counter - 1
 
   // can't get to any station but itself
-
   const timerNearby = Date.now()
   // console.log((timerNearby - start) / 1000, 'seconds for get nearby station')
   console.log('nearByStationCount: ', nearByStationCount)
@@ -130,6 +129,7 @@ const search = async (req, res) => {
 
   const nearByStationCount = makeOfficeToNearbyStopEdges(g, office, period, distToStopMap, maxWalkDistance)  
 
+  // can't get to any station but itself
   if (nearByStationCount === 0) {
     const positionData = [
       {
@@ -247,22 +247,31 @@ const search = async (req, res) => {
 
 async function getHousesInBudget(budget, houseType, validTags) {
   let houseTypeId
-  switch (houseType) {
-    case 'shared-suite':
-      houseType = '分租套房'
-      houseTypeId = 3
-      break
-    case 'independant-suite':
-      houseType = '獨立套房'
-      houseTypeId = 1
-      break
-    case 'studio':
-      houseType = '雅房'
-      houseTypeId = 5
-      break
-    default:
-      break
+  let typeMap
+  if (Redis.client.connected) {
+    // console.log('hi5151581')
+    typeMapJSON = await Redis.get('hosueTypeMap')
+    typeMap = JSON.parse(typeMapJSON)
+  } else {
+    typeMap = await makeTypeMap()
   }
+  // const houseTypeId = 
+  // switch (houseType) {
+  //   case 'shared-suite':
+  //     houseType = '分租套房'
+  //     houseTypeId = 3
+  //     break
+  //   case 'independant-suite':
+  //     houseType = '獨立套房'
+  //     houseTypeId = 1
+  //     break
+  //   case 'studio':
+  //     houseType = '雅房'
+  //     houseTypeId = 5
+  //     break
+  //   default:
+  //     break
+  // }
 
   if (Redis.client.connected) {
     const houseMapString = await Redis.get('houseMap')

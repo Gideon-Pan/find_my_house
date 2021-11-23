@@ -367,7 +367,19 @@ async function makeTagMap() {
 }
 
 // async function makeHouseIdToNumMap
-
+async function makeTypeMap() {
+  const typeMap = {}
+  const q = 'SELECT id, name FROM category'
+  const [result] = await pool.query(q)
+  result.forEach(type => {
+    typeMap[type.name] = type.id
+  })
+  // console.log(typeMap)
+  if (Redis.client.connected) {
+    Redis.set('houseTypeMap', JSON.stringify(typeMap))
+  }
+  return typeMap
+}
 
 module.exports = {
   getLifeFunction,
@@ -375,5 +387,6 @@ module.exports = {
   // makeHouseStationDistanceMap,
   makeHouseMap,
   makeStopStationMap,
-  makeTagMap
+  makeTagMap,
+  makeTypeMap
 }
