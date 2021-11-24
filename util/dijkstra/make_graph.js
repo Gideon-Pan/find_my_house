@@ -121,26 +121,16 @@ async function addPosition(g, nodeMap) {
   })
 }
 
-// async function makeGraph(type, version) {
-//   const g = new Graph()
-//   // console.log(g)
-//   await makeVertice(g, type)
-//   // console.log(g._vertexMap)
-//   await makeEdges(g, type, version)
-//   // console.log(g._edges.length)
-//   return g
-// }
-
-async function makeGraphs(version) {
-  const graphs = {}
+async function makeGraphMap(version) {
+  const graphMap = {}
   const types = ['bus', 'metro', 'mix']
   const periods = ['weekdaysPeak', 'weekdays', 'weekend']
   const stops = await getStops()
   for (let type of types) {
-    graphs[type] = {}
+    graphMap[type] = {}
     for (let period of periods) {
       const g = new Graph()
-      graphs[type][period] = g
+      graphMap[type][period] = g
       makeVertice(g, stops)
     }
   }
@@ -154,29 +144,29 @@ async function makeGraphs(version) {
     //   console.log(type)
     // }
     // if (type === 'bus') {
-    //   const g = graphs[type][period]
+    //   const g = graphMap[type][period]
     //   g.addEdge(edge)
     // }
     // if (type )
     switch (type) {
       case 'bus':
         // if (type === 'bus') {
-        graphs.bus[period].addEdge(edge)
-        graphs.mix[period].addEdge(edge)
+        graphMap.bus[period].addEdge(edge)
+        graphMap.mix[period].addEdge(edge)
         break
       case 'metro':
-        // g = graphsForMetro
-        graphs.metro[period].addEdge(edge)
-        graphs.mix[period].addEdge(edge)
+        // g = graphMapForMetro
+        graphMap.metro[period].addEdge(edge)
+        graphMap.mix[period].addEdge(edge)
         break
       case 'mix':
-        // g = graphsForMix
-        graphs.mix[period].addEdge(edge)
+        // g = graphMapForMix
+        graphMap.mix[period].addEdge(edge)
         break
       case 'start':
-        graphs.bus[period].addEdge(edge)
-        graphs.metro[period].addEdge(edge)
-        graphs.mix[period].addEdge(edge)
+        graphMap.bus[period].addEdge(edge)
+        graphMap.metro[period].addEdge(edge)
+        graphMap.mix[period].addEdge(edge)
         break
       default:
         console.log(type)
@@ -184,11 +174,10 @@ async function makeGraphs(version) {
         // break
     }
   })
-  return graphs
+  return graphMap
 }
 
 function getType(fromId, toId) {
-  // const busIdMap = await makeBusIdMap()
   if (Number(fromId) === -1) {
     return 'start'
   }
@@ -283,27 +272,19 @@ async function makeWaitingTimeMap(version) {
     AND version = ${version}
     ${process.argv[2] === 'metro' ? 'AND type = "metro"' : ''}
   `
-  // console.log(q)
   const [waitingTimeList] = await db.query(q)
-
-  // console.log(waitingTimeList)
   const waitingTimeMap = {}
   waitingTimeList.forEach(
     ({ to_stop_id, time_period_hour, time_period_minute, time, period }) => {
-      // console.log('123')
       if (!waitingTimeMap[period]) {
         waitingTimeMap[period] = {}
-        // console.log(waitingTimeMap)
       }
       waitingTimeMap[period][idToPtxMap[to_stop_id]] = time
-      // console.log(waitingTimeMap)
     }
   )
-  // console.log(waitingTimeMap)
   return waitingTimeMap
 }
-// makeWaitingTimeMap()
-// makeGraph()
+
 async function makeIdToPtx() {
   const map ={}
   const q = `SELECT id, ptx_stop_id from stop`
@@ -311,15 +292,11 @@ async function makeIdToPtx() {
   data.forEach(({id, ptx_stop_id}) => {
     map[id] = ptx_stop_id
   })
-  // console.log(map)
   return map
 }
 
-// idToPtx()
-
 module.exports = {
-  // makeGraph,
   makeWaitingTimeMap,
-  makeGraphs,
+  makeGraphMap,
   makeIdToPtx
 }

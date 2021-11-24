@@ -1,10 +1,9 @@
 class Vertex {
   constructor(id, name, lat, lng) {
-    this._id = id;
-    this._name = name;
-    this._lat = lat;
-    this._lng = lng;
-    // this.line_id = line_id
+    this._id = id
+    this._name = name
+    this._lat = lat
+    this._lng = lng
   }
   id() {
     return this._id
@@ -56,46 +55,25 @@ class Edge {
 
 class Graph {
   constructor() {
-    // this._vertice = []
-    // this._edges = {}
     this._adjacent = {}
     this._vertexMap = {}
     this._edgeMap = {}
-    // this._nameMap = {}
   }
   addVertex(vertex) {
-    // this._vertice.push(vertex)
     this._adjacent[vertex._id] = []
     this._vertexMap[vertex._id] = vertex
-    // this._edges[vertex._id] = []
-    // if (!this._nameMap[vertex._name]) {
-    //   return this._nameMap[vertex._name] = [vertex._id]
-    // }
-    // this._nameMap[vertex._name].push(vertex._id)
   }
   addEdge(edge) {
-    // console.log(edge)
-    // console.log(this.edges)
-    // console.log(edge)
-    // console.log(edge._fromId)
     try {
       if (this._adjacent[edge._fromId].includes(edge._toId)) {
         return
-      }   
-      // this._edges.push(edge)
-      // console.log(edge._fromId)
-      // console.log(this._adjacent[edge._fromId])
-      
+      }
       this._adjacent[edge._fromId].push(edge)
       this._edgeMap[`${edge._fromId}-${edge._toId}-${edge._period}`] = edge
-      // console.log(edge._fromId)
-    } catch(e) {
+    } catch (e) {
       console.log(e)
-      console.log(edge._fromId)
-
-      process.exit()
+      return
     }
-
   }
   adj(id) {
     return this._adjacent[id]
@@ -107,14 +85,9 @@ class Graph {
     return this._vertexMap[id]
   }
   getEdge(fromId, toId, period) {
-    // console.log(this._edgeMap)
-    // console.log(this._edgeMap[`${fromId}-${toId}`])
-    // console.log(fromId)
     return this._edgeMap[`${fromId}-${toId}-${period}`]
   }
-  // getIdsByName(name) {
-  //   return this._nameMap[name]
-  // }
+
   getAllIds() {
     return Object.keys(this._vertexMap)
   }

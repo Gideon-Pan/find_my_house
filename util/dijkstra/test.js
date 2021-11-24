@@ -33,24 +33,19 @@ async function getTime() {
         return
       }
       distance = distance ? distance : 0
-      // console.log(distance)
-      // console.log(busIdMap[from_stop_id])
       const edge = new Edge(
         busIdMap[from_stop_id],
         busIdMap[to_stop_id],
-        // `${time_period_hour}-${time_period_minute}`,
         period,
         time,
         distance
       )
-      // g.addEdge(edge)
       edges.push(edge)
     }
   )
   console.log('finish fetching data')
   return edges
 }
-
 
 async function main () {
   const q = `SELECT to_stop_id, time, period, version FROM time_between_stop
@@ -65,19 +60,13 @@ WHERE version = 2 AND ptx_stop_id = -1
 
   const [data] = await db.query(q)
   console.log('finish fetching')
-  // console.log(data)
   const map = await makeIdToPtx()
   console.log('22')
   data.forEach(({to_stop_id, time}) => {
-    // console.log(123)
-    
     if (!Number(map[to_stop_id])) {
       console.log('map[to_stop_id]: ', map[to_stop_id]);
       console.log('time: ', time);
-      // console.log()
     } else {
-      // console.log('3q')
     }
   })
 }
-main()

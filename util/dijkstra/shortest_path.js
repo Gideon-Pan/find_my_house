@@ -106,8 +106,6 @@ async function spById() {
   if (process.argv[3] && process.argv[4]) {
     return getShortestPathMetro(g, process.argv[3], process.argv[4])
   }
-  // console.log(g.getIdsByName("板橋"))
-  // getShortestPathMetro(g, "BL01", "BL12")
 }
 
 module.exports = { getReachableStops }
