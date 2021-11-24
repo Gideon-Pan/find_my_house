@@ -43,7 +43,7 @@ async function getHousesInConstraint(budget, houseType, validTags) {
     return houses
   }
 
-  const q = `BottomRightLECT house.id, title, price, area, link, image, house.address, house.latitude, house.longitude, category.name AS category, tag.id AS tag FROM house 
+  const q = `SELECT house.id, title, price, area, link, image, house.address, house.latitude, house.longitude, category.name AS category, tag.id AS tag FROM house 
     JOIN category
       ON house.category_id = category.id
     JOIN house_tag
@@ -57,23 +57,40 @@ async function getHousesInConstraint(budget, houseType, validTags) {
   const [result] = await pool.query(q, [validTags])
 
   const houseMap = {}
-  result.forEach((house) => {
+  result.forEach(house => {
     if (!houseMap[house.id]) {
       houseMap[house.id] = house
       houseMap[house.id].tags = []
-      houseMap[house.id].counter = 0
     }
     houseMap[house.id].tags.push(house.tag)
-    if (validTags.includes(house.tag)) {
-      houseMap[house.id].counter++
+  })
+  houses = Object.values(houseMap)
+  houses.filter(house => {
+    for (let tag of validTags) {
+      if (!house.tags.includes(tag)) {
+        return false
+      }
     }
+    return true
   })
-  console.log(result.length, 'rows from sql')
-  houses = Object.values(houseMap).filter((house) => {
-    return house.counter === validTags.length
-  })
-  console.log('not cacheing house map')
-  // console.log(houses.length, 'houses satisfy tag filters')
+
+  // result.forEach((house) => {
+  //   if (!houseMap[house.id]) {
+  //     houseMap[house.id] = house
+  //     houseMap[house.id].tags = []
+  //     houseMap[house.id].counter = 0
+  //   }
+  //   houseMap[house.id].tags.push(house.tag)
+  //   if (validTags.includes(house.tag)) {
+  //     houseMap[house.id].counter++
+  //   }
+  // })
+  // console.log(result.length, 'rows from sql')
+  // houses = Object.values(houseMap).filter((house) => {
+  //   return house.counter === validTags.length
+  // })
+  // console.log('not cacheing house map')
+  // // console.log(houses.length, 'houses satisfy tag filters')
   if (Redis.client.connected) {
     makeHouseMap()
   }
@@ -115,8 +132,7 @@ function getHousesInBound(
   if (houses.length <= 1000) {
     return houses
   }
-  const housesInBound = houses.filter((house, i) => {
-    console.log(housePositionMap)
+  const housesInBound = houses.filter((house) => {
     if (!housePositionMap[house.id]) {
       return false
     }
@@ -173,9 +189,7 @@ function getPositionData(
       return
     }
     // office point
-    console.log(id)
     if (id == startPointId) distanceLeft = maxWalkDistance
-    // if (distanceLeft > 390) console.log(distanceLeft)
     const lat = graph.getVertex(id).lat()
     const lng = graph.getVertex(id).lng()
     if (

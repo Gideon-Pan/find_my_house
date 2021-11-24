@@ -95,9 +95,7 @@ const search = async (req, res) => {
 
   graph.addVertex(office)
 
-  if (maxWalkDistance > commuteTime * walkVelocity) {
-    maxWalkDistance = commuteTime * walkVelocity
-  }
+  maxWalkDistance = Math.min(maxWalkDistance, commuteTime * walkVelocity)
 
   const distToStopMap = {}
 
