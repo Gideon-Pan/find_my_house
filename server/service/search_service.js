@@ -34,7 +34,7 @@ async function getHousesInConstraintWithRedis(budget, validTags, houseTypeId) {
       }
       return true
     })
-    console.log(counter, 'times for filtering tag')
+    console.log(`computing ${counter} times for filtering tag`)
     return houses
   }
 }
@@ -92,7 +92,7 @@ async function getHousesInConstraint(budget, houseType, validTags) {
     return house.counter === validTags.length
   })
   // console.log('QQQQQ no cache')
-  console.log(houses.length, 'houses satisfy tag filters')
+  // console.log(houses.length, 'houses satisfy tag filters')
   const timet2 = Date.now()
   if (Redis.client.connected) {
     await makeHouseMap()
@@ -175,7 +175,7 @@ async function getHouseData(positionData, budget, houseType, tags) {
   // let houses = await getHousesInBudget(budget, houseType, tags)
   // console.log('~~~~~~~~~~~~~~~~~~`')
   let houses = await getHousesInConstraint(budget, houseType, tags)
-  console.log(houses.length)
+  // console.log(houses.length)
   const houseData = await getHousesInRange(
     positionData,
     houses

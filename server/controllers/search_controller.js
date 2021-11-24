@@ -8,7 +8,7 @@ const {
   makeWaitingTimeMap
 } = require('../../util/dijkstra/make_graph')
 const { Vertex, Edge } = require('../../util/dijkstra/graph')
-const { getShortestPath } = require('../../util/dijkstra/shortest_path')
+const { getShortestPath, getReachableStops } = require('../../util/dijkstra/shortest_path')
 const {
   makeHouseMap,
   makeTagMap,
@@ -62,7 +62,8 @@ init()
 // main()
 
 const search = async (req, res) => {
-  console.log(graphs)
+  console.time('total time')
+  // console.log(graphs)
   let {
     commuteTime,
     officeLat,
@@ -112,6 +113,7 @@ const search = async (req, res) => {
 
   const distToStopMap = {}
 
+  console.time('make nearby stop edge')
   const nearByStationCount = makeOfficeToNearbyStopEdges(
     g,
     office,
@@ -119,6 +121,7 @@ const search = async (req, res) => {
     distToStopMap,
     maxWalkDistance
   )
+  console.timeEnd('make nearby stop edge')
 
   // can't get to any station but itself
   if (nearByStationCount === 0) {
@@ -140,18 +143,21 @@ const search = async (req, res) => {
   // const counter = {}
   const timer0 = Date.now()
   const waitingTimeMap = waitingTimeMaps[period]
-  const reachableStations = getShortestPath(
+  console.time('Dijkstra')
+  const reachableStations = getReachableStops(
     g,
     '-2',
     commuteTime,
     period,
     waitingTimeMap
   )
+  console.timeEnd('Dijkstra')
   const timer1 = Date.now()
-  console.log((timer1 - timer0) / 1000, 'seconds for Dijkstra')
+  // console.log((timer1 - timer0) / 1000, 'seconds for Dijkstra')
   // const reachableStationMap = {}
   console.log('reachable stops count:', reachableStations.length)
 
+  console.time('get position data')
   const positionData = getPositionData(
     reachableStations,
     commuteTime,
@@ -160,9 +166,12 @@ const search = async (req, res) => {
     distToStopMap,
     g
   )
-
+  console.timeEnd('get position data')
+  console.time('get house data')
   const houseData = await getHouseData(positionData, budget, houseType, tags)
   // console.log(houseData)
+  console.timeEnd('get house data')
+  console.timeEnd('total time')
   return res.send({
     positionData,
     houseData,

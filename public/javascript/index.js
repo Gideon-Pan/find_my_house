@@ -202,8 +202,8 @@ function initMap() {
     if (markerCluster) {
       markerCluster.clearMarkers()
     }
-    google.maps.event.clearListeners(map, 'zoom_changed', handleZoomChange)
-    google.maps.event.clearListeners(map, 'dragend', handleDrag)
+    // google.maps.event.clearListeners(map, 'zoom_changed', handleZoomChange)
+    // google.maps.event.clearListeners(map, 'dragend', handleDrag)
   })
 
   officeMarker.addListener('dragend', (mapsMouseEvent) => {
@@ -825,10 +825,10 @@ function renderHouses(houses) {
       renderHouse(house)
     }
   })
-  google.maps.event.clearListeners(map, 'zoom_changed', handleZoomChange)
-  google.maps.event.clearListeners(map, 'dragend', handleDrag)
-  google.maps.event.addListener(map, 'zoom_changed', handleZoomChange)
-  google.maps.event.addListener(map, 'dragend', handleDrag)
+  // google.maps.event.clearListeners(map, 'zoom_changed', handleZoomChange)
+  // google.maps.event.clearListeners(map, 'dragend', handleDrag)
+  // google.maps.event.addListener(map, 'zoom_changed', handleZoomChange)
+  // google.maps.event.addListener(map, 'dragend', handleDrag)
   console.timeEnd('inside render houses function')
   // console.log(otherTime, 'ms for rendering house markers')
   // console.log(inBoundTime, 'ms for checking in bound')

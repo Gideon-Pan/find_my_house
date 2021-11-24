@@ -24,7 +24,7 @@ async function rateLimiter(req, res, next) {
 
   // rate limiter
   const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress || null
-  console.log(ip)
+//   console.log(ip)
   const counter = await Redis.get(`counter-${ip}`)
 
   if (counter >= N) {

@@ -1,7 +1,7 @@
 const { makeGraph, makeWaitingTimeMap } = require('./make_graph')
 const { PQ } = require('./priority_queue')
 
-function getShortestPath(g, fromId, timeLeft, period, waitingTimeMap) {
+function getReachableStops(g, fromId, timeLeft, period, waitingTimeMap) {
   const ids = g.getAllIds()
   const pq = new PQ()
   const timeTo = {}
@@ -110,4 +110,4 @@ async function spById() {
   // getShortestPathMetro(g, "BL01", "BL12")
 }
 
-module.exports = { getShortestPath }
+module.exports = { getReachableStops }
