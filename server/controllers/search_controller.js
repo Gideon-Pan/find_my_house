@@ -5,7 +5,8 @@ const db = require('../models/db/mysql')
 const { getDistance, getDistanceSquare } = require('../../util/distance')
 const {
   makeGraphs,
-  makeWaitingTimeMap
+  makeWaitingTimeMap,
+  makeGraphMap
 } = require('../../util/dijkstra/make_graph')
 const { Vertex, Edge } = require('../../util/dijkstra/graph')
 const { getShortestPath, getReachableStops } = require('../../util/dijkstra/shortest_path')
@@ -28,23 +29,15 @@ const { getTagMap } = require('../service/house_service')
 // const {graphs, walkVelocity} = require('../../util/init')
 let waitingTimeMaps
 const walkVelocity = 1.25 / 1.414
-let graphs
+let graphMap
 async function init() {
-  const time0_0 = Date.now()
-  graphs = await makeGraphs(2)
-  console.log('finish making graph step 0')
-  const time0_1 = Date.now()
-  console.log(
-    'finish making graph:',
-    Math.floor(time0_1 - time0_0) / 1000,
-    'seconds'
-  )
-
+  console.time('make graph map')
+  graphMap = await makeGraphMap(2)
+  console.timeEnd('make graph map')
   waitingTimeMaps = await makeWaitingTimeMap(2)
-  await makeTagMap()
-  await makeTypeMap()
   if (Redis.client.connected) {
-    // console.log('interesting')
+    await makeTagMap()
+    await makeTypeMap()
     await makeHouseMap()
   }
 }
@@ -63,7 +56,6 @@ init()
 
 const search = async (req, res) => {
   console.time('total time')
-  // console.log(graphs)
   let {
     commuteTime,
     officeLat,
@@ -83,21 +75,16 @@ const search = async (req, res) => {
     latitudeSE,
     longitudeSE
   } = req.query
-  // console.log(req.query)
-  // console.log(budget)
   
   const tags = []
   const tagMap = await getTagMap()
   if (fire === 'true') tags.push(tagMap['fire'])
-  // if (fire === 'true') console.log(fire)
   if (shortRent === 'true') tags.push(tagMap['shortRent'])
   if (directRent === 'true') tags.push(tagMap['directRent'])
   if (pet === 'true') tags.push(tagMap['pet'])
   if (newItem === 'true') tags.push(tagMap['newItem'])
-  // console.log(graphs)
 
-  const g = graphs[commuteWay][period]
-  // const start = Date.now()
+  const graph = graphMap[commuteWay][period]
   console.log('receive')
 
   officeLat = Number(officeLat)
@@ -105,7 +92,7 @@ const search = async (req, res) => {
   maxWalkDistance = Number(maxWalkDistance)
   const office = new Vertex('-2', 'startPoint', officeLat, officeLng)
 
-  g.addVertex(office)
+  graph.addVertex(office)
 
   if (maxWalkDistance > commuteTime * walkVelocity) {
     maxWalkDistance = commuteTime * walkVelocity
@@ -115,7 +102,7 @@ const search = async (req, res) => {
 
   console.time('make nearby stop edge')
   const nearByStationCount = makeOfficeToNearbyStopEdges(
-    g,
+    graph,
     office,
     period,
     distToStopMap,
@@ -145,7 +132,7 @@ const search = async (req, res) => {
   const waitingTimeMap = waitingTimeMaps[period]
   console.time('Dijkstra')
   const reachableStations = getReachableStops(
-    g,
+    graph,
     '-2',
     commuteTime,
     period,
@@ -164,7 +151,7 @@ const search = async (req, res) => {
     maxWalkDistance,
     walkVelocity,
     distToStopMap,
-    g
+    graph
   )
   console.timeEnd('get position data')
   console.time('get house data')
