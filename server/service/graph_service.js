@@ -9,6 +9,7 @@ const pool = require('../models/db/mysql')
 const { Vertex, Edge } = require('../../util/dijkstra/graph')
 
 const walkVelocity = 1.25 / 1.414
+const startPointId = '0'
 
 function makeOfficeToNearbyStopEdges(
   g,
@@ -31,7 +32,7 @@ function makeOfficeToNearbyStopEdges(
 
     if (distToStation < maxWalkDistance) {
       const edge = new Edge(
-        '-2',
+        startPointId,
         id,
         period,
         // distToStation / walkVelocity + waitingTime

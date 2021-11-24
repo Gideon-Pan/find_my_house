@@ -53,6 +53,7 @@ init()
 //   graphs = await makeGraphs(2)
 // }
 // main()
+const startPointId = '0'
 
 const search = async (req, res) => {
   console.time('total time')
@@ -90,7 +91,7 @@ const search = async (req, res) => {
   officeLat = Number(officeLat)
   officeLng = Number(officeLng)
   maxWalkDistance = Number(maxWalkDistance)
-  const office = new Vertex('-2', 'startPoint', officeLat, officeLng)
+  const office = new Vertex(startPointId, 'startPoint', officeLat, officeLng)
 
   graph.addVertex(office)
 
@@ -114,7 +115,7 @@ const search = async (req, res) => {
   if (nearByStationCount === 0) {
     const positionData = [
       {
-        stopId: '-2',
+        stopId: startPointId,
         lat: officeLat,
         lng: officeLng,
         distanceLeft: maxWalkDistance
@@ -133,7 +134,7 @@ const search = async (req, res) => {
   console.time('Dijkstra')
   const reachableStations = getReachableStops(
     graph,
-    '-2',
+    startPointId,
     commuteTime,
     period,
     waitingTimeMap

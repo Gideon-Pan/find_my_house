@@ -1,34 +1,26 @@
 const Redis = require('../../util/redis')
 const pool = require('../models/db/mysql')
-const {
-  makeTypeMap,
-  makeTagMap,
-  makeHouseMap
-} = require('../models/house_model')
+const { makeHouseMap } = require('../models/house_model')
 const { getDistanceSquare } = require('../../util/distance')
 const { getTypeMap } = require('./house_service')
+const { isInBox } = require('../../util/util')
 
+const startPointId = '0'
 async function getHousesInConstraintWithRedis(budget, validTags, houseTypeId) {
-  // console.log(validTags)
   if (Redis.client.connected && (await Redis.get('houseMap'))) {
-    // console.log(houseMapString)
-    console.log('caching house map~~~~~')
+    console.log('caching house map')
     const houseMapCache = JSON.parse(await Redis.get('houseMap'))
-    // console.log(Object.keys(houseMapCache).length, 'length of houseMap')
     let counter = 0
     const houses = Object.values(houseMapCache).filter((house) => {
       if (houseTypeId && houseTypeId !== house.categoryId) {
         return false
       }
-      // console.log(house)
       if (house.price > budget) {
         return false
       }
       for (let tag of validTags) {
         counter++
         if (!house.tagIds.includes(tag)) {
-          // console.log('tag: ', tag);
-          // console.log('house.tagIds: ', house.tagIds);
           return false
         }
       }
@@ -40,10 +32,8 @@ async function getHousesInConstraintWithRedis(budget, validTags, houseTypeId) {
 }
 
 async function getHousesInConstraint(budget, houseType, validTags) {
-  // console.log(validTags)
   const typeMap = await getTypeMap()
   const houseTypeId = typeMap[houseType]
-
   let houses = await getHousesInConstraintWithRedis(
     budget,
     validTags,
@@ -53,7 +43,7 @@ async function getHousesInConstraint(budget, houseType, validTags) {
     return houses
   }
 
-  const q = `SELECT house.id, title, price, area, link, image, house.address, house.latitude, house.longitude, category.name AS category, tag.id AS tag FROM house 
+  const q = `BottomRightLECT house.id, title, price, area, link, image, house.address, house.latitude, house.longitude, category.name AS category, tag.id AS tag FROM house 
     JOIN category
       ON house.category_id = category.id
     JOIN house_tag
@@ -64,24 +54,15 @@ async function getHousesInConstraint(budget, houseType, validTags) {
       ${validTags.length !== 0 ? 'AND tag.id IN  (?)' : ''}
       ${houseType ? `AND category.id = '${houseTypeId}'` : ''}
   `
-  //
-
-  // console.log(db)
   const [result] = await pool.query(q, [validTags])
-  // console.log(result.length)
 
   const houseMap = {}
-  // const validTags =
-  const timet1 = Date.now()
   result.forEach((house) => {
-    // if (!validTags.includes(house.tag)) return
-    // if (house.tag in )
     if (!houseMap[house.id]) {
       houseMap[house.id] = house
       houseMap[house.id].tags = []
       houseMap[house.id].counter = 0
     }
-    // console.log(house.tag)
     houseMap[house.id].tags.push(house.tag)
     if (validTags.includes(house.tag)) {
       houseMap[house.id].counter++
@@ -91,13 +72,11 @@ async function getHousesInConstraint(budget, houseType, validTags) {
   houses = Object.values(houseMap).filter((house) => {
     return house.counter === validTags.length
   })
-  // console.log('QQQQQ no cache')
+  console.log('not cacheing house map')
   // console.log(houses.length, 'houses satisfy tag filters')
-  const timet2 = Date.now()
   if (Redis.client.connected) {
-    await makeHouseMap()
+    makeHouseMap()
   }
-  // console.log((timet2 - timet1) / 1000, 'seconds for filtering tags')
   return houses
 }
 
@@ -122,49 +101,42 @@ async function getHousesInRange(positionData, houses) {
     }
     return false
   })
-  // console.log('hahahahh')
   console.log(`computing ${counter} times for get house in range`)
   return houseData
 }
 
 function getHousesInBound(
   houses,
-  latitudeNW,
-  latitudeSE,
-  longitudeNW,
-  longitudeSE
+  latitudeTopLeft,
+  latitudeBottomRight,
+  longitudeTopLeft,
+  longitudeBottomRight
 ) {
   if (houses.length <= 1000) {
     return houses
   }
-  console.log('latitudeNW: ', latitudeNW)
-  console.log(' latitudeSE: ', latitudeSE)
-  console.log('longitudeNW: ', longitudeNW)
-  console.log('longitudeSE: ', longitudeSE)
-  const houseInBound = houses.filter((house, i) => {
+  const housesInBound = houses.filter((house, i) => {
     console.log(housePositionMap)
     if (!housePositionMap[house.id]) {
-      return
+      return false
     }
     const houseLat = housePositionMap[house.id].latitude
-
     const houseLon = housePositionMap[house.id].longitude
-    if (i === 0) {
-      console.log('houseLat: ', houseLat)
-      console.log('houseLon: ', houseLon)
-    }
-
     if (
-      houseLat < latitudeNW &&
-      houseLat > latitudeSE &&
-      houseLon > longitudeSE &&
-      houseLon < longitudeNW
+      !isInBox(
+        houseLat,
+        houseLon,
+        latitudeTopLeft,
+        latitudeBottomRight,
+        longitudeTopLeft,
+        longitudeBottomRight
+      )
     ) {
-      return true
+      return false
     }
-    return false
+    return true
   })
-  return houseInBound
+  return housesInBound
 }
 
 async function getHouseData(positionData, budget, houseType, tags) {
@@ -172,14 +144,10 @@ async function getHouseData(positionData, budget, houseType, tags) {
   positionData.forEach(({ stopId, distanceLeft }) => {
     stopRadiusMap[stopId] = distanceLeft
   })
-  // let houses = await getHousesInBudget(budget, houseType, tags)
-  // console.log('~~~~~~~~~~~~~~~~~~`')
   let houses = await getHousesInConstraint(budget, houseType, tags)
-  // console.log(houses.length)
   const houseData = await getHousesInRange(
     positionData,
     houses
-    // stopRadiusMap
   )
   return houseData
 }
@@ -190,8 +158,9 @@ function getPositionData(
   maxWalkDistance,
   walkVelocity,
   distToStopMap,
-  g
+  graph
 ) {
+  // const startPointVertex = new Vertex(startPointId, 'startPoint', officeLat, officeLng)
   const reachableStationMap = {}
   reachableStations.forEach((reachableStation) => {
     const { id, startStationId, timeSpent, walkDistance } = reachableStation
@@ -201,14 +170,14 @@ function getPositionData(
         ? maxWalkDistance - distToStopMap[startStationId]
         : distanceLeft
     if (distanceLeft < 0) {
-      // return console.log(req.query)
       return
     }
     // office point
-    if (id == '-2') distanceLeft = maxWalkDistance
+    console.log(id)
+    if (id == startPointId) distanceLeft = maxWalkDistance
     // if (distanceLeft > 390) console.log(distanceLeft)
-    const lat = g.getVertex(id).lat()
-    const lng = g.getVertex(id).lng()
+    const lat = graph.getVertex(id).lat()
+    const lng = graph.getVertex(id).lng()
     if (
       reachableStationMap[`${lat}-${lng}`] &&
       distanceLeft < reachableStationMap[`${lat}-${lng}`].distanceLeft
@@ -217,15 +186,13 @@ function getPositionData(
     }
     reachableStationMap[`${lat}-${lng}`] = {
       stopId: id,
-      lat: g.getVertex(id).lat(),
-      lng: g.getVertex(id).lng(),
+      lat: graph.getVertex(id).lat(),
+      lng: graph.getVertex(id).lng(),
       distanceLeft
     }
   })
   return Object.values(reachableStationMap)
 }
-
-
 
 module.exports = {
   getPositionData,

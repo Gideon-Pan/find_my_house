@@ -1,6 +1,7 @@
 const { makeGraph, makeWaitingTimeMap } = require('./make_graph')
 const { PQ } = require('./priority_queue')
 
+// const startPointId = '0'
 function getReachableStops(g, fromId, timeLeft, period, waitingTimeMap) {
   const ids = g.getAllIds()
   const pq = new PQ()
