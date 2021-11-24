@@ -1362,8 +1362,13 @@ async function getLikes() {
     })
     // console.log(likeMap)
     // console.log('successfully like')
+    $('.sign').html('<div onclick="signout()">登出</div>')
   } catch (e) {
     console.log(e)
+    console.log('not authenticated')
+    $('.sign').html('<a href="/signin.html">登入</div>')
+    $('.like').css('display', 'none')
+    $('.avator').css('display', 'none')
     console.log('fail')
   }
 }
@@ -1421,7 +1426,7 @@ async function main() {
   // $('.loading').css('visibility', 'hidden')
   // $('.loading').css('visibility', 'inherit')
   // $('.loading').css('display', 'absolute')
-  await init()
+  // await init()
   await getLikes()
   $('body').css('display', 'inline')
 }

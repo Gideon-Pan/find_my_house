@@ -131,24 +131,7 @@ const signIn = async (req, res) => {
   })
 }
 
-const getUserProfile = async (req, res) => {
-  res.status(200).send({
-    data: {
-      provider: req.user.provider,
-      name: req.user.name,
-      email: req.user.email,
-      picture: req.user.picture
-    }
-  })
-  return
-}
-
 async function like(req, res) {
-  // console.log('get it')
-  // console.log(req.user.id)
-  // console.log(req.body.houseId)
-  // console.log(req)
-  // res.send('hi')
   try {
     await User.like(req.user.id, req.body.houseId)
 		res.send('success')
@@ -199,7 +182,6 @@ async function getFavorite(req, res) {
 module.exports = {
   signUp,
   signIn,
-  getUserProfile,
   like,
 	dislike,
 	getLikes,

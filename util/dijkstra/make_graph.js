@@ -2,28 +2,6 @@ const { Vertex, Edge, Graph } = require('./graph')
 const db = require('../../server/models/db/mysql')
 const process = require('process'); 
 
-async function makeVerticeOld(g, type) {
-  let condition
-  if (type === 'mix') {
-    condition = ''
-  } else {
-    condition = `WHERE type = '${type}'`
-  }
-  const q = `SELECT ptx_stop_id, name, type, latitude, longitude FROM stop
-    JOIN station
-      ON stop.station_id = station.id
-      ${condition}`
-  const [stops] = await db.query(q)
-  // if (type === 'mix')  console.log(stops)
-
-  stops.forEach((stop) => {
-    const { ptx_stop_id, name, type, latitude, longitude } = stop
-    const vertex = new Vertex(ptx_stop_id, name, latitude, longitude)
-    g.addVertex(vertex)
-  })
-  // console.log(g._vertexMap)
-}
-
 async function makeBusIdMap() {
   const map = {}
   const q = `SELECT id, ptx_stop_id FROM stop`
@@ -34,92 +12,6 @@ async function makeBusIdMap() {
   // console.log(map)
   return map
 }
-// makeBusIdMap()
-// makeVertice()
-
-async function makeEdgesOld(g, type, period, version) {
-  // console.log(g)
-  let condition
-  if (type === 'mix') {
-    condition = `WHERE from_stop_id IS NOT NULL
-      AND to_stop_id IS NOT NULL
-      AND time IS NOT NULL
-      AND version = ${version}
-    `
-  } else {
-    condition = `WHERE from_stop_id IS NOT NULL
-      AND to_stop_id IS NOT NULL
-      AND time IS NOT NULL
-      AND type='${type}'
-      AND version = ${version}
-    `
-  }
-
-  const busIdMap = await makeBusIdMap()
-  const q = `SELECT from_stop_id, to_stop_id, time_period_hour, time_period_minute, period, time, distance FROM time_between_stop
-    JOIN time_period
-      ON time_between_stop.time_period_id = time_period.id
-    JOIN stop
-      ON stop.id = from_stop_id
-    JOIN station
-      ON station.id = stop.station_id
-    ${condition}
-    `
-  const [data] = await db.query(q)
-  data.forEach(
-    ({
-      from_stop_id,
-      to_stop_id,
-      // time_period_hour,
-      // time_period_minute,
-      period,
-      time,
-      distance
-    }) => {
-      if (!busIdMap[from_stop_id]) {
-        console.log(from_stop_id)
-        return
-      }
-      distance = distance ? distance : 0
-      // console.log(distance)
-      const edge = new Edge(
-        busIdMap[from_stop_id],
-        busIdMap[to_stop_id],
-        // `${time_period_hour}-${time_period_minute}`,
-        period,
-        time,
-        distance
-      )
-      g.addEdge(edge)
-    }
-  )
-}
-
-// makeEdges()
-
-async function addTransfer(g, nodeMap) {
-  const data = await getData('./metro_transfer.json')
-  data.forEach((transfer) => {
-    const edge = new Edge(
-      nodeMap[transfer.FromStationID],
-      nodeMap[transfer.ToStationID],
-      transfer.TransferTime * 60
-    )
-    // console.log(edge)
-    g.addEdge(edge)
-  })
-}
-
-async function addPosition(g, nodeMap) {
-  const stations = await getPtxData(
-    'https://ptx.transportdata.tw/MOTC/v2/Rail/Metro/Station/TRTC?$top=3000&$format=JSON'
-  )
-  stations.forEach((station) => {
-    const { PositionLon, PositionLat } = station.StationPosition
-    nodeMap[station.StationID].addLat(PositionLat)
-    nodeMap[station.StationID].addLng(PositionLon)
-  })
-}
 
 async function makeGraphMap(version) {
   const graphMap = {}
@@ -129,9 +21,9 @@ async function makeGraphMap(version) {
   for (let type of types) {
     graphMap[type] = {}
     for (let period of periods) {
-      const g = new Graph()
-      graphMap[type][period] = g
-      makeVertice(g, stops)
+      const graph = new Graph()
+      graphMap[type][period] = graph
+      makeVertice(graph, stops)
     }
   }
   const edges = await makeEdges(version)
@@ -203,11 +95,11 @@ async function getStops() {
   return stops
 }
 
-async function makeVertice(g, stops) {
+async function makeVertice(graph, stops) {
   stops.forEach((stop) => {
     const { ptx_stop_id, name, type, latitude, longitude } = stop
     const vertex = new Vertex(ptx_stop_id, name, latitude, longitude)
-    g.addVertex(vertex)
+    graph.addVertex(vertex)
   })
 }
 
