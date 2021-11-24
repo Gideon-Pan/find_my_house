@@ -1093,11 +1093,11 @@ function removeRadio() {
 }
 
 async function init() {
-  const access_token = window.localStorage.getItem('access_token')
+  const accessToken = window.localStorage.getItem('accessToken')
   try {
     const { data } = await axios.get('/api/1.0/user/checkAuth', {
       headers: {
-        Authorization: `Bearer ${access_token}`
+        Authorization: `Bearer ${accessToken}`
       }
     })
     // console.log('authenticated')
@@ -1112,7 +1112,7 @@ async function init() {
 }
 
 async function signout() {
-  window.localStorage.removeItem('access_token')
+  window.localStorage.removeItem('accessToken')
   await Swal.fire({
     title: '登出成功',
     heightAuto: false
@@ -1226,8 +1226,8 @@ function getFood() {
 }
 
 async function like() {
-  const access_token = window.localStorage.getItem('access_token')
-  if (!access_token) {
+  const accessToken = window.localStorage.getItem('accessToken')
+  if (!accessToken) {
     console.log(123)
     Swal.fire({
       title: '加入收藏前請先登入',
@@ -1248,7 +1248,7 @@ async function like() {
   likeMap[selectedHouseId] = true
   setLike(selectedHouseId)
   // console.log('here')
-  // console.log(access_token)
+  // console.log(accessToken)
   console.log(selectedHouseId)
   try {
     const { data } = await axios.post(
@@ -1258,7 +1258,7 @@ async function like() {
       },
       {
         headers: {
-          Authorization: `Bearer ${access_token}`
+          Authorization: `Bearer ${accessToken}`
         }
       }
     )
@@ -1288,8 +1288,8 @@ async function like() {
 }
 
 async function dislike() {
-  const access_token = window.localStorage.getItem('access_token')
-  if (!access_token) {
+  const accessToken = window.localStorage.getItem('accessToken')
+  if (!accessToken) {
     Swal.fire({
       title: '移除收藏前請先登入',
       // showDenyButton: true,
@@ -1308,7 +1308,7 @@ async function dislike() {
   likeMap[selectedHouseId] = false
   setDislike(selectedHouseId)
   // console.log('here')
-  // console.log(access_token)
+  // console.log(accessToken)
   console.log(selectedHouseId)
   try {
     const { data } = await axios.delete('/api/1.0/user/like', {
@@ -1316,7 +1316,7 @@ async function dislike() {
         houseId: selectedHouseId
       },
       headers: {
-        Authorization: `Bearer ${access_token}`
+        Authorization: `Bearer ${accessToken}`
       }
     })
     // likeMap[selectedHouseId] = false
@@ -1345,14 +1345,15 @@ async function dislike() {
 }
 
 async function getLikes() {
-  const access_token = window.localStorage.getItem('access_token')
+  const accessToken = window.localStorage.getItem('accessToken')
   // console.log('here')
-  // console.log(access_token)
+  // console.log(accessToken)
   // console.log(selectedHouseId)
+  // console.log(accessToken)
   try {
     const { data } = await axios.get('/api/1.0/user/like', {
       headers: {
-        Authorization: `Bearer ${access_token}`
+        Authorization: `Bearer ${accessToken}`
       }
     })
     // console.log('....')

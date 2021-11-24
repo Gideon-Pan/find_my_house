@@ -9,7 +9,7 @@ async function signUp(email, password, name) {
   }
   console.log(requestBody)
   const response = await axios.post('/api/1.0/user/signup', requestBody).catch(async (error) => {
-    // console.log(error.response.data)
+    console.log(error.response.data)
     if (error.response.data.error === 'Request Error: Invalid email format') {
       await Swal.fire({
         title: '信箱格式錯誤',
@@ -73,11 +73,17 @@ $('button').on('click', async (e) => {
     // if (!name || !email || !password) return
     // console.log(password)
     const { data } = await signUp(email, password, name)
-    // console.log(data.data.access_token)
-    window.localStorage.setItem('access_token', data.data.access_token)
+    console.log(data)
+    // console.log(data.data.accessToken)
+    window.localStorage.setItem('accessToken', data.data.accessToken)
     console.log(data)
     location.href = '/'
-  } catch {
+  } catch(e) {
+    console.log(e)
+    // await Swal.fire({
+    //   title: '請輸入信箱',
+    //   heightAuto: false
+    // })
     console.log('signup fail')
     // alert('註冊失敗')
     // console.log('email has been used')

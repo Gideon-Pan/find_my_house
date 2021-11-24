@@ -18,16 +18,16 @@ let switchState = 0
 let activeIndex = 0
 
 async function getFavorite() {
-  const access_token = window.localStorage.getItem('access_token')
+  const accessToken = window.localStorage.getItem('accessToken')
   // console.log('here')
-  // console.log(access_token)
+  // console.log(accessToken)
   // console.log(selectedHouseId)
   try {
     const { data } = await axios.get(
       '/api/1.0/user/favorite',
       {
         headers: {
-          Authorization: `Bearer ${access_token}`
+          Authorization: `Bearer ${accessToken}`
         }
       }
     )
@@ -53,7 +53,7 @@ async function getFavorite() {
 }
 
 async function signout() {
-  window.localStorage.removeItem('access_token')
+  window.localStorage.removeItem('accessToken')
   await Swal.fire({
     title: '登出成功',
     heightAuto: false
@@ -211,9 +211,9 @@ async function dislike(event) {
   const id = Number(event.target.id.split('-')[0])
   // console.log(id)
   // console.log('213123213')
-  const access_token = window.localStorage.getItem('access_token')
+  const accessToken = window.localStorage.getItem('accessToken')
   // console.log('here')
-  // console.log(access_token)
+  // console.log(accessToken)
   // console.log(selectedHouseId)
   try {
     const { data } = await axios.delete('/api/1.0/user/like', {
@@ -221,7 +221,7 @@ async function dislike(event) {
         houseId: id
       },
       headers: {
-        Authorization: `Bearer ${access_token}`
+        Authorization: `Bearer ${accessToken}`
       }
     })
     // likeMap[selectedHouseId] = false

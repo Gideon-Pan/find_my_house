@@ -60,25 +60,20 @@ const authentication = (roleId) => {
     try {
       // console.log('*')
       // console.log(roleId)
+      // console.log(accessToken)
       const user = jwt.verify(accessToken, TOKEN_SECRET)
       // console.log('#')
+      // console.log(user)
       req.user = user
-      if (roleId == null) {
-        next()
+
+      let userDetail
+      userDetail = await User.getUserDetail(user.email)
+      // console.log(userDetail)
+      if (!userDetail) {
+        res.status(403).send({ error: 'Forbidden' })
       } else {
-        let userDetail
-        // if (roleId == User.USER_ROLE.ALL) {
-        userDetail = await User.getUserDetail(user.email)
-        // } else {
-        // userDetail = await User.getUserDetail(user.email, roleId);
-        // }
-        if (!userDetail) {
-          res.status(403).send({ error: 'Forbidden' })
-        } else {
-          req.user.id = userDetail.id
-          req.user.role_id = userDetail.role_id
-          next()
-        }
+        req.user.id = userDetail.id
+        next()
       }
       return
     } catch (err) {
@@ -89,7 +84,14 @@ const authentication = (roleId) => {
   }
 }
 
-function isInBox(latitude, longitude, latitudeTopLeft, latitudeBottomRight, longitudeTopLeft, longitudeBottomRight) {
+function isInBox(
+  latitude,
+  longitude,
+  latitudeTopLeft,
+  latitudeBottomRight,
+  longitudeTopLeft,
+  longitudeBottomRight
+) {
   return (
     latitude < latitudeTopLeft &&
     latitude > latitudeBottomRight &&
@@ -102,5 +104,5 @@ module.exports = {
   wrapAsync,
   authentication,
   rateLimiter,
-	isInBox
+  isInBox
 }

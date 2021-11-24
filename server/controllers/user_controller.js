@@ -1,8 +1,10 @@
 require('dotenv').config()
 const validator = require('validator')
-const User = require('../models/user_model')
+// const User = require('../models/user_model')
+const UserService = require('../service/user_service')
+const UserModel = require('../models/user_model')
 
-const signUp = async (req, res) => {
+const signUpOld = async (req, res) => {
   // console.log(req.body)
   let { name } = req.body
   const { email, password } = req.body
@@ -50,7 +52,7 @@ const signUp = async (req, res) => {
   })
 }
 
-const nativeSignIn = async (email, password) => {
+const nativeSignInOld = async (email, password) => {
   if (!email || !password) {
     return {
       error: 'Request Error: email and password are required.',
@@ -59,35 +61,35 @@ const nativeSignIn = async (email, password) => {
   }
 
   try {
-    return await User.nativeSignIn(email, password)
+    return await UserModel.nativeSignIn(email, password)
   } catch (error) {
     return { error }
   }
 }
 
-const facebookSignIn = async (accessToken) => {
+const facebookSignInOld = async (accessToken) => {
   if (!accessToken) {
     return { error: 'Request Error: access token is required.', status: 400 }
   }
 
   try {
-    const profile = await User.getFacebookProfile(accessToken)
+    const profile = await UserModel.getFacebookProfile(accessToken)
     const { id, name, email } = profile
 
     if (!id || !name || !email) {
       return {
         error:
-          'Permissions Error: facebook access token can not get user id, name or email'
+          'Permissions Error: facebook access token can not get user user information'
       }
     }
 
-    return await User.facebookSignIn(id, User.USER_ROLE.USER, name, email)
+    return await UserModel.facebookSignIn(id, UserModel.USER_ROLE.USER, name, email)
   } catch (error) {
     return { error: error }
   }
 }
 
-const signIn = async (req, res) => {
+const signInOld = async (req, res) => {
   const data = req.body
   // console.log(data)
 
@@ -131,9 +133,99 @@ const signIn = async (req, res) => {
   })
 }
 
+async function signUp(req, res) {
+  let { name } = req.body
+  const { email, password } = req.body
+  // console.log(req.body)
+
+  if (!name || !email || !password) {
+    res
+      .status(400)
+      .send({ error: 'Request Error: name, email and password are required.' })
+    return
+  }
+
+  if (!validator.isEmail(email)) {
+    res.status(400).send({ error: 'Request Error: Invalid email format' })
+    return
+  }
+
+  name = validator.escape(name)
+
+  if (!email) {
+    res.status(400).send('Email is required')
+  }
+  if (!password) {
+    res.status(400).send('Password is required')
+  }
+  // if (!provider) {
+  //   res.status(400).send('Provider i required')
+  // }
+  if (!name) {
+    res.status(400).send('Name is required')
+  }
+
+  // validation
+
+  const result = await UserService.signUp(email, password, name)
+  if (result.error) {
+    // console.log(error)
+    return res.status(result.error.status).send({error: result.error.message})
+  }
+  res.send({data: {accessToken: result.accessToken}})
+}
+
+async function signIn(req, res) {
+  const {email, password, provider, name, token} = req.body
+  // validation...
+  // ...
+  if (!email || !password) {
+    return {
+      error: 'Request Error: email and password are required.',
+      status: 400
+    }
+  }
+
+  if (!provider) {
+    res.status(400).send('Provider is required')
+  }
+
+  switch(provider) {
+    case 'native':
+      if (!password) {
+        res.status(400).send('Password is required')
+      }
+      // if (!name) {
+      //   res.status(400).send('Name is required')
+      // }
+      if (!email) {
+        res.status(400).send('Email is required')
+      }
+      const result = await UserService.nativeSignIn(email, password, name)
+      if (result.error) {
+        const error = result.error
+        // console.log(error)
+        return res.status(error.status).send(error.message)
+      }
+      // console.log(result)
+
+      res.send({data: {accessToken: result.accessToken}})
+      break
+    case 'facebook':
+      if (!token) {
+        res.status(400).send('token is required')
+      }
+      UserService.facebookSignIn(token)
+      res.send()
+      break
+    default:
+      res.status(400).send('provier must be facebook or native')
+  }
+}
+
 async function like(req, res) {
   try {
-    await User.like(req.user.id, req.body.houseId)
+    await UserModel.like(req.user.id, req.body.houseId)
 		res.send('success')
   } catch (e) {
     console.log(e)
@@ -143,7 +235,7 @@ async function like(req, res) {
 
 async function dislike(req, res) {
 	try {
-		await User.dislike(req.user.id, req.body.houseId)
+		await UserModel.dislike(req.user.id, req.body.houseId)
 		res.send('success')
 	} catch(e) {
 		console.log(e)
@@ -153,7 +245,7 @@ async function dislike(req, res) {
 
 async function getLikes(req, res) {
 	try {
-		const houseIds = await User.getLikesById(req.user.id)
+		const houseIds = await UserModel.getLikesById(req.user.id)
     // console.log(houseIds)
 		res.send({
       userId: req.user.id,
@@ -167,7 +259,7 @@ async function getLikes(req, res) {
 
 async function getFavorite(req, res) {
   try {
-    const favoriteHouses = await User.getFavoriteById(req.user.id)
+    const favoriteHouses = await UserModel.getFavoriteById(req.user.id)
     // console.log(houseIds)
 		res.send({
       userId: req.user.id,

@@ -7,6 +7,7 @@ const pool = require('./db/mysql')
 const salt = parseInt(process.env.BCRYPT_SALT)
 const { TOKEN_EXPIRE, TOKEN_SECRET } = process.env // 30 days by seconds
 const jwt = require('jsonwebtoken')
+const { ErrorData } = require('../../util/Error')
 // const { default: axios } = require('axios');
 
 const USER_ROLE = {
@@ -15,71 +16,78 @@ const USER_ROLE = {
   USER: 2
 }
 
-const signUp = async (name, email, password) => {
+async function signUp(email, password, name) {
   const conn = await pool.getConnection()
   try {
     await conn.query('START TRANSACTION')
-
-    const emails = await conn.query(
+    const [emails] = await conn.query(
       'SELECT email FROM user WHERE email = ? FOR UPDATE',
       [email]
     )
-    if (emails[0].length > 0) {
+    if (emails.length > 0) {
       await conn.query('COMMIT')
-      return { error: 'Email Already Exists' }
+      return {
+        error: {
+          message: 'Email Already Exists',
+          status: 400
+        }
+      }
     }
-    // console.log('finish first check')
     const loginAt = new Date()
-
     const user = {
       provider: 'native',
-      // role_id: roleId,
-      email: email,
+      email,
       password: bcrypt.hashSync(password, salt),
-      name: name,
-      // picture: null,
-      access_expired: TOKEN_EXPIRE
-      // login_at: loginAt
+      name,
+      access_expired: TOKEN_EXPIRE,
+      login_at: loginAt
     }
     const accessToken = jwt.sign(
       {
         provider: user.provider,
         name: user.name,
         email: user.email
-        // picture: user.picture
       },
       TOKEN_SECRET
     )
+    // console.log(jwt.verify(accessToken, TOKEN_SECRET))
     user.access_token = accessToken
-
-    const queryStr = 'INSERT INTO user SET ?'
-    const [result] = await conn.query(queryStr, user)
-
-    user.id = result.insertId
+    await conn.query('INSERT INTO user set ?', user)
     await conn.query('COMMIT')
-    // console.log('finish insert new user data for sign up')
-    return { user }
+    return {accessToken}
   } catch (error) {
     console.log(error)
     await conn.query('ROLLBACK')
-    return { error }
+    return {
+      error: {
+        message: error,
+        status: 500
+      }
+    }
   } finally {
     await conn.release()
   }
 }
 
-const nativeSignIn = async (email, password) => {
+async function nativeSignIn(email, password) {
   const conn = await pool.getConnection()
   try {
     await conn.query('START TRANSACTION')
-
-    const [users] = await conn.query('SELECT * FROM user WHERE email = ?', [
-      email
-    ])
+    const [users] = await conn.query(
+      'SELECT * FROM user WHERE email = ?',
+      [email]
+    )
     const user = users[0]
+    // console.log(user)
+    if (!user) {
+      console.log('###')
+      await conn.query('COMMIT')
+      return { error: new ErrorData(400, 'Sign In Fail') }
+    }
+
     if (!bcrypt.compareSync(password, user.password)) {
       await conn.query('COMMIT')
-      return { error: 'Password is wrong' }
+      return { error: new ErrorData(400, 'Sign In Fail') }
     }
 
     const loginAt = new Date()
@@ -87,32 +95,24 @@ const nativeSignIn = async (email, password) => {
       {
         provider: user.provider,
         name: user.name,
-        email: user.email,
-        picture: user.picture
+        email: user.email
       },
       TOKEN_SECRET
     )
+    // console.log(jwt.verify(accessToken, TOKEN_SECRET))
 
-    const queryStr =
-      'UPDATE user SET access_token = ?, access_expired = ?, login_at = ? WHERE id = ?'
-    await conn.query(queryStr, [accessToken, TOKEN_EXPIRE, loginAt, user.id])
-
-    await conn.query('COMMIT')
-
-    user.access_token = accessToken
-    user.login_at = loginAt
-    user.access_expired = TOKEN_EXPIRE
-
-    return { user }
+    return { accessToken }
   } catch (error) {
-    await conn.query('ROLLBACK')
-    return { error }
+    console.log(error)
+    return { error: new ErrorData(500, error) }
   } finally {
     await conn.release()
   }
 }
 
-const facebookSignIn = async (id, roleId, name, email) => {
+async function facebookSignIn(id) {}
+
+const facebookSignInOld = async (id, roleId, name, email) => {
   const conn = await pool.getConnection()
   try {
     await conn.query('START TRANSACTION')
@@ -167,20 +167,14 @@ const facebookSignIn = async (id, roleId, name, email) => {
   }
 }
 
-const getUserDetail = async (email, roleId) => {
+const getUserDetail = async (email) => {
+  // console.log(email)
   try {
-    if (roleId) {
-      const [users] = await pool.query(
-        'SELECT * FROM user WHERE email = ? AND role_id = ?',
-        [email, roleId]
-      )
-      return users[0]
-    } else {
-      const [users] = await pool.query('SELECT * FROM user WHERE email = ?', [
-        email
-      ])
-      return users[0]
-    }
+    const [users] = await pool.query('SELECT * FROM user WHERE email = ?', [
+      email
+    ])
+    // console.log(users)
+    return users[0]
   } catch (e) {
     return null
   }
@@ -272,7 +266,7 @@ async function getFavoriteById(userId) {
       if (!houseMap[house_id]) {
         houseMap[house_id] = {
           id: house_id,
-          latitude: house_lat, 
+          latitude: house_lat,
           longitude: house_lng,
           category,
           area,
@@ -300,7 +294,6 @@ async function getFavoriteById(userId) {
         type: type_name,
         subtype: subtype_name
       })
-      
     }
   )
   return Object.values(houseMap)

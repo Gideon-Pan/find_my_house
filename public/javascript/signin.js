@@ -37,7 +37,8 @@ async function signinNative() {
   try {
     const { data } = await axios.post('/api/1.0/user/signin', body)
     console.log(data)
-    window.localStorage.setItem('access_token', data.data.access_token)
+    
+    window.localStorage.setItem('accessToken', data.data.accessToken)
     location.href = '/'
     
   } catch (e) {
@@ -105,12 +106,12 @@ async function statusChangeCallback(response) {
     try {
       const { data } = await axios.post('/api/1.0/user/signin', {
         provider: 'facebook',
-        access_token: accessToken
+        accessToken: accessToken
       })
       console.log(data)
-      window.localStorage.setItem('access_token', data.data.access_token)
+      window.localStorage.setItem('accessToken', data.data.accessToken)
       // location.href = '/profile.html'
-      alert('sss')
+      // alert('sss')
     } catch (e) {
       console.log(e)
     }
