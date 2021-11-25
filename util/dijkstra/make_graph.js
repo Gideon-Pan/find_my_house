@@ -13,8 +13,8 @@ async function makeBusIdMap() {
   return map
 }
 
-async function makeGraphMap(version) {
-  const graphMap = {}
+async function makeGraphMap(graphMap, version) {
+  // const graphMap = {}
   const types = ['bus', 'metro', 'mix']
   const periods = ['weekdaysPeak', 'weekdays', 'weekend']
   const stops = await getStops()
@@ -147,7 +147,7 @@ async function makeEdges(version) {
   return edges
 }
 
-async function makeWaitingTimeMap(version) {
+async function makeWaitingTimeMap(waitingTimeMaps, version) {
   // console.log(version)
   const idToPtxMap = await makeIdToPtx()
   const q = `SELECT to_stop_id, time_period_hour, time_period_minute, time, period FROM time_between_stop
@@ -165,16 +165,16 @@ async function makeWaitingTimeMap(version) {
     ${process.argv[2] === 'metro' ? 'AND type = "metro"' : ''}
   `
   const [waitingTimeList] = await db.query(q)
-  const waitingTimeMap = {}
+  // const waitingTimeMap = {}
   waitingTimeList.forEach(
     ({ to_stop_id, time_period_hour, time_period_minute, time, period }) => {
-      if (!waitingTimeMap[period]) {
-        waitingTimeMap[period] = {}
+      if (!waitingTimeMaps[period]) {
+        waitingTimeMaps[period] = {}
       }
-      waitingTimeMap[period][idToPtxMap[to_stop_id]] = time
+      waitingTimeMaps[period][idToPtxMap[to_stop_id]] = time
     }
   )
-  return waitingTimeMap
+  return waitingTimeMaps
 }
 
 async function makeIdToPtx() {

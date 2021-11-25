@@ -1,58 +1,14 @@
 require('dotenv').config()
-// const House = require('../models/house_model')
-const Redis = require('../../util/redis')
-const db = require('../models/db/mysql')
-const { getDistance, getDistanceSquare } = require('../../util/distance')
+const { Vertex } = require('../../util/dijkstra/graph')
+const { getReachableStops } = require('../../util/dijkstra/shortest_path')
 const {
-  makeGraphs,
-  makeWaitingTimeMap,
-  makeGraphMap
-} = require('../../util/dijkstra/make_graph')
-const { Vertex, Edge } = require('../../util/dijkstra/graph')
-const { getShortestPath, getReachableStops } = require('../../util/dijkstra/shortest_path')
-const {
-  makeHouseMap,
-  makeTagMap,
-  makeTypeMap
-} = require('../models/house_model')
-const {
-  getHousesInConstraint,
-  getHousesInRange,
   getHouseData,
   getPositionData
 } = require('../service/search_service')
 const { makeOfficeToNearbyStopEdges } = require('../service/graph_service')
 const { getTagMap } = require('../service/house_service')
-// const { getInitGraph } = require('../service/init_service')
-// const { getHouseData } = require('../service/house_service')
-
-// const {graphs, walkVelocity} = require('../../util/init')
-let waitingTimeMaps
-const walkVelocity = 1.25 / 1.414
-let graphMap
-async function init() {
-  console.time('make graph map')
-  graphMap = await makeGraphMap(2)
-  console.timeEnd('make graph map')
-  waitingTimeMaps = await makeWaitingTimeMap(2)
-  if (Redis.client.connected) {
-    await makeTagMap()
-    await makeTypeMap()
-    await makeHouseMap()
-  }
-}
-
-init()
-// make graphs of version 2
-// const graphs = await getInitGraph(2)
-// init
-// const graphs = require('../service/init_service')
-// console.log(graphs)
-// let graphs
-// async function main() {
-//   graphs = await makeGraphs(2)
-// }
-// main()
+const {graphMap, waitingTimeMaps} = require('../../util/init')
+const {WALK_VELOCITY} = process.env
 const startPointId = '0'
 
 const search = async (req, res) => {
@@ -95,7 +51,7 @@ const search = async (req, res) => {
 
   graph.addVertex(office)
 
-  maxWalkDistance = Math.min(maxWalkDistance, commuteTime * walkVelocity)
+  maxWalkDistance = Math.min(maxWalkDistance, commuteTime * WALK_VELOCITY)
 
   const distToStopMap = {}
 
@@ -148,7 +104,6 @@ const search = async (req, res) => {
     reachableStations,
     commuteTime,
     maxWalkDistance,
-    walkVelocity,
     distToStopMap,
     graph
   )

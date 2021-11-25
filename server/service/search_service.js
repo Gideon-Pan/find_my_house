@@ -1,9 +1,11 @@
+require('dotenv').config()
 const Redis = require('../../util/redis')
 const pool = require('../models/db/mysql')
 const { makeHouseMap } = require('../models/house_model')
 const { getDistanceSquare } = require('../../util/distance')
 const { getTypeMap } = require('./house_service')
 const { isInBox } = require('../../util/util')
+const { WALK_VELOCITY } = process.env
 
 const startPointId = '0'
 async function getHousesInConstraintWithRedis(budget, validTags, houseTypeId) {
@@ -172,7 +174,6 @@ function getPositionData(
   reachableStations,
   commuteTime,
   maxWalkDistance,
-  walkVelocity,
   distToStopMap,
   graph
 ) {
@@ -180,7 +181,7 @@ function getPositionData(
   const reachableStationMap = {}
   reachableStations.forEach((reachableStation) => {
     const { id, startStationId, timeSpent, walkDistance } = reachableStation
-    let distanceLeft = (commuteTime - timeSpent) * walkVelocity - walkDistance
+    let distanceLeft = (commuteTime - timeSpent) * WALK_VELOCITY - walkDistance
     distanceLeft =
       distanceLeft + distToStopMap[startStationId] > maxWalkDistance
         ? maxWalkDistance - distToStopMap[startStationId]
