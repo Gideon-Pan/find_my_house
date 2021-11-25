@@ -7,7 +7,7 @@ const pool = require('./db/mysql')
 const salt = parseInt(process.env.BCRYPT_SALT)
 const { TOKEN_EXPIRE, TOKEN_SECRET } = process.env // 30 days by seconds
 const jwt = require('jsonwebtoken')
-const { ErrorData } = require('../../util/Error')
+const { ErrorData } = require('../../util/error')
 // const { default: axios } = require('axios');
 
 const USER_ROLE = {
@@ -26,21 +26,13 @@ async function signUp(email, password, name) {
     )
     if (emails.length > 0) {
       await conn.query('COMMIT')
-      return {
-        error: {
-          message: 'Email Already Exists',
-          status: 400
-        }
-      }
+      return {error: new ErrorData(403, 'Email Already Exists')}
     }
-    const loginAt = new Date()
     const user = {
       provider: 'native',
       email,
       password: bcrypt.hashSync(password, salt),
       name,
-      access_expired: TOKEN_EXPIRE,
-      login_at: loginAt
     }
     const accessToken = jwt.sign(
       {
@@ -50,20 +42,15 @@ async function signUp(email, password, name) {
       },
       TOKEN_SECRET
     )
-    // console.log(jwt.verify(accessToken, TOKEN_SECRET))
-    user.access_token = accessToken
+
+    user['access_token'] = accessToken
     await conn.query('INSERT INTO user set ?', user)
     await conn.query('COMMIT')
     return {accessToken}
   } catch (error) {
     console.log(error)
     await conn.query('ROLLBACK')
-    return {
-      error: {
-        message: error,
-        status: 500
-      }
-    }
+    return {error: new ErrorData(500, error)} 
   } finally {
     await conn.release()
   }
@@ -80,7 +67,6 @@ async function nativeSignIn(email, password) {
     const user = users[0]
     // console.log(user)
     if (!user) {
-      console.log('###')
       await conn.query('COMMIT')
       return { error: new ErrorData(400, 'Sign In Fail') }
     }
@@ -90,7 +76,6 @@ async function nativeSignIn(email, password) {
       return { error: new ErrorData(400, 'Sign In Fail') }
     }
 
-    const loginAt = new Date()
     const accessToken = jwt.sign(
       {
         provider: user.provider,
@@ -99,7 +84,6 @@ async function nativeSignIn(email, password) {
       },
       TOKEN_SECRET
     )
-    // console.log(jwt.verify(accessToken, TOKEN_SECRET))
 
     return { accessToken }
   } catch (error) {

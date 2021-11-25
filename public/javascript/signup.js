@@ -73,7 +73,6 @@ $('button').on('click', async (e) => {
     // if (!name || !email || !password) return
     // console.log(password)
     const { data } = await signUp(email, password, name)
-    console.log(data)
     // console.log(data.data.accessToken)
     window.localStorage.setItem('accessToken', data.data.accessToken)
     console.log(data)
