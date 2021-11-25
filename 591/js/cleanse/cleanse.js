@@ -7,9 +7,8 @@ const {
 } = require('../../../server/models/db/mongo')
 
 async function cleanseData(rawDataCollection, today) {
-	console.log('q')
-  console.log('591_raw')
-	console.log(rawDataCollection)
+  console.log('database name: 591_raw')
+	console.log('collection to be cleansed:' ,rawDataCollection)
 	let houses = await getMongo('591_raw', rawDataCollection)
   // console.log(houses.length)
   // return console.log(houses)
