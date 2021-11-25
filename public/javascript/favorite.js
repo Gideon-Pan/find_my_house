@@ -24,7 +24,7 @@ async function getFavorite() {
   // console.log(selectedHouseId)
   try {
     const { data } = await axios.get(
-      '/api/1.0/user/favorite',
+      '/api/1.0/user/like/details',
       {
         headers: {
           Authorization: `Bearer ${accessToken}`

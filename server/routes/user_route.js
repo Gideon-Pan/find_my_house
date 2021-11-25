@@ -6,7 +6,7 @@ const { authentication } = require('../../util/util')
 //     authentication
 // } = require('../../util/util');
 
-const USER = require('../models/user_model')
+// const USER = require('../models/user_model')
 
 const {
   signUp,
@@ -14,19 +14,19 @@ const {
   like,
   dislike,
   getLikes,
-  getFavorite
+  getLikeDetails
 } = require('../controllers/user_controller')
 
 router.route('/user/signup').post(signUp)
 
 router.route('/user/signin').post(signIn)
 
-router.route('/user/like').post(authentication(USER.USER_ROLE.USER), like)
+router.route('/user/like').post(authentication(), like)
 
-router.route('/user/like').delete(authentication(USER.USER_ROLE.USER), dislike)
+router.route('/user/like').delete(authentication(), dislike)
 
-router.route('/user/like').get(authentication(USER.USER_ROLE.USER), getLikes)
+router.route('/user/like').get(authentication(), getLikes)
 
-router.route('/user/favorite').get(authentication(USER.USER_ROLE.USER), getFavorite)
+router.route('/user/like/details').get(authentication(), getLikeDetails)
 
 module.exports = router

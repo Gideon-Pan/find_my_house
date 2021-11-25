@@ -39,31 +39,23 @@ async function rateLimiter(req, res, next) {
   next()
 }
 
-const authentication = (roleId) => {
+const authentication = () => {
   return async function (req, res, next) {
     let accessToken = req.get('Authorization')
-    // console.log(accessToken)
     if (!accessToken) {
       console.log('what')
       res.status(401).send({ error: 'Unauthorized' })
       return
     }
-    // console.log(accessToken)
 
     accessToken = accessToken.replace('Bearer ', '')
-    // console.log(accessToken)
     if (accessToken == 'null') {
       res.status(401).send({ error: 'Unauthorized' })
       return
     }
-    // console.log('hear')
+
     try {
-      // console.log('*')
-      // console.log(roleId)
-      // console.log(accessToken)
       const user = jwt.verify(accessToken, TOKEN_SECRET)
-      // console.log('#')
-      // console.log(user)
       req.user = user
 
       let userDetail

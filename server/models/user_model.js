@@ -10,11 +10,6 @@ const jwt = require('jsonwebtoken')
 const { ErrorData } = require('../../util/error')
 // const { default: axios } = require('axios');
 
-const USER_ROLE = {
-  ALL: -1,
-  ADMIN: 1,
-  USER: 2
-}
 
 async function signUp(email, password, name) {
   const conn = await pool.getConnection()
@@ -152,12 +147,10 @@ const facebookSignInOld = async (id, roleId, name, email) => {
 }
 
 const getUserDetail = async (email) => {
-  // console.log(email)
   try {
     const [users] = await pool.query('SELECT * FROM user WHERE email = ?', [
       email
     ])
-    // console.log(users)
     return users[0]
   } catch (e) {
     return null
@@ -185,17 +178,15 @@ async function like(userId, houseId) {
   const q = `INSERT INTO like_table (user_id, house_id, status, update_at) VALUES ?
 		ON DUPLICATE KEY UPDATE status = VALUES(status)`
   await pool.query(q, [values])
-  // console.log('success like')
 }
 
 async function dislike(userId, houseId) {
   const values = [userId, houseId]
   const q = `DELETE FROM like_table WHERE user_id = ? AND house_id = ?`
   await pool.query(q, values)
-  // console.log('success dislike')
 }
 
-async function getLikesById(userId) {
+async function getLikes(userId) {
   const q = `SELECT house_id FROM like_table 
 		WHERE user_id = ?
 			AND status = 1`
@@ -205,7 +196,7 @@ async function getLikesById(userId) {
   return houseIds
 }
 
-async function getFavoriteById(userId) {
+async function getLikeDetails(userId) {
   const q = `SELECT house.id AS house_id, house.latitude AS house_lat, house.longitude AS house_lng, 
     category.name AS category, area, price, link, image, house.address,
     life_function.id AS life_function_id, life_function.name AS life_function_name, 
@@ -261,14 +252,15 @@ async function getFavoriteById(userId) {
           lifeFunction: {}
         }
       }
+
       if (!houseMap[house_id].lifeFunction[type_name]) {
         houseMap[house_id].lifeFunction[type_name] = {}
       }
+
       if (!houseMap[house_id].lifeFunction[type_name][subtype_name]) {
         houseMap[house_id].lifeFunction[type_name][subtype_name] = []
-        // lifeFunctionMap[type_name][subtype_name] = new PQ()
       }
-      // if (lifeFunctionMap[type_name][subtype_name].length >= 3) return
+
       houseMap[house_id].lifeFunction[type_name][subtype_name].push({
         id: life_function_id,
         name: life_function_name,
@@ -284,7 +276,6 @@ async function getFavoriteById(userId) {
 }
 
 module.exports = {
-  USER_ROLE,
   signUp,
   nativeSignIn,
   facebookSignIn,
@@ -292,6 +283,6 @@ module.exports = {
   getFacebookProfile,
   like,
   dislike,
-  getLikesById,
-  getFavoriteById
+  getLikes,
+  getLikeDetails
 }

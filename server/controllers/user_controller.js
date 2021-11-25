@@ -90,7 +90,7 @@ async function dislike(req, res) {
 
 async function getLikes(req, res) {
   try {
-    const houseIds = await UserModel.getLikesById(req.user.id)
+    const houseIds = await UserModel.getLikes(req.user.id)
     // console.log(houseIds)
     res.send({
       userId: req.user.id,
@@ -102,9 +102,9 @@ async function getLikes(req, res) {
   }
 }
 
-async function getFavorite(req, res) {
+async function getLikeDetails(req, res) {
   try {
-    const favoriteHouses = await UserModel.getFavoriteById(req.user.id)
+    const favoriteHouses = await UserModel.getLikeDetails(req.user.id)
     // console.log(houseIds)
     res.send({
       userId: req.user.id,
@@ -122,5 +122,5 @@ module.exports = {
   like,
   dislike,
   getLikes,
-  getFavorite
+  getLikeDetails
 }
