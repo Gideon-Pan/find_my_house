@@ -1,14 +1,23 @@
 require('dotenv').config()
 const Redis = require('../../util/redis')
-const pool = require('../models/db/mysql')
 const SearchModel = require('../models/search_model')
 const { makeHouseMap } = require('../models/house_model')
 const { getDistanceSquare } = require('../../util/distance')
-const { getTypeMap } = require('./house_service')
+const { getTypeMap, getTagMap } = require('./house_service')
 const { isInBox } = require('../../util/util')
-const { WALK_VELOCITY } = process.env
+const { WALK_VELOCITY, START_POINT_ID } = process.env
 
-const startPointId = '0'
+async function getRequestTags(fire, shortRent, directRent, pet, newItem) {
+  const tags = []
+  const tagMap = await getTagMap()
+  if (fire === 'true') tags.push(tagMap['fire'])
+  if (shortRent === 'true') tags.push(tagMap['shortRent'])
+  if (directRent === 'true') tags.push(tagMap['directRent'])
+  if (pet === 'true') tags.push(tagMap['pet'])
+  if (newItem === 'true') tags.push(tagMap['newItem'])
+  return tags
+}
+
 async function getHousesInConstraintWithRedis(budget, validTags, houseTypeId) {
   if (Redis.client.connected && (await Redis.get('houseMap'))) {
     console.log('caching house map')
@@ -66,14 +75,14 @@ async function getHousesInConstraint(budget, houseType, validTags) {
     }
     return true
   })
-
+  // cache house map
   if (Redis.client.connected) {
     makeHouseMap()
   }
   return houses
 }
 
-async function getHousesInRange(positionData, houses) {
+async function getReachableHouses(positionData, houses) {
   console.log('reachable stops count', positionData.length)
   let counter = 0
   const houseData = houses.filter((house) => {
@@ -137,7 +146,7 @@ async function getHouseData(positionData, budget, houseType, tags) {
     stopRadiusMap[stopId] = distanceLeft
   })
   let houses = await getHousesInConstraint(budget, houseType, tags)
-  const houseData = await getHousesInRange(
+  const houseData = await getReachableHouses(
     positionData,
     houses
   )
@@ -163,7 +172,7 @@ function getPositionData(
       return
     }
     // office point
-    if (id == startPointId) distanceLeft = maxWalkDistance
+    if (id == START_POINT_ID) distanceLeft = maxWalkDistance
     const lat = graph.getVertex(id).lat()
     const lng = graph.getVertex(id).lng()
     if (
@@ -183,8 +192,8 @@ function getPositionData(
 }
 
 module.exports = {
+  getRequestTags,
   getPositionData,
   getHousesInConstraint,
-  getHousesInRange,
   getHouseData
 }

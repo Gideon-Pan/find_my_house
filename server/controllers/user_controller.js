@@ -1,7 +1,5 @@
 require('dotenv').config()
 const validator = require('validator')
-// const User = require('../models/user_model')
-const UserService = require('../service/user_service')
 const UserModel = require('../models/user_model')
 const {
   validateSignUpRequest,
@@ -22,7 +20,7 @@ async function signUp(req, res) {
   }
   name = validator.escape(name)
 
-  const { error, accessToken } = await UserService.signUp(email, password, name)
+  const { error, accessToken } = await UserModel.signUp(email, password, name)
   if (error) {
     return res.status(error.status).send({ error: error.message })
   }
@@ -31,8 +29,6 @@ async function signUp(req, res) {
 
 async function signIn(req, res) {
   const { email, password, provider, name, token } = req.body
-  // validation...
-  // ...
 
   if (!provider) {
     res.status(400).send('Provider is required')
@@ -46,7 +42,7 @@ async function signIn(req, res) {
           .status(validateError.status)
           .send({ error: validateError.message })
       }
-      const { error, accessToken } = await UserService.nativeSignIn(
+      const { error, accessToken } = await UserModel.nativeSignIn(
         email,
         password,
         name
@@ -60,7 +56,7 @@ async function signIn(req, res) {
       if (!token) {
         res.status(400).send('token is required')
       }
-      UserService.facebookSignIn(token)
+      UserModel.facebookSignIn(token)
       res.send()
       break
     default:
@@ -91,7 +87,6 @@ async function dislike(req, res) {
 async function getLikes(req, res) {
   try {
     const houseIds = await UserModel.getLikes(req.user.id)
-    // console.log(houseIds)
     res.send({
       userId: req.user.id,
       favoriteHouseIds: houseIds
@@ -105,7 +100,6 @@ async function getLikes(req, res) {
 async function getLikeDetails(req, res) {
   try {
     const favoriteHouses = await UserModel.getLikeDetails(req.user.id)
-    // console.log(houseIds)
     res.send({
       userId: req.user.id,
       favoriteHouses

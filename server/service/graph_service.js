@@ -1,54 +1,46 @@
-const Redis = require('../../util/redis')
-const {
-  makeTypeMap,
-  makeTagMap,
-  makeHouseMap
-} = require('../models/house_model')
+require('dotenv').config()
 const { getDistance } = require('../../util/distance')
-const pool = require('../models/db/mysql')
 const { Vertex, Edge } = require('../../util/dijkstra/graph')
 
-const walkVelocity = 1.25 / 1.414
-const startPointId = '0'
+const {WALK_VELOCITY, START_POINT_ID} = process.env
 
 function makeOfficeToNearbyStopEdges(
-  g,
-  startPoint,
+  graph,
+  officeLat,
+  officeLng,
   period,
-  distToStopMap,
   maxWalkDistance
 ) {
+  console.log(WALK_VELOCITY)
+  const distToStopMap = {}
+  const office = new Vertex(START_POINT_ID, 'startPoint', officeLat, officeLng)
+  graph.addVertex(office)
   let counter = 0
-  for (let id of g.getAllIds()) {
-    const lat = g.getVertex(id).lat()
-    const lng = g.getVertex(id).lng()
+  
+  for (let id of graph.getAllIds()) {
+    const lat = graph.getVertex(id).lat()
+    const lng = graph.getVertex(id).lng()
     if (!lat || !lng) continue
     const distToStation = getDistance(
       { latitude: lat, longitude: lng },
-      { latitude: startPoint.lat(), longitude: startPoint.lng() }
-    )
+      { latitude: officeLat, longitude: officeLng})
 
     if (distToStation < maxWalkDistance) {
       const edge = new Edge(
-        startPointId,
+        START_POINT_ID,
         id,
         period,
-        distToStation / walkVelocity
+        distToStation / WALK_VELOCITY
       )
-      g.addEdge(edge)
+      graph.addEdge(edge)
       distToStopMap[id] = distToStation
       counter++
     }
   }
-
   const nearByStationCount = counter - 1
-
-  // can't get to any station but itself
-  const timerNearby = Date.now()
   console.log('nearByStationCount: ', nearByStationCount)
-  return counter
+  return distToStopMap
 }
-
 module.exports = {
   makeOfficeToNearbyStopEdges
 }

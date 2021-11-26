@@ -1,16 +1,10 @@
 require('dotenv').config()
-const { Vertex } = require('../../util/dijkstra/graph')
+// const { Vertex } = require('../../util/dijkstra/graph')
 const { getReachableStops } = require('../../util/dijkstra/shortest_path')
-const {
-  getHouseData,
-  getPositionData
-} = require('../service/search_service')
+const { getHouseData, getPositionData, getRequestTags } = require('../service/search_service')
 const { makeOfficeToNearbyStopEdges } = require('../service/graph_service')
-const { getTagMap } = require('../service/house_service')
-// const {graphMap, waitingTimeMaps} = require('../../util/init')
 const initMap = require('../../util/init')
-const {WALK_VELOCITY} = process.env
-const startPointId = '0'
+const { WALK_VELOCITY, START_POINT_ID } = process.env
 
 const search = async (req, res) => {
   console.time('total time')
@@ -28,76 +22,39 @@ const search = async (req, res) => {
     directRent,
     pet,
     newItem,
-    latitudeNW,
-    longitudeNW,
-    latitudeSE,
-    longitudeSE
   } = req.query
-  
-  const tags = []
-  const tagMap = await getTagMap()
-  if (fire === 'true') tags.push(tagMap['fire'])
-  if (shortRent === 'true') tags.push(tagMap['shortRent'])
-  if (directRent === 'true') tags.push(tagMap['directRent'])
-  if (pet === 'true') tags.push(tagMap['pet'])
-  if (newItem === 'true') tags.push(tagMap['newItem'])
+
+  console.log('receive')
 
   const graph = initMap.graphMap[commuteWay][period]
-  console.log('receive')
+  const tags = await getRequestTags(fire, shortRent, directRent, pet, newItem)
 
   officeLat = Number(officeLat)
   officeLng = Number(officeLng)
   maxWalkDistance = Number(maxWalkDistance)
-  const office = new Vertex(startPointId, 'startPoint', officeLat, officeLng)
-
-  graph.addVertex(office)
-
   maxWalkDistance = Math.min(maxWalkDistance, commuteTime * WALK_VELOCITY)
 
-  const distToStopMap = {}
-
   console.time('make nearby stop edge')
-  const nearByStationCount = makeOfficeToNearbyStopEdges(
+  const distToStopMap = makeOfficeToNearbyStopEdges(
     graph,
-    office,
+    officeLat,
+    officeLng,
     period,
-    distToStopMap,
     maxWalkDistance
   )
+  // console.log(distToStopMap)
   console.timeEnd('make nearby stop edge')
 
-  // can't get to any station but itself
-  if (nearByStationCount === 0) {
-    const positionData = [
-      {
-        stopId: startPointId,
-        lat: officeLat,
-        lng: officeLng,
-        distanceLeft: maxWalkDistance
-      }
-    ]
-    const houseData = await getHouseData(positionData, budget, houseType, tags)
-    return res.send({
-      positionData,
-      houseData,
-      totalHouse: houseData.length
-    })
-  }
-  // const counter = {}
-  const timer0 = Date.now()
   const waitingTimeMap = initMap.waitingTimeMaps[period]
   console.time('Dijkstra')
   const reachableStations = getReachableStops(
     graph,
-    startPointId,
+    START_POINT_ID,
     commuteTime,
     period,
     waitingTimeMap
   )
   console.timeEnd('Dijkstra')
-  const timer1 = Date.now()
-  // console.log((timer1 - timer0) / 1000, 'seconds for Dijkstra')
-  // const reachableStationMap = {}
   console.log('reachable stops count:', reachableStations.length)
 
   console.time('get position data')

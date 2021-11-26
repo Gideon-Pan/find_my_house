@@ -6,7 +6,6 @@ const { search } = require('../controllers/search_controller');
 //     authentication
 // } = require('../../util/util');
 
-
 router.route('/search')
     .get(search);
 

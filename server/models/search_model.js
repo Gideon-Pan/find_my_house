@@ -1,3 +1,5 @@
+const pool = require('../models/db/mysql')
+
 async function getHouseInConstraint(budget, validTags, houseTypeId) {
   const q = `SELECT house.id, title, price, area, link, image, house.address, house.latitude, house.longitude, category.name AS category, tag.id AS tag FROM house 
   JOIN category

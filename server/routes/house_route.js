@@ -6,12 +6,7 @@ const { getLifeFunction } = require('../controllers/house_controller');
 //     authentication
 // } = require('../../util/util');
 
-
 router.route('/house/details')
     .get(getLifeFunction);
-
-
-// router.route('/user/profile')
-//     .get(authentication(), wrapAsync(getUserProfile));
 
 module.exports = router;

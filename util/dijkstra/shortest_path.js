@@ -1,4 +1,3 @@
-const { makeGraph, makeWaitingTimeMap } = require('./make_graph')
 const { PQ } = require('./priority_queue')
 
 // const startPointId = '0'

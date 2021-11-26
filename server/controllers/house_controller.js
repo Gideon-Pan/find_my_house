@@ -1,9 +1,9 @@
 require('dotenv').config();
-const House = require('../models/house_model')
+const HouseModel = require('../models/house_model')
 
 const getLifeFunction = async (req, res) => {
   const {id} = req.query
-  const result = await House.getLifeFunction(id)
+  const result = await HouseModel.getLifeFunction(id)
   res.send(result)
 }
 
