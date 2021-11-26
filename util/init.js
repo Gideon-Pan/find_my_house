@@ -1,14 +1,17 @@
+require('dotenv').config()
 const { makeHouseMap, makeTagMap, makeTypeMap } = require("../server/models/house_model")
 const { makeGraphMap, makeWaitingTimeMap } = require("./dijkstra/make_graph")
 const Redis = require('./redis')
+const {GRAPH_VERSION} = process.env
 
-const waitingTimeMaps = {}
-const graphMap = {}
+const initData = {}
+// const waitingTimeMaps = {}
+// const graphMap = {}
 async function init() {
   console.time('make graph map')
-  await makeGraphMap(graphMap, 2)
+  initData.graphMap = await makeGraphMap(GRAPH_VERSION)
   console.timeEnd('make graph map')
-  await makeWaitingTimeMap(waitingTimeMaps, 2)
+  initData.waitingTimeMaps = await makeWaitingTimeMap(GRAPH_VERSION)
   if (Redis.client.connected) {
     await makeTagMap()
     await makeTypeMap()
@@ -18,7 +21,4 @@ async function init() {
 
 init()
 
-module.exports = {
-  graphMap,
-  waitingTimeMaps
-}
+module.exports = initData

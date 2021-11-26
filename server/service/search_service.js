@@ -1,6 +1,7 @@
 require('dotenv').config()
 const Redis = require('../../util/redis')
 const pool = require('../models/db/mysql')
+const SearchModel = require('../models/search_model')
 const { makeHouseMap } = require('../models/house_model')
 const { getDistanceSquare } = require('../../util/distance')
 const { getTypeMap } = require('./house_service')
@@ -45,21 +46,11 @@ async function getHousesInConstraint(budget, houseType, validTags) {
     return houses
   }
 
-  const q = `SELECT house.id, title, price, area, link, image, house.address, house.latitude, house.longitude, category.name AS category, tag.id AS tag FROM house 
-    JOIN category
-      ON house.category_id = category.id
-    JOIN house_tag
-      ON house.id = house_tag.house_id
-    JOIN tag
-      ON tag.id = house_tag.tag_id
-    WHERE price <= ${budget}
-      ${validTags.length !== 0 ? 'AND tag.id IN  (?)' : ''}
-      ${houseType ? `AND category.id = '${houseTypeId}'` : ''}
-  `
-  const [result] = await pool.query(q, [validTags])
+  houses = await SearchModel.getHouseInConstraint(budget, validTags, houseTypeId)
 
+  // get the houses which satisfy all tags
   const houseMap = {}
-  result.forEach(house => {
+  houses.forEach(house => {
     if (!houseMap[house.id]) {
       houseMap[house.id] = house
       houseMap[house.id].tags = []
@@ -76,23 +67,6 @@ async function getHousesInConstraint(budget, houseType, validTags) {
     return true
   })
 
-  // result.forEach((house) => {
-  //   if (!houseMap[house.id]) {
-  //     houseMap[house.id] = house
-  //     houseMap[house.id].tags = []
-  //     houseMap[house.id].counter = 0
-  //   }
-  //   houseMap[house.id].tags.push(house.tag)
-  //   if (validTags.includes(house.tag)) {
-  //     houseMap[house.id].counter++
-  //   }
-  // })
-  // console.log(result.length, 'rows from sql')
-  // houses = Object.values(houseMap).filter((house) => {
-  //   return house.counter === validTags.length
-  // })
-  // console.log('not cacheing house map')
-  // // console.log(houses.length, 'houses satisfy tag filters')
   if (Redis.client.connected) {
     makeHouseMap()
   }
@@ -177,7 +151,6 @@ function getPositionData(
   distToStopMap,
   graph
 ) {
-  // const startPointVertex = new Vertex(startPointId, 'startPoint', officeLat, officeLng)
   const reachableStationMap = {}
   reachableStations.forEach((reachableStation) => {
     const { id, startStationId, timeSpent, walkDistance } = reachableStation

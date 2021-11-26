@@ -1,15 +1,10 @@
 require('dotenv').config()
 const bcrypt = require('bcrypt')
-// const got = require('got');
-// const {pool} = require('./mysqlcon');
-const axios = require('axios')
 const pool = require('./db/mysql')
 const salt = parseInt(process.env.BCRYPT_SALT)
-const { TOKEN_EXPIRE, TOKEN_SECRET } = process.env // 30 days by seconds
+const { TOKEN_SECRET } = process.env // 30 days by seconds
 const jwt = require('jsonwebtoken')
 const { ErrorData } = require('../../util/error')
-// const { default: axios } = require('axios');
-
 
 async function signUp(email, password, name) {
   const conn = await pool.getConnection()
@@ -89,63 +84,6 @@ async function nativeSignIn(email, password) {
   }
 }
 
-async function facebookSignIn(id) {}
-
-const facebookSignInOld = async (id, roleId, name, email) => {
-  const conn = await pool.getConnection()
-  try {
-    await conn.query('START TRANSACTION')
-    const loginAt = new Date()
-    let user = {
-      provider: 'facebook',
-      role_id: roleId,
-      email: email,
-      name: name,
-      picture: 'https://graph.facebook.com/' + id + '/picture?type=large',
-      access_expired: TOKEN_EXPIRE,
-      login_at: loginAt
-    }
-    const accessToken = jwt.sign(
-      {
-        provider: user.provider,
-        name: user.name,
-        email: user.email,
-        picture: user.picture
-      },
-      TOKEN_SECRET
-    )
-    user.access_token = accessToken
-
-    const [users] = await conn.query(
-      "SELECT id FROM user WHERE email = ? AND provider = 'facebook' FOR UPDATE",
-      [email]
-    )
-    let userId
-    if (users.length === 0) {
-      // Insert new user
-      const queryStr = 'insert into user set ?'
-      const [result] = await conn.query(queryStr, user)
-      userId = result.insertId
-    } else {
-      // Update existed user
-      userId = users[0].id
-      const queryStr =
-        'UPDATE user SET access_token = ?, access_expired = ?, login_at = ?  WHERE id = ?'
-      await conn.query(queryStr, [accessToken, TOKEN_EXPIRE, loginAt, userId])
-    }
-    user.id = userId
-
-    await conn.query('COMMIT')
-
-    return { user }
-  } catch (error) {
-    await conn.query('ROLLBACK')
-    return { error }
-  } finally {
-    await conn.release()
-  }
-}
-
 const getUserDetail = async (email) => {
   try {
     const [users] = await pool.query('SELECT * FROM user WHERE email = ?', [
@@ -154,22 +92,6 @@ const getUserDetail = async (email) => {
     return users[0]
   } catch (e) {
     return null
-  }
-}
-
-const getFacebookProfile = async function (accessToken) {
-  try {
-    let res = await axios.get(
-      'https://graph.facebook.com/me?fields=id,name,email&access_token=' +
-        accessToken,
-      {
-        responseType: 'json'
-      }
-    )
-    return res.body
-  } catch (e) {
-    console.log(e)
-    throw 'Permissions Error: facebook access token is wrong'
   }
 }
 
@@ -278,9 +200,7 @@ async function getLikeDetails(userId) {
 module.exports = {
   signUp,
   nativeSignIn,
-  facebookSignIn,
   getUserDetail,
-  getFacebookProfile,
   like,
   dislike,
   getLikes,

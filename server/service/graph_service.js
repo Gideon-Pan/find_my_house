@@ -19,8 +19,6 @@ function makeOfficeToNearbyStopEdges(
   maxWalkDistance
 ) {
   let counter = 0
-  // const officeLat = office.lat()
-  // const officeLng = office.lng()
   for (let id of g.getAllIds()) {
     const lat = g.getVertex(id).lat()
     const lng = g.getVertex(id).lng()
@@ -35,7 +33,6 @@ function makeOfficeToNearbyStopEdges(
         startPointId,
         id,
         period,
-        // distToStation / walkVelocity + waitingTime
         distToStation / walkVelocity
       )
       g.addEdge(edge)
@@ -48,7 +45,6 @@ function makeOfficeToNearbyStopEdges(
 
   // can't get to any station but itself
   const timerNearby = Date.now()
-  // console.log((timerNearby - start) / 1000, 'seconds for get nearby station')
   console.log('nearByStationCount: ', nearByStationCount)
   return counter
 }

@@ -2,12 +2,9 @@ const { makeWaitingTimeMap, makeGraphs } = require("../../util/dijkstra/make_gra
 const { makeTagMap, makeTypeMap, makeHouseMap } = require("../models/house_model")
 const version = process.env.GRAPH_VERSION
 
-// let graphs
 init()
 async function init() {
   const time0_0 = Date.now()
-  // graphs = await makeGraphs(version)
-  // console.log(graphs)
   console.log('finish making graph step 0')
   const time0_1 = Date.now()
   console.log(

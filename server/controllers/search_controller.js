@@ -7,7 +7,8 @@ const {
 } = require('../service/search_service')
 const { makeOfficeToNearbyStopEdges } = require('../service/graph_service')
 const { getTagMap } = require('../service/house_service')
-const {graphMap, waitingTimeMaps} = require('../../util/init')
+// const {graphMap, waitingTimeMaps} = require('../../util/init')
+const initMap = require('../../util/init')
 const {WALK_VELOCITY} = process.env
 const startPointId = '0'
 
@@ -41,7 +42,7 @@ const search = async (req, res) => {
   if (pet === 'true') tags.push(tagMap['pet'])
   if (newItem === 'true') tags.push(tagMap['newItem'])
 
-  const graph = graphMap[commuteWay][period]
+  const graph = initMap.graphMap[commuteWay][period]
   console.log('receive')
 
   officeLat = Number(officeLat)
@@ -84,7 +85,7 @@ const search = async (req, res) => {
   }
   // const counter = {}
   const timer0 = Date.now()
-  const waitingTimeMap = waitingTimeMaps[period]
+  const waitingTimeMap = initMap.waitingTimeMaps[period]
   console.time('Dijkstra')
   const reachableStations = getReachableStops(
     graph,

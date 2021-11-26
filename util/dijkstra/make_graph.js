@@ -3,7 +3,8 @@ const db = require('../../server/models/db/mysql')
 const process = require('process'); 
 const { makeIdToPtx, makeBusIdMap, getType } = require('./make_graph_helper');
 
-async function makeGraphMap(graphMap, version) {
+async function makeGraphMap(version) {
+  const graphMap = {}
   const types = ['bus', 'metro', 'mix']
   const periods = ['weekdaysPeak', 'weekdays', 'weekend']
   // const stops = await getStops()
@@ -144,8 +145,8 @@ async function getEdges(version) {
   return edges
 }
 
-async function makeWaitingTimeMap(waitingTimeMaps, version) {
-  // console.log(version)
+async function makeWaitingTimeMap(version) {
+  const waitingTimeMaps = {}
   const idToPtxMap = await makeIdToPtx()
   const q = `SELECT to_stop_id, time_period_hour, time_period_minute, time, period FROM time_between_stop
   JOIN time_period
