@@ -1,5 +1,6 @@
 require('dotenv').config()
 const validator = require('validator')
+const UserService = require('../service/user_service')
 const UserModel = require('../models/user_model')
 const {
   validateSignUpRequest,
@@ -99,7 +100,7 @@ async function getLikes(req, res) {
 
 async function getLikeDetails(req, res) {
   try {
-    const favoriteHouses = await UserModel.getLikeDetails(req.user.id)
+    const favoriteHouses = await UserService.getLikeDetails(req.user.id)
     res.send({
       userId: req.user.id,
       favoriteHouses

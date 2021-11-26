@@ -139,62 +139,8 @@ async function getLikeDetails(userId) {
   WHERE like_table.user_id = ?
   `
   const values = [userId]
-  const [result] = await pool.query(q, values)
-  const houseMap = {}
-  result.forEach(
-    ({
-      house_id,
-      house_lat,
-      house_lng,
-      category,
-      area,
-      price,
-      link,
-      image,
-      address,
-      life_function_id,
-      life_function_name,
-      life_function_lat,
-      life_function_lng,
-      distance,
-      type_name,
-      subtype_name
-    }) => {
-      if (!houseMap[house_id]) {
-        houseMap[house_id] = {
-          id: house_id,
-          latitude: house_lat,
-          longitude: house_lng,
-          category,
-          area,
-          price,
-          link,
-          image,
-          address,
-          lifeFunction: {}
-        }
-      }
-
-      if (!houseMap[house_id].lifeFunction[type_name]) {
-        houseMap[house_id].lifeFunction[type_name] = {}
-      }
-
-      if (!houseMap[house_id].lifeFunction[type_name][subtype_name]) {
-        houseMap[house_id].lifeFunction[type_name][subtype_name] = []
-      }
-
-      houseMap[house_id].lifeFunction[type_name][subtype_name].push({
-        id: life_function_id,
-        name: life_function_name,
-        latitude: life_function_lat,
-        longitude: life_function_lng,
-        distance,
-        type: type_name,
-        subtype: subtype_name
-      })
-    }
-  )
-  return Object.values(houseMap)
+  const [houses] = await pool.query(q, values)
+  return houses
 }
 
 module.exports = {
