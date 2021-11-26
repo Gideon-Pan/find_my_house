@@ -8,6 +8,7 @@ client.on('connect', () => {
   // client.set('counter', 0)
   client.flushall()
   console.log('redis connected...')
+  // console.log(client)
 })
 
 client.on('error', (e) => {
