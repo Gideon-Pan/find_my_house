@@ -1,6 +1,5 @@
-const { getMongoData } = require('../../model/db/mongodb/mongo_helper')
-const db = require('../../model/db/mysql/mysql')
-// const { makeTimePeriodMap } = require('../bus/insert_mysql')
+const db = require('../../server/models/db/mysql')
+const { getMongoData } = require('../../server/models/db/mongo')
 const { makeMetroStopIdMap, makeMetroStationIdMap, makeMetroLineMap, makeMetroWaitingTimeMap} = require('./metro_map')
 
 async function insertMetroStations() {
@@ -19,7 +18,6 @@ async function insertMetroStations() {
       GeoHash
     ]
   })
-  // console.log(values)
   await db.query(q, [values])
   console.log('finish inserting metro stations into mysql')
 }
@@ -28,15 +26,11 @@ async function insertMetroLine() {
   const lines = await getMongoData('metroStations')
   const q = 'INSERT INTO line (ptx_line_id, name, type) VALUES ?'
   const values = lines.map((line) => {
-    // const {LineID, LineNo} = line
     return [line.LineID, line.LineNo, 'metro']
   })
-  // console.log(values)
   await db.query(q, [values])
   console.log('finish inserting metro lines')
 }
-
-// makePtxIdMap()
 
 async function insertMetroStops() {
   const lines = await getMongoData('metroStations')
@@ -55,17 +49,12 @@ async function insertMetroStops() {
       })
     })
   }
-  // console.log(values[269])
-  // console.log(values.length)
   await db.query(q, [values])
   console.log('finish inserting metro stops')
 }
 
-// makeMetroStopIdMap()
-
 async function insertMetroIntervalTime(periodId, version) {
   const intervalTimeList = await getMongoData('metroIntervalTime')
-  // const stopIdMap = await makeMetroStopIdMap()
   // filter repeat data
   const intervalTimeMap = {}
   intervalTimeList.forEach((intervalTime) => {
@@ -78,9 +67,7 @@ async function insertMetroIntervalTime(periodId, version) {
       }
     })
   })
-  // console.log(intervalTimeMap)
   // 去程 & 返程
-  // const timePeriodMap = await makeTimePeriodMap()
   const stopIdMap = await makeMetroStopIdMap()
   const q =
     'INSERT INTO time_between_stop (from_stop_id, to_stop_id, time_period_id, time, version) VALUES ?'
@@ -105,22 +92,14 @@ async function insertMetroIntervalTime(periodId, version) {
       version
     ])
   }
-  // console.log(values)
-  // return
   await db.query(q, [values])
   console.log('finish inserting metro time interval')
 }
 
-// insertMetroIntervalTime()
-
 async function insertMetroTransferTime(periodId, version) {
-  // console.log('qwe')
   const transferTimeList = await getMongoData('metroTransferTime')
-  // const timePeriodMap = await makeTimePeriodMap()
   const stopIdMap = await makeMetroStopIdMap()
-  // console.log(stopIdMap)
   const valuesMap = {}
-  // const values = []
   const q =
     'INSERT INTO time_between_stop (from_stop_id, to_stop_id, time_period_id, time, version) VALUES ?'
   // 2個轉乘節點/stop * 4 stop = 8 times
@@ -149,30 +128,20 @@ async function insertMetroTransferTime(periodId, version) {
             transferTimeSecond,
             version
           ]
-        // values.push([stationIds[i], stationIds[j], timePeriodMap['9-0'], transferTimeSecond])
-        // if (stationIds[i] == 180674 && stationIds[j] == 180809) {
-        //   console.log('what')
       }
     }
   })
   const values = Object.values(valuesMap)
-  // console.log(values)
-  // return
   await db.query(q, [values])
   console.log('finish inserting metro transfer time')
 }
 
-// insertMetroTransferTime()
-// period: weekdays (e.g.)
 async function insertFirstWaitingTime(periodId, period, version) {
-  // const timePeriodMap = await makeTimePeriodMap()
-  // return console.log(timePeriodMap)
   const waitingTimeMap = await makeMetroWaitingTimeMap()
   const [result1] = await db.query(
     'SELECT id, ptx_stop_id FROM stop WHERE ptx_stop_id = -1'
   )
   const startId = result1[0].id
-  // console.log(startId)
   const [result2] = await db.query(
     `
     SELECT stop.id, ptx_stop_id FROM stop 
@@ -188,36 +157,21 @@ async function insertFirstWaitingTime(periodId, period, version) {
   result2.forEach(({ id, ptx_stop_id }) => {
     const fromStopId = startId
     const toStopId = id
-    // console.log(ptx_stop_id)
-    // console.log(waitingTimeMap)
-    // const timePeriodId = timePeriodMap['9-0']
     let waitingTime = waitingTimeMap[ptx_stop_id][period]
     if (!waitingTime) {
-      // console.log(ptx_stop_id)
       waitingTime = 360
     }
     values.push([fromStopId, toStopId, periodId, waitingTime, version])
   })
-  // console.log(values)
-  // return
   await db.query(q, [values])
   console.log('finish inserting first waiting time for metro')
 }
-
-
-// async function insertMetroWaitingTime(periodId, period, version) {
-//   const waitingTimes = await getMongoData('metroStationWaitingTime')
-//   const q = ``
-//   waitingTimes.map
-// }
 
 async function insertTimeBetweenStopMetro() {
   await insertMetroIntervalTime()
   await insertMetroTransferTime()
   await insertMetroWaitingTime()
 }
-
-// insertMetroStations()
 
 module.exports = {
   insertMetroIntervalTime,

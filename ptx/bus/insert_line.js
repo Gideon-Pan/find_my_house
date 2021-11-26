@@ -1,9 +1,9 @@
-const poolPromisified = require('../model/mysql')
+const db = require('../../server/models/db/mysql')
 
 async function insertTimePeriodOld() {
   for (let i = 0; i < 24; i++) {
     for (let j = 0; j < 60; j = j + 5) {
-      await poolPromisified.query(`INSERT INTO time_period (time_period_hour, time_period_minute) 
+      await db.query(`INSERT INTO time_period (time_period_hour, time_period_minute) 
         VALUES (${i}, ${j})`)
     }
   }
@@ -22,9 +22,7 @@ async function insertLine() {
       continue
     }
     routeMap[name] = route
-    console.log('name: ', name)
-    console.log('ptx_line_id: ', ptx_line_id)
-    await poolPromisified.query(`INSERT INTO line (name, ptx_line_id)
+    await db.query(`INSERT INTO line (name, ptx_line_id)
       VALUES ('${name}', '${ptx_line_id}')`)
   }
 }

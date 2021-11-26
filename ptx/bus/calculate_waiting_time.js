@@ -1,9 +1,4 @@
-// const getPtxData = require('../metro-ptx')
-const { insertBusAvgWaitingTime } = require('./insert_mongo')
-const { insertMany, getMongoData } = require('../../model/db/mongodb/mongo_helper')
-
-// const timeStamp = Date.now()
-// console.log(timeStamp)
+const { getMongoData, insertMany } = require("../../server/models/db/mongo")
 
 function makeWaitingTimeMap(waitingTimeList) {
   const map = {}
@@ -32,7 +27,6 @@ function makeWaitingTimeMap(waitingTimeList) {
   }
   return map
 }
-
 
 function makeWaitingTimeMapNew(waitingTimeList) {
   const map = {}
@@ -68,7 +62,7 @@ async function createBusAvgWaitingTime() {
     let totalTime = 0
     let validCounter = 0
     for (let i = 0; i < stopData.length; i++) {
-      const { stopId, direction, dataTime, waitingTime, stopStatus } =
+      const {waitingTime} =
         stopData[i]
       if (waitingTime) {
         totalTime += waitingTime
@@ -80,29 +74,18 @@ async function createBusAvgWaitingTime() {
     avgTimeData.dataAmount = validCounter
     return avgTimeData
   })
-  // await insertBusAvgWaitingTime(avgTimeDataList)
   await insertMany('busAvgWaitingTime_1030', avgTimeDataList)
-  // console.log('done')
 }
-
-// createBusAvgWaitingTime()
 
 async function createBusAvgIntervalTime() {
   const waitingTimeList = await getMongoData('busWaitingTime')
   const waitingTimeMap = makeWaitingTimeMap(waitingTimeList)
   const waitingTimeMapNew = makeWaitingTimeMapNew(waitingTimeList)
-  // console.log('waitingTimeMapNew: ', waitingTimeMapNew);
   const routes = await getMongoData('busRoutes')
-  // console.log(waitingTimeMapNew["170055-0"]);
-  // console.log(waitingTimeMapNew["170056-0"])
   const busIntervalTimeMap = {}
   console.log('finsish fetching data')
   routes.forEach((route) => {
-    // const stopTimeMap = {}
     for (let i = 0; i < route.Stops.length - 1; i++) {
-      // console.log(`${route.Stops[i + 1].StopID}-${route.Direction}`)
-      // console.log(route.RouteID)
-
       if (
         !waitingTimeMapNew[`${route.Stops[i + 1].StopID}-${route.Direction}`] ||
         !waitingTimeMapNew[`${route.Stops[i].StopID}-${route.Direction}`]
@@ -120,21 +103,28 @@ async function createBusAvgIntervalTime() {
         const dataTime =
           waitingTimeMap[`${route.Stops[i].StopID}-${route.Direction}`][j]
             .dataTime
-        // console.log(dataTime)
+
         if (!dataTime) continue
+
         const dataWaitingTimeFrom =
           waitingTimeMap[`${route.Stops[i].StopID}-${route.Direction}`][j]
         const dataWaitingTimeTo =
           waitingTimeMapNew[`${route.Stops[i + 1].StopID}-${route.Direction}`][
             dataTime
           ]
+
         if (!dataWaitingTimeFrom || !dataWaitingTimeTo) continue
+
         const waitingTimeFrom = dataWaitingTimeFrom.waitingTime
         const waitingTimeTo = dataWaitingTimeTo.waitingTime
+
         if (!waitingTimeFrom || !waitingTimeTo) continue
+
         if (waitingTimeTo > waitingTimeFrom) {
           const interval = waitingTimeTo - waitingTimeFrom
-          if (!interval) console.log('waht')
+
+          if (!interval) console.log('error')
+
           if (
             !busIntervalTimeMap[
               `${route.Stops[i].StopID}-${route.Stops[i + 1].StopID}`
@@ -163,10 +153,8 @@ async function createBusAvgIntervalTime() {
         }
       }
     }
-    // console.log('route: ', route.RouteID);
   })
   const busIntervalTimeData = []
-  console.log(Object.values(busIntervalTimeMap).length)
   for (let dataList of Object.values(busIntervalTimeMap)) {
     let totalIntervalTime = 0
     let validCounter = 0
@@ -175,30 +163,15 @@ async function createBusAvgIntervalTime() {
       totalIntervalTime += data.intervalTime
       validCounter++
     }
-    // console.log((validCounter < Object.values(busIntervalTimeMap).length / 2))
     if (validCounter < dataList.length / 2) continue
     const { fromStopId, toStopId } = dataList[0]
-    // console.log(validCounter)
     busIntervalTimeData.push({
       fromStopId,
       toStopId,
       avgIntervalTime: totalIntervalTime / validCounter,
       dataAmount: validCounter
     })
-    // console.log('fromStopId: ', dataList[0].fromStopId);
-    // console.log('toStopId: ', dataList[0].toStopId);
   }
-  // console.log(busIntervalTimeData)
   await insertMany('busAvgIntervalTime', busIntervalTimeData)
   process.exit()
 }
-
-// createBusAvgIntervalTime()
-
-// createBusAvgWaitingTime()
-
-// const time = '2021-10-20T19:02:35+08:00'
-// var date = new Date(time);
-// var weekday = date.getDay();
-// var min = date.getMinutes();
-// var hour = date.getHours();

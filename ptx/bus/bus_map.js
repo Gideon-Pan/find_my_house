@@ -1,5 +1,5 @@
-const { getMongoData } = require('../../model/db/mongodb/mongo_helper')
-const db = require('../../model/db/mysql/mysql')
+const { getMongoData } = require('../../server/models/db/mongo')
+const db = require('../../server/models/db/mysql')
 
 async function makeWaitingTimeMap() {
   const waitingTimeList = await getMongoData('busAvgWaitingTime')
@@ -53,7 +53,6 @@ async function makeStopStationMap() {
 
 async function makePtxIdMap() {
   const q = `SELECT id, ptx_stop_id FROM stop`
-  // const values = [ptxId]
   const [result] = await db.query(q)
   const map = {}
   result.forEach(({ id, ptx_stop_id }) => {
@@ -68,7 +67,6 @@ async function makePostionMap() {
   busStops.forEach(stop => {
     map[stop.StopID] = stop.StopPosition
   })
-  // console.log(map)
   return map
 }
 
@@ -78,26 +76,17 @@ async function makeDistanceMap() {
   distanceList.forEach(({fromStopId, toStopId, distance}) => {
     distanceMap[`${fromStopId}-${toStopId}`] = distance
   })
-  // console.log(distanceMap)
   return distanceMap
 }
 
-// makeDistanceMap()
 async function makeStopRouteMap() {
   const stopRouteMap = {}
   const routes = await getMongoData('busRoutes')
   routes.forEach(route => {
-    route.Stops.forEach((stop, i) => {
-      // console.log(stop.StopID)
-      // if (stop.StopID === "161601") {
-      //   console.log(route.RouteID)
-      //   console.log(route.Direction)
-      //   console.log(i)
-      // }
+    route.Stops.forEach(stop => {
       stopRouteMap[stop.StopID] = route.RouteID
     })
   })
-  // console.log(stopRouteMap)
   return stopRouteMap
 }
 
