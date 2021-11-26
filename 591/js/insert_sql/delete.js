@@ -1,5 +1,5 @@
 const pool = require('../../../server/models/db/mysql')
-const { sleep } = require('../sleep')
+const { sleep } = require('./sleep')
 
 async function deleteTable(tableName, bulkNum) {
   const q =
@@ -12,10 +12,10 @@ async function deleteTable(tableName, bulkNum) {
     const [result] = await pool.query(q)
     affectedRows = result.affectedRows
     counter += affectedRows
-    console.log(`finish delete ${counter} of ${tableName}`)
+    console.log(`finish delete ${counter} ${tableName}s`)
     await sleep(2)
   }
   console.log('finish')
 }
 
-deleteTable('station_house_distance', 10000)
+deleteTable(process.argv[2], process.argv[3])

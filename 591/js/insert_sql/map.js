@@ -7,7 +7,6 @@ async function makeTypeToIdMap() {
   result.forEach(({id, name}) => {
     typeMap[name] = id
   })
-  // console.log(typeMap)
   return typeMap
 }
 
@@ -18,7 +17,6 @@ async function makeSubypeToIdMap() {
   result.forEach(({id, name}) => {
     subtypeMap[name] = id
   })
-  // console.log(subtypeMap)
   return subtypeMap
 }
 
@@ -29,8 +27,6 @@ async function makeCategoryToIdMap() {
   result.forEach(({id, name}) => {
     map[name] = id
   })
-  // console.log(subtypeMap)
-  // console.log(map)
   return map
 }
 
@@ -39,13 +35,8 @@ async function makeLifeFunctionMap() {
   const q = 'SELECT id, name, latitude, longitude FROM life_function'
   const [result] = await pool.query(q)
   result.forEach(({id, name, latitude, longitude}) => {
-    // console.log(typeof latitude)
-    // if (name === '三重社區大學') console.log(`${name}-${latitude}-${longitude}`)
-    
     map[`${name}-${latitude}-${longitude}`] = id
   })
-  // console.log(subtypeMap)
-  // console.log(map)
   return map
 }
 
@@ -56,7 +47,6 @@ async function makeTagMap() {
   result.forEach(({id, name}) => {
     map[name] = id
   })
-  // console.log(map)
   return map
 }
 
@@ -67,16 +57,8 @@ async function makeFacilityMap() {
   result.forEach(({id, name}) => {
     map[name] = id
   })
-  // console.log(map)
   return map
 }
-
-// makeCategoryToIdMap()
-// makeTypeMap()
-// makeSubypeToIdMap()
-// makeLifeFunctionMap()
-// makeTagMap()
-// makeFacilityMap()
 
 module.exports = {
   makeTypeToIdMap,

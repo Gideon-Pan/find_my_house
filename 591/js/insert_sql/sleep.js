@@ -6,13 +6,6 @@ async function sleep(n) {
   })
 }
 
-// async function main() {
-//   // console.log(0)
-//   await sleep(3)
-//   console.log(3)
-// }
-
-// main()
 module.exports = {
   sleep
 }
