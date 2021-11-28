@@ -24,6 +24,7 @@ async function getHousesInConstraintWithRedis(budget, validTags, houseTypeId) {
     const houseMapCache = JSON.parse(await Redis.get('houseMap'))
     let counter = 0
     const houses = Object.values(houseMapCache).filter((house) => {
+      // console.log(house)
       if (houseTypeId && houseTypeId !== house.categoryId) {
         return false
       }
