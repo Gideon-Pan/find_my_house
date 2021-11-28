@@ -285,6 +285,9 @@ function renderHouse(house) {
         lastOpenedInfoWindow = infowindow
         infowindow.addListener('closeclick', () => (houseInfoStatus = false))
         houseInfoStatus = true
+        houseInfowindow.setOptions({
+          disableAutoPan: true,
+        })
       }
     })(marker, id, houseInfowindow)
   )
@@ -296,6 +299,9 @@ function renderHouse(house) {
     houseInfowindow.open(map, marker)
     lastOpenedInfoWindow = houseInfowindow
     houseInfoStatus = true
+    // houseInfowindow.setOptions({
+    //   disableAutoPan: true,
+    // })
   }
 
   markerMap[id] = marker
@@ -359,6 +365,17 @@ function renderHouses(houses) {
   if (!markerCluster || clearClusterAll) {
     // var mcOptions = {gridSize: 40, maxZoom: 16, zoomOnClick: false, minimumClusterSize: 2};
     markerCluster = new markerClusterer.MarkerClusterer({ markers, map })
+  }
+}
+
+function changeSwitchState() {
+  switchState = switchState ? 0 : 1
+  if (switchState) {
+    renderRadio()
+    renderLifeFunction()
+  } else {
+    removeRadio()
+    clearLifeFunction()
   }
 }
 
