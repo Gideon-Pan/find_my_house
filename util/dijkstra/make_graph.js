@@ -122,6 +122,7 @@ async function getEdges(version) {
       AND version = ${version}
       ${process.argv[2] === 'metro' ? 'AND type = "metro"' : ''}
     `
+//console.log(q)
   const [result] = await db.query(q)
   result.forEach(
     (data) => {
