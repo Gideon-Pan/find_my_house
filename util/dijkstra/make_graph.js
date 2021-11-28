@@ -130,14 +130,14 @@ async function getEdges(version) {
         return
       }
       data.distance = data.distance ? data.distance : 0
+      // invert the direction of the edge
       const edge = new Edge(
-        busIdMap[data.from_stop_id],
         busIdMap[data.to_stop_id],
+        busIdMap[data.from_stop_id],
         data.period,
         data.time,
         data.distance
       )
-      // g.addEdge(edge)
       edges.push(edge)
     }
   )

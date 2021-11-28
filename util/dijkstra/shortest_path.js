@@ -1,8 +1,7 @@
 const { PQ } = require('./priority_queue')
 
-// const startPointId = '0'
-function getReachableStops(g, fromId, timeLeft, period, waitingTimeMap) {
-  const ids = g.getAllIds()
+function getReachableIds(graph) {
+  const ids = graph.getAllIds()
   const pq = new PQ()
   const timeTo = {}
   const walkDistance = {}
@@ -37,7 +36,7 @@ function getReachableStops(g, fromId, timeLeft, period, waitingTimeMap) {
     marked[currentId] = true
 
     // path relaxation
-    for (const edge of g.adj(currentId)) {
+    for (const edge of graph.adj(currentId)) {
       const neighborId = edge.to()
       if (marked[neighborId]) continue
 
@@ -56,6 +55,67 @@ function getReachableStops(g, fromId, timeLeft, period, waitingTimeMap) {
       }
     }
   }
+}
+
+// const startPointId = '0'
+function getReachableStops(graph, fromId, timeLeft, period, waitingTimeMap) {
+  const ids = graph.getAllIds()
+  const pq = new PQ()
+  const timeTo = {}
+  const walkDistance = {}
+
+  // add stops into priority queue
+  for (let i = 0; i < ids.length; i++) {
+    if (ids[i] === fromId) {
+      pq.enqueue(ids[i], 0)
+      continue
+    }
+    timeTo[ids[i]] = Number.MAX_SAFE_INTEGER
+    pq.enqueue(ids[i], Number.MAX_SAFE_INTEGER)
+  }
+
+  const edgeTo = {}
+  const marked = {}
+  timeTo[fromId] = 0
+  let counter = 0
+  let counter2 = 0
+  const reachableStationIds = []
+
+  // use Dijkstra's algorithm to get reachable stop id
+  while (pq.size() > 0) {
+    // console.log(pq.peek())
+    const currentId = pq.dequeue().id()
+    const waitingTime = waitingTimeMap[currentId] || 0
+    // stop when time exceed time limit
+    if (timeTo[currentId] > timeLeft) {
+      break
+    }
+    reachableStationIds.push(currentId)
+    counter++
+    marked[currentId] = true
+
+    // path relaxation
+    for (const edge of graph.adj(currentId)) {
+      
+      const neighborId = edge.to()
+      if (marked[neighborId]) continue
+
+      const qElement = pq.getElementById(neighborId)
+      if (!qElement) {
+        continue
+      }
+
+      // update the priority of the stop
+      if (timeTo[currentId] + edge.time() < qElement.priority()) {
+        counter2++
+        edgeTo[neighborId] = currentId
+        timeTo[neighborId] = timeTo[currentId] + edge.time()
+        qElement.setPriority(timeTo[currentId] + edge.time())
+        pq.sink(qElement)
+        pq.swim(qElement)
+      }
+    }
+  }
 
   // calculate the consuming time from start point to stops
   const reachableStations = []
@@ -66,7 +126,7 @@ function getReachableStops(g, fromId, timeLeft, period, waitingTimeMap) {
     while (edgeTo[currentId]) {
       // track the path
       path.push(edgeTo[currentId])
-      const edge = g.getEdge(edgeTo[currentId], currentId, period)
+      const edge = graph.getEdge(edgeTo[currentId], currentId, period)
       currentId = edgeTo[currentId]
       if (!walkDistance[reachableStationId]) {
         walkDistance[reachableStationId] = 0
@@ -93,6 +153,8 @@ function getReachableStops(g, fromId, timeLeft, period, waitingTimeMap) {
       walkDistance: walkDistance[reachableStationId]
     })
   }
+  console.log('counter1', counter)
+  console.log('counter2', counter2)
   return reachableStations
   // console.log(`行經站數: ${path.length}站`)
 }
