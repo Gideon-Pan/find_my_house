@@ -1,24 +1,13 @@
-/* Always set the map height explicitly to define the size of the div
-       * element that contains the map. */
-
 html,
 body {
-  /* height: 100%; */
   height: calc(100vh - 50px);
   width: 100%;
   margin: 0;
   padding: 0;
-  /* display: none; */
 }
 
 body {
-  /* background-image: url('./assets/background.jfif'); */
-  /* background-color: bisque; */
   background-color: aliceblue;
-  /* display: flex;
-  flex-direction: column;
-  justify-content: space-around;
-  align-items: center; */
   display: none;
 }
 
@@ -35,8 +24,6 @@ body {
 
 .logo {
   display: flex;
-  /* margin-right: 500px; */
-
   margin-left: 30px;
 }
 
@@ -49,7 +36,6 @@ body {
   margin-bottom: 0;
   font-size: 22px;
   font-weight: 500;
-  /* font-family: '王漢宗中隸書繁' */
 }
 
 .blank {
@@ -79,7 +65,6 @@ main {
   display: flex;
   flex-direction: column;
   justify-content: space-evenly;
-  /* justify-content: center; */
   align-items: center;
   position: relative;
 }
@@ -88,8 +73,6 @@ main {
   height: 100px;
   width: 80%;
   display: flex;
-  /* flex-wrap: wrap; */
-  /* margin: 0 auto; */
   margin: 10px;
   justify-content: space-between;
   align-items: center;
@@ -101,34 +84,17 @@ main {
 
 .filters {
   display: flex;
-  /* display: none; */
   flex-direction: column;
   justify-content: space-around;
   flex-grow: 1;
-  /* justify-content: center; */
 }
 
 .selects {
-  /* height: 50px;
-  width: 70%; */
   display: flex;
-  /* flex-wrap: wrap; */
   margin: 5px 0 auto 10px;
   justify-content: space-around;
   align-items: center;
-  /* border: #ccc; */
-  /* border-radius: 50px;
-  box-shadow: 3px 3px 10px rgba(50, 50, 50, 0.1),
-    2px 2px 4px rgba(60, 60, 60, 0.1); */
 }
-
-/* .filter form {
-  border: #ccc;
-  border-radius: 50px;
-  box-shadow: 3px 3px 10px rgba(50, 50, 50, 0.1),
-    2px 2px 4px rgba(60f, 60, 60, 0.1);
-  margin: 30px 0;
-} */
 
 .filters-old {
   display: none;
@@ -136,11 +102,7 @@ main {
 
 .selects select {
   width: 130px;
-  /* height: 35px; */
-  /* height: 100%; */
-  /* margin: 0 10px; */
   border-radius: 25px;
-  /* border: none; */
   margin-left: 20px;
 }
 
@@ -151,10 +113,8 @@ main {
 .checks {
   display: flex;
   margin: 10px auto 0px;
-  /* justify-content: space-between; */
   justify-content: center;
   align-items: center;
-  /* display: none; */
 }
 
 .checks div {
@@ -170,11 +130,7 @@ main {
   margin-right: 25px;
   height: 60px;
   width: 60px;
-  /* background-color: bisque; */
-  /* background-color: rgba(127,255,21, 0.5); */
-  /* background-color: darkkhaki; */
   background-color: #ffd7ae;
-  /* background-color: #D9816F; */
   border-radius: 50%;
   box-shadow: 3px 3px 3px gray;
 }
@@ -191,10 +147,6 @@ main {
   cursor: pointer;
 }
 
-/* .search img {
-  margin-top: 15px;
-  margin-left: 15px;
-} */
 .search img {
   height: 40px;
   width: 40px;
@@ -205,22 +157,15 @@ main {
 #map {
   margin-top: 5px;
   height: 80%;
-  /* height: 100vh; */
   width: 80%;
-  /* margin: 10px auto; */
-  /* margin:  auto; */
   margin-bottom: 15px;
 }
-
-/* Optional: Makes the sample page fill the window. */
 
 .radio {
   display: none;
   position: absolute;
   top: calc(10% + 75px);
   z-index: 3;
-  /* background-color: #EFC2CE; */
-  /* background-color: #85A4B3; */
   background-color: #aeced2;
   border-radius: 300px;
   padding: 10px 10px 9px 20px;
@@ -235,19 +180,9 @@ main {
   margin-top: 3px;
 }
 
-/* .gm-style-iw + div {display: none;} */
-/* button.gm-ui-hover-effect {
-  visibility: hidden;
-}
-.gm-style-iw-d {
-  overflow: hidden !important;
-} */
-
 /* loading */
 .block {
   height: 500px;
-  /* background-color: #AECED2; */
-  /* background-color: rgb(139, 132, 131); */
   background-color: aliceblue;
   opacity: 0.9;
   position: absolute;
@@ -282,11 +217,4 @@ main {
   top: calc(50vh - 100px + 50px);
   left: calc(50vw - 100px);
   z-index: 10;
-  /* background-color: rgb(139, 132, 131); */
 }
-/* .loading {
-
-  top: calc(50vh - 100px + 50px);
-  left: calc(50vw - 100px);
-  z-index: 10;
-} */

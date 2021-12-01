@@ -1,9 +1,5 @@
-/* Always set the map height explicitly to define the size of the div
-       * element that contains the map. */
-
 html,
 body {
-  /* height: 100%; */
   height: calc(100vh - 50px);
   width: 100%;
   margin: 0;
@@ -11,13 +7,7 @@ body {
 }
 
 body {
-  /* background-image: url('./assets/background.jfif'); */
-  /* background-color: bisque; */
   background-color: aliceblue;
-  /* display: flex;
-         flex-direction: column;
-         justify-content: space-around;
-         align-items: center; */
 }
 
 .header {
@@ -25,16 +15,12 @@ body {
   justify-content: space-around;
   align-items: center;
   height: 50px;
-  /* width: 100vw; */
-  /* position: fixed; */
   border-bottom: 40px;
   background-color: white;
 }
 
 .logo {
   display: flex;
-  /* margin-right: 500px; */
-
   margin-left: 30px;
 }
 
@@ -75,6 +61,5 @@ main {
   display: flex;
   flex-direction: column;
   justify-content: space-evenly;
-  /* justify-content: center; */
   align-items: center;
 }

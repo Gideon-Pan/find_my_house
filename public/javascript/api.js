@@ -1,7 +1,6 @@
 async function like() {
   const accessToken = window.localStorage.getItem('accessToken')
   if (!accessToken) {
-    console.log(123)
     Swal.fire({
       title: '加入收藏前請先登入',
       // showDenyButton: true,
@@ -71,7 +70,6 @@ async function dislike() {
   }
   likeMap[selectedHouseId] = false
   setDislike(selectedHouseId)
-  console.log(selectedHouseId)
   try {
     const { data } = await axios.delete('/api/1.0/user/like', {
       data: {
@@ -81,7 +79,6 @@ async function dislike() {
         Authorization: `Bearer ${accessToken}`
       }
     })
-    console.log('successfully dislike')
   } catch (e) {
     console.log(e)
     Swal.fire({

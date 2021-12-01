@@ -101,7 +101,6 @@ async function search(isOldSearch) {
   window.localStorage.setItem('directRent', directRent)
   window.localStorage.setItem('pet', pet)
   window.localStorage.setItem('newItem', newItem)
-  console.log(newItem)
 
   removeReachableArea()
   removeBlock()

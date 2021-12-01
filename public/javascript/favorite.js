@@ -19,9 +19,6 @@ let activeIndex = 0
 
 async function getFavorite() {
   const accessToken = window.localStorage.getItem('accessToken')
-  // console.log('here')
-  // console.log(accessToken)
-  // console.log(selectedHouseId)
   try {
     const { data } = await axios.get(
       '/api/1.0/user/like/details',
@@ -31,8 +28,6 @@ async function getFavorite() {
         }
       }
     )
-    // console.log('....')
-    console.log(data)
     if (data.favoriteHouses.length === 0) {
       $('main').css('display', 'none')
       return $('.no-like').css('display', 'flex')
@@ -41,13 +36,7 @@ async function getFavorite() {
       houseMap[favoriteHouse.id] = favoriteHouse
       houses.push(favoriteHouse)
     })
-    console.log(houseMap)
-    // console.log(likeMap)
-    // console.log('successfully like')
   } catch (e) {
-    console.log(e)
-    console.log('fail')
-
     location.href= '/'
   }
 }
@@ -112,8 +101,7 @@ function renderListGroup() {
     htmls += html
     // console.log($(`#${house.id}`))
   })
-  // console.log('rerender')
-  // console.log(htmls)
+
   $('.list-group').html(htmls)
   houses.forEach(house => {
     $(`#${house.id}-dislike`).click(dislike)
@@ -140,6 +128,7 @@ function renderHouse(id) {
     currentHouseMarker.setMap(null)
   }
   const house = houseMap[id]
+  if (!house) return
   let {
     title,
     area,
@@ -224,16 +213,8 @@ async function dislike(event) {
         Authorization: `Bearer ${accessToken}`
       }
     })
-    // likeMap[selectedHouseId] = false
-    // setDislike(selectedHouseId)
-    console.log('successfully dislike')
-    // let currentIndex
     houses.forEach((house, index) => {
-      // console.log(id)
-      // console.log(house.id)
       if (house.id === id) {
-        // Index = index
-        
         if (index < activeIndex) {
           houses.splice(index, 1)
           return activeIndex--
@@ -242,21 +223,15 @@ async function dislike(event) {
           activeIndex--
         }
         houses.splice(index, 1)
-        // console.log('###')
       }
     })
     if (houses.length === 0) {
       location.href = ''
     }
-    // console.log(currentIndex)
-    // return
     delete houseMap[id]
     console.log(houses.length)
     renderListGroup()
     selectHouse(houses[activeIndex].id)
-    // alert('wqeq')
-    console.log('finsih dislike function')
-    // event.stopPropagation()
   } catch (e) {
     console.log(e)
     console.log('fail')
