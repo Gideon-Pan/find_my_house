@@ -12,7 +12,6 @@ describe('Dijkstra algorithm for getting houses in range', function () {
       pq.enqueue('id2', 6)
       pq.enqueue('id4', 5)
       assert.equal(pq.size(), 3)
-      // assert.equal([1, 2, 3].indexOf(4), -1);
     })
     it('shold throw error for repeated id', function () {
       expect(() => {
@@ -40,8 +39,6 @@ describe('Dijkstra algorithm for getting houses in range', function () {
       assert.equal(pq1.size(), 1)
       assert.equal(pq1.dequeue().id(), 'id1')
       assert.equal(pq1.size(), 0)
-
-      const pq2 = new PQ()
     })
     it('should return null when peeking an emtpy queue', function () {
       const pq = new PQ()
@@ -67,7 +64,6 @@ describe('Dijkstra algorithm for getting houses in range', function () {
     graph.addEdge(new Edge('startPoint', 'stop1', 'periodTest', 1, 70))
     graph.addEdge(new Edge('startPoint', 'stop2', 'periodTest', 1, 30))
     graph.addEdge(new Edge('startPoint', 'stop3', 'periodTest', 7, 50))
-    // graph.addEdge(new Edge('stop1', 'startPoint', 'periodTest', 2))
     graph.addEdge(new Edge('stop1', 'stop4', 'periodTest', 4))
     graph.addEdge(new Edge('stop2', 'stop3', 'periodTest', 2))
     graph.addEdge(new Edge('stop2', 'stop4', 'periodTest', 5))
@@ -85,14 +81,7 @@ describe('Dijkstra algorithm for getting houses in range', function () {
     }
 
     it('should get the reachable stops given time limit, period and the whole graph', function () {
-      const reacahbleStopsArray = getReachableStops(
-        graph,
-        'startPoint',
-        10,
-        'periodTest',
-        waitingTimeMap
-      )
-      // console.log(reacahbleStopsArray)
+      const reacahbleStopsArray = getReachableStops(graph, 'startPoint', 10, 'periodTest', waitingTimeMap)
       const expectedArray = [
         {
           id: 'startPoint',
@@ -129,14 +118,7 @@ describe('Dijkstra algorithm for getting houses in range', function () {
     })
 
     it('should get the reachable stops given tight time limit, period and the whole graph', function () {
-      const reacahbleStopsArray = getReachableStops(
-        graph,
-        'startPoint',
-        4,
-        'periodTest',
-        waitingTimeMap
-      )
-      // console.log(reacahbleStopsArray)
+      const reacahbleStopsArray = getReachableStops(graph, 'startPoint', 4, 'periodTest', waitingTimeMap)
       const expectedArray = [
         {
           id: 'startPoint',
@@ -163,6 +145,7 @@ describe('Dijkstra algorithm for getting houses in range', function () {
           walkDistance: 30
         }
       ]
+      expect(reacahbleStopsArray).to.have.deep.members(expectedArray)
     })
   })
 })

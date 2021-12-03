@@ -9,7 +9,6 @@ async function cleanseData(rawDataCollection, today) {
   const map = {}
   houses.forEach((house) => {
     if (!house.data.shareInfo) {
-      // return console.log(house)
       return
     }
     map[house.id] = house

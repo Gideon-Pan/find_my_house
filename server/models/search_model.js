@@ -16,7 +16,7 @@ async function getHouseInConstraint(budget, validTags, houseTypeId) {
   let [houses] = await pool.query(q, [validTags])
   const housesFiltered = []
   const houseMap = {}
-  houses.forEach(house => {
+  houses.forEach((house) => {
     if (!houseMap[house.id]) {
       houseMap[house.id] = house
       houseMap[house.id].validTagCounter = 0
@@ -28,14 +28,6 @@ async function getHouseInConstraint(budget, validTags, houseTypeId) {
       }
     }
   })
-  // houses = houses.filter(house => {
-  //   for (let tag of validTags) {
-  //     if (!house.tagIds.includes(tag)) {
-  //       return false
-  //     }
-  //   }
-  //   return true
-  // })
   return housesFiltered
 }
 

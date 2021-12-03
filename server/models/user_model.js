@@ -2,7 +2,7 @@ require('dotenv').config()
 const bcrypt = require('bcrypt')
 const pool = require('./db/mysql')
 const salt = parseInt(process.env.BCRYPT_SALT)
-const { TOKEN_SECRET } = process.env // 30 days by seconds
+const { TOKEN_SECRET } = process.env
 const jwt = require('jsonwebtoken')
 const { ErrorData } = require('../../util/error')
 
@@ -10,19 +10,16 @@ async function signUp(email, password, name) {
   const conn = await pool.getConnection()
   try {
     await conn.query('START TRANSACTION')
-    const [emails] = await conn.query(
-      'SELECT email FROM user WHERE email = ? FOR UPDATE',
-      [email]
-    )
+    const [emails] = await conn.query('SELECT email FROM user WHERE email = ? FOR UPDATE', [email])
     if (emails.length > 0) {
       await conn.query('COMMIT')
-      return {error: new ErrorData(403, 'Email Already Exists')}
+      return { error: new ErrorData(403, 'Email Already Exists') }
     }
     const user = {
       provider: 'native',
       email,
       password: bcrypt.hashSync(password, salt),
-      name,
+      name
     }
     const accessToken = jwt.sign(
       {
@@ -36,11 +33,11 @@ async function signUp(email, password, name) {
     user['access_token'] = accessToken
     await conn.query('INSERT INTO user set ?', user)
     await conn.query('COMMIT')
-    return {accessToken}
+    return { accessToken }
   } catch (error) {
     console.log(error)
     await conn.query('ROLLBACK')
-    return {error: new ErrorData(500, error)} 
+    return { error: new ErrorData(500, error) }
   } finally {
     await conn.release()
   }
@@ -50,12 +47,8 @@ async function nativeSignIn(email, password) {
   const conn = await pool.getConnection()
   try {
     await conn.query('START TRANSACTION')
-    const [users] = await conn.query(
-      'SELECT * FROM user WHERE email = ?',
-      [email]
-    )
+    const [users] = await conn.query('SELECT * FROM user WHERE email = ?', [email])
     const user = users[0]
-    // console.log(user)
     if (!user) {
       await conn.query('COMMIT')
       return { error: new ErrorData(400, 'Sign In Fail') }
@@ -86,9 +79,7 @@ async function nativeSignIn(email, password) {
 
 const getUserDetail = async (email) => {
   try {
-    const [users] = await pool.query('SELECT * FROM user WHERE email = ?', [
-      email
-    ])
+    const [users] = await pool.query('SELECT * FROM user WHERE email = ?', [email])
     return users[0]
   } catch (e) {
     return null

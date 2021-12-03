@@ -2,10 +2,7 @@ require('dotenv').config()
 const validator = require('validator')
 const UserService = require('../service/user_service')
 const UserModel = require('../models/user_model')
-const {
-  validateSignUpRequest,
-  validateSignInRequest
-} = require('../../util/validate')
+const { validateSignUpRequest, validateSignInRequest } = require('../../util/validate')
 
 async function signUp(req, res) {
   let { name } = req.body
@@ -15,9 +12,7 @@ async function signUp(req, res) {
   const validateError = validateSignUpRequest(email, password, name)
   console.log(validateError)
   if (validateError) {
-    return res
-      .status(validateError.status)
-      .send({ error: validateError.message })
+    return res.status(validateError.status).send({ error: validateError.message })
   }
   name = validator.escape(name)
 
@@ -39,17 +34,11 @@ async function signIn(req, res) {
     case 'native':
       const validateError = validateSignInRequest(email, password)
       if (validateError) {
-        return res
-          .status(validateError.status)
-          .send({ error: validateError.message })
+        return res.status(validateError.status).send({ error: validateError.message })
       }
-      const { error, accessToken } = await UserModel.nativeSignIn(
-        email,
-        password,
-        name
-      )
+      const { error, accessToken } = await UserModel.nativeSignIn(email, password, name)
       if (error) {
-        return res.status(error.status).send({error: error.message})
+        return res.status(error.status).send({ error: error.message })
       }
       res.send({ data: { accessToken } })
       break

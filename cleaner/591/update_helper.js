@@ -188,17 +188,8 @@ async function insertNewLifeFunction(cleansedDataNew) {
   })
   newHouses.forEach((house) => {
     house.lifeFunction.forEach((type) => {
-      // const type = type.name
       type.children.forEach((subtype) => {
-        // const subtype = subtype.name
         subtype.children.forEach(({ name, lat, lng, distance }) => {
-          // console.log(lifeFunctionMap[`${name}-${lat}-${lng}`])
-          // if (!lifeFunctionMap[`${name}-${Number(lat)}-${Number(lng)}`]) {
-          //   console.log(name)
-          //   console.log(Number(lat))
-          //   console.log(Number(lng))
-          //   if (name === '三重社區大學') console.log(`${name}-${Number(lat)}-${Number(lng)}`)
-          // }
           if (!oldLifeFunctionMap[`${name}-${Number(lat)}-${Number(lng)}`]) {
             lifeFuntionToInsertMap[`${name}-${Number(lat)}-${Number(lng)}`] = [
               name,
@@ -206,20 +197,7 @@ async function insertNewLifeFunction(cleansedDataNew) {
               lng,
               subtypeToIdMap[subtype.name]
             ]
-
-            // lifeFuntionsToInsert.push([name, lat, lng, subtypeToIdMap[subtype.name]])
-            // if (name === "老蔡水煎包 民權店") {
-            //   console.log('老菜')
-            //   console.log(oldLifeFunctionMap[`${name}-${Number(lat)}-${Number(lng)}`])
-            //   console.log(name)
-            //   console.log(lat)
-            //   console.log(lng)
-            // }
           }
-          // values.push([house.id, lifeFunctionMap[`${name}-${Number(lat)}-${Number(lng)}`], distance])
-          // console.log(distance)
-          // if
-          // lifeFunctionMap[`${name}-${lat}-${lng}`] = [name, lat, lng, subtypeToIdMap[subtype.name]]
         })
       })
     })

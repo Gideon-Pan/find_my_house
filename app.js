@@ -20,6 +20,5 @@ app.listen(3000, () => {
 })
 
 app.use((req, res) => {
-  // console.log('404')
   res.redirect('/404.html')
 })

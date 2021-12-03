@@ -17,15 +17,13 @@ async function getLifeFunction(id) {
   ORDER BY distance
 `
   const [result] = await pool.query(q)
-  // console.log(result)
 
   const idMap = {}
   if (result.length === 0) return {}
 
   const lifeFunctionMap = {}
   result.forEach((lifeFunction) => {
-    const { id, name, latitude, longitude, distance, type_name, subtype_name } =
-      lifeFunction
+    const { id, name, latitude, longitude, distance, type_name, subtype_name } = lifeFunction
     if (!lifeFunctionMap[type_name]) {
       lifeFunctionMap[type_name] = {}
     }
@@ -93,11 +91,7 @@ async function makeHouseStopDistanceMap() {
     stationStops[data.station_id].push(data.ptx_stop_id)
   })
   const time1 = Date.now()
-  console.log(
-    'finish fetching stop house distance:',
-    (time1 - time0) / 1000,
-    'seconds'
-  )
+  console.log('finish fetching stop house distance:', (time1 - time0) / 1000, 'seconds')
   let stopCounter = 0
   let houseCounter = 0
   let counter = 0
@@ -114,19 +108,12 @@ async function makeHouseStopDistanceMap() {
       if (!houseStopDistanceMap[houseIdToNumMap[data.house_id]]) {
         houseStopDistanceMap[houseIdToNumMap[data.house_id]] = []
       }
-      houseStopDistanceMap[houseIdToNumMap[data.house_id]].push([
-        stop_id,
-        data.distance
-      ])
+      houseStopDistanceMap[houseIdToNumMap[data.house_id]].push([stop_id, data.distance])
       counter++
     })
   })
   const time2 = Date.now()
-  console.log(
-    'finish loading stop house distance:',
-    (time2 - time1) / 1000,
-    'seconds'
-  )
+  console.log('finish loading stop house distance:', (time2 - time1) / 1000, 'seconds')
   return {
     stopIdToNumMap,
     houseIdToNumMap,
@@ -147,7 +134,6 @@ async function makeHouseMap() {
   const [result] = await pool.query(q)
   const houseMap = {}
   const tags = ['可開伙', '可短租', '屋主直租', '可養寵物', '新上架']
-  // const positionMap = {}
   let counter = 0
   result.forEach((data) => {
     if (!houseMap[data.id]) {

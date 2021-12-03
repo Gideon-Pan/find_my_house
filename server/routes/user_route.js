@@ -1,21 +1,8 @@
 const router = require('express').Router()
 
 const { authentication } = require('../../util/util')
-// const {
-//     wrapAsync,
-//     authentication
-// } = require('../../util/util');
 
-// const USER = require('../models/user_model')
-
-const {
-  signUp,
-  signIn,
-  like,
-  dislike,
-  getLikes,
-  getLikeDetails
-} = require('../controllers/user_controller')
+const { signUp, signIn, like, dislike, getLikes, getLikeDetails } = require('../controllers/user_controller')
 
 router.route('/user/signup').post(signUp)
 

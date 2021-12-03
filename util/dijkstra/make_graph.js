@@ -1,13 +1,12 @@
 const { Vertex, Edge, Graph } = require('./graph')
 const db = require('../../server/models/db/mysql')
-const process = require('process'); 
-const { makeIdToPtx, makeBusIdMap, getType } = require('./make_graph_helper');
+const process = require('process')
+const { makeIdToPtx, makeBusIdMap, getType } = require('./make_graph_helper')
 
 async function makeGraphMap(version) {
   const graphMap = {}
   const types = ['bus', 'metro', 'mix']
   const periods = ['weekdaysPeak', 'weekdays', 'weekend']
-  // const stops = await getStops()
 
   const vertice = await getVertice()
   // create 3 * 3 = 9 graphs for graphMap, and add vertice to them
@@ -22,31 +21,6 @@ async function makeGraphMap(version) {
 
   const edges = await getEdges(version)
   addEdges(graphMap, edges)
-  // edges.forEach((edge) => {
-  //   const period = edge.period()
-  //   const type = getType(edge.fromId(), edge.toId())
-  //   switch (type) {
-  //     case 'bus':
-  //       graphMap.bus[period].addEdge(edge)
-  //       graphMap.mix[period].addEdge(edge)
-  //       break
-  //     case 'metro':
-  //       graphMap.metro[period].addEdge(edge)
-  //       graphMap.mix[period].addEdge(edge)
-  //       break
-  //     case 'mix':
-  //       graphMap.mix[period].addEdge(edge)
-  //       break
-  //     case 'start':
-  //       graphMap.bus[period].addEdge(edge)
-  //       graphMap.metro[period].addEdge(edge)
-  //       graphMap.mix[period].addEdge(edge)
-  //       break
-  //     default:
-  //       console.log(type)
-  //       throw new Error('type undefined')
-  //   }
-  // })
   return graphMap
 }
 
@@ -73,7 +47,7 @@ function addVerticeOld(graph, stops) {
 }
 
 function addVertice(graph, vertice) {
-  vertice.forEach(vertex => {
+  vertice.forEach((vertex) => {
     graph.addVertex(vertex)
   })
 }
@@ -122,26 +96,17 @@ async function getEdges(version) {
       AND version = ${version}
       ${process.argv[2] === 'metro' ? 'AND type = "metro"' : ''}
     `
-//console.log(q)
   const [result] = await db.query(q)
-  result.forEach(
-    (data) => {
-      if (!busIdMap[data.from_stop_id]) {
-        console.log(data.from_stop_id)
-        return
-      }
-      data.distance = data.distance ? data.distance : 0
-      // invert the direction of the edge
-      const edge = new Edge(
-        busIdMap[data.to_stop_id],
-        busIdMap[data.from_stop_id],
-        data.period,
-        data.time,
-        data.distance
-      )
-      edges.push(edge)
+  result.forEach((data) => {
+    if (!busIdMap[data.from_stop_id]) {
+      console.log(data.from_stop_id)
+      return
     }
-  )
+    data.distance = data.distance ? data.distance : 0
+    // invert the direction of the edge
+    const edge = new Edge(busIdMap[data.to_stop_id], busIdMap[data.from_stop_id], data.period, data.time, data.distance)
+    edges.push(edge)
+  })
   console.log('finish fetching data')
   return edges
 }
@@ -164,18 +129,16 @@ async function makeWaitingTimeMap(version) {
     ${process.argv[2] === 'metro' ? 'AND type = "metro"' : ''}
   `
   const [waitingTimeList] = await db.query(q)
-  waitingTimeList.forEach(
-    ({ to_stop_id, time_period_hour, time_period_minute, time, period }) => {
-      if (!waitingTimeMaps[period]) {
-        waitingTimeMaps[period] = {}
-      }
-      waitingTimeMaps[period][idToPtxMap[to_stop_id]] = time
+  waitingTimeList.forEach(({ to_stop_id, time_period_hour, time_period_minute, time, period }) => {
+    if (!waitingTimeMaps[period]) {
+      waitingTimeMaps[period] = {}
     }
-  )
+    waitingTimeMaps[period][idToPtxMap[to_stop_id]] = time
+  })
   return waitingTimeMaps
 }
 
 module.exports = {
   makeWaitingTimeMap,
-  makeGraphMap,
+  makeGraphMap
 }

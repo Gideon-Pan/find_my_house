@@ -24,7 +24,6 @@ async function getHousesInConstraintWithRedis(budget, validTags, houseTypeId) {
     const houseMapCache = JSON.parse(await Redis.get('houseMap'))
     let counter = 0
     const houses = Object.values(houseMapCache).filter((house) => {
-      // console.log(house)
       if (houseTypeId && houseTypeId !== house.categoryId) {
         return false
       }
@@ -47,11 +46,7 @@ async function getHousesInConstraintWithRedis(budget, validTags, houseTypeId) {
 async function getHousesInConstraint(budget, houseType, validTags) {
   const typeMap = await getTypeMap()
   const houseTypeId = typeMap[houseType]
-  let houses = await getHousesInConstraintWithRedis(
-    budget,
-    validTags,
-    houseTypeId
-  )
+  let houses = await getHousesInConstraintWithRedis(budget, validTags, houseTypeId)
   if (houses) {
     return houses
   }
@@ -60,7 +55,7 @@ async function getHousesInConstraint(budget, houseType, validTags) {
 
   // get the houses which satisfy all tags
   const houseMap = {}
-  houses.forEach(house => {
+  houses.forEach((house) => {
     if (!houseMap[house.id]) {
       houseMap[house.id] = house
       houseMap[house.id].tags = []
@@ -68,7 +63,7 @@ async function getHousesInConstraint(budget, houseType, validTags) {
     houseMap[house.id].tags.push(house.tag)
   })
   houses = Object.values(houseMap)
-  houses.filter(house => {
+  houses.filter((house) => {
     for (let tag of validTags) {
       if (!house.tags.includes(tag)) {
         return false
@@ -93,10 +88,7 @@ async function getReachableHouses(positionData, houses) {
       const radius = position.distanceLeft
       counter++
       if (
-        getDistanceSquare(
-          { latitude, longitude },
-          { latitude: position.lat, longitude: position.lng }
-        ) <
+        getDistanceSquare({ latitude, longitude }, { latitude: position.lat, longitude: position.lng }) <
         radius * radius
       ) {
         return true
@@ -108,13 +100,7 @@ async function getReachableHouses(positionData, houses) {
   return houseData
 }
 
-function getHousesInBound(
-  houses,
-  latitudeTopLeft,
-  latitudeBottomRight,
-  longitudeTopLeft,
-  longitudeBottomRight
-) {
+function getHousesInBound(houses, latitudeTopLeft, latitudeBottomRight, longitudeTopLeft, longitudeBottomRight) {
   if (houses.length <= 1000) {
     return houses
   }
@@ -124,16 +110,7 @@ function getHousesInBound(
     }
     const houseLat = housePositionMap[house.id].latitude
     const houseLon = housePositionMap[house.id].longitude
-    if (
-      !isInBox(
-        houseLat,
-        houseLon,
-        latitudeTopLeft,
-        latitudeBottomRight,
-        longitudeTopLeft,
-        longitudeBottomRight
-      )
-    ) {
+    if (!isInBox(houseLat, houseLon, latitudeTopLeft, latitudeBottomRight, longitudeTopLeft, longitudeBottomRight)) {
       return false
     }
     return true
@@ -147,20 +124,11 @@ async function getHouseData(positionData, budget, houseType, tags) {
     stopRadiusMap[stopId] = distanceLeft
   })
   let houses = await getHousesInConstraint(budget, houseType, tags)
-  const houseData = await getReachableHouses(
-    positionData,
-    houses
-  )
+  const houseData = await getReachableHouses(positionData, houses)
   return houseData
 }
 
-function getPositionData(
-  reachableStations,
-  commuteTime,
-  maxWalkDistance,
-  distToStopMap,
-  graph
-) {
+function getPositionData(reachableStations, commuteTime, maxWalkDistance, distToStopMap, graph) {
   const reachableStationMap = {}
   reachableStations.forEach((reachableStation) => {
     const { id, startStationId, timeSpent, walkDistance } = reachableStation
@@ -176,10 +144,7 @@ function getPositionData(
     if (id == START_POINT_ID) distanceLeft = maxWalkDistance
     const lat = graph.getVertex(id).lat()
     const lng = graph.getVertex(id).lng()
-    if (
-      reachableStationMap[`${lat}-${lng}`] &&
-      distanceLeft < reachableStationMap[`${lat}-${lng}`].distanceLeft
-    ) {
+    if (reachableStationMap[`${lat}-${lng}`] && distanceLeft < reachableStationMap[`${lat}-${lng}`].distanceLeft) {
       return
     }
     reachableStationMap[`${lat}-${lng}`] = {

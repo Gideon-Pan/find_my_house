@@ -57,7 +57,6 @@ function getReachableIds(graph) {
   }
 }
 
-// const startPointId = '0'
 function getReachableStops(graph, fromId, timeLeft, period, waitingTimeMap) {
   const ids = graph.getAllIds()
   const pq = new PQ()
@@ -83,7 +82,6 @@ function getReachableStops(graph, fromId, timeLeft, period, waitingTimeMap) {
 
   // use Dijkstra's algorithm to get reachable stop id
   while (pq.size() > 0) {
-    // console.log(pq.peek())
     const currentId = pq.dequeue().id()
     const waitingTime = waitingTimeMap[currentId] || 0
     // stop when time exceed time limit
@@ -96,7 +94,6 @@ function getReachableStops(graph, fromId, timeLeft, period, waitingTimeMap) {
 
     // path relaxation
     for (const edge of graph.adj(currentId)) {
-      
       const neighborId = edge.to()
       if (marked[neighborId]) continue
 
@@ -131,7 +128,7 @@ function getReachableStops(graph, fromId, timeLeft, period, waitingTimeMap) {
       if (!walkDistance[reachableStationId]) {
         walkDistance[reachableStationId] = 0
       }
-      // skip the edge from start points, whose distance may be undefined 
+      // skip the edge from start points, whose distance may be undefined
       if (!edge.distance()) {
         continue
       }
@@ -156,7 +153,6 @@ function getReachableStops(graph, fromId, timeLeft, period, waitingTimeMap) {
   console.log('counter1', counter)
   console.log('counter2', counter2)
   return reachableStations
-  // console.log(`行經站數: ${path.length}站`)
 }
 
 // following is for manuel testing

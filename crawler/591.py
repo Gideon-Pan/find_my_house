@@ -44,13 +44,15 @@ chrome_options.add_argument('--headless')
 if (ENVIROMENT == 'local'):
     chromePath = './chromedriver'
 else:
-    chromePath='/usr/bin/chromedriver'
+    chromePath = '/usr/bin/chromedriver'
+
 
 def insertMongo(collection, houseData):
     houses = db[collection]
     if (len(houseData) == 0):
         return
     houses.insert_many(houseData)
+
 
 def getIds(soup):
     # get html element for link anchor, which includes id information
@@ -62,6 +64,7 @@ def getIds(soup):
         ids.append(linkHtml.get('href').split("-")[2].split(".")[0])
     return ids
 
+
 def get_house_info(id):
     url = f"https://bff.591.com.tw/v1/house/rent/detail?id=" + str(id)
     r = requests.get(url, headers=HEADERS, timeout=5)
@@ -69,12 +72,8 @@ def get_house_info(id):
     web_content = json.loads(web_content)
     return web_content
 
+
 def insertData(url):
-    chrome = 'chromedriver'
-    # if (ENVIROMENT == 'local'):
-    #     driver = webdriver.Chrome('./chromedriver')  # 開啟chrome瀏覽器
-    # else:
-    #     driver = webdriver.Chrome(executable_path='/usr/bin/chromedriver', options=chrome_options)  # 開啟chrome瀏覽器
     driver = webdriver.Chrome(chromePath)
     driver.get(url)  # 開啟連結
     time.sleep(2)
@@ -101,11 +100,8 @@ def insertData(url):
 
     return
 
+
 def getDataAmount(firstPageUrl):
-    # if (ENVIROMENT == 'local'):
-    #     driver = webdriver.Chrome('./chromedriver')  # 開啟chrome瀏覽器
-    # else:
-    #     driver = webdriver.Chrome(executable_path='/usr/bin/chromedriver', options=chrome_options)  # 開啟chrome瀏覽器
     driver = webdriver.Chrome(chromePath)
     driver.get(firstPageUrl)  # 開啟連結
     time.sleep(5)
@@ -114,8 +110,10 @@ def getDataAmount(firstPageUrl):
         'div.switch-amount span').decode_contents().replace(',', '')
     return int(dataAmount)
 
+
 def insertDataOfRegion(region, kind):
-    firstPageUrl = "https://rent.591.com.tw/?region=" + str(region) + "&kind=" + str(kind)
+    firstPageUrl = "https://rent.591.com.tw/?region=" + \
+        str(region) + "&kind=" + str(kind)
     dataAmount = getDataAmount(firstPageUrl)
     print(dataAmount)
 
@@ -127,9 +125,10 @@ def insertDataOfRegion(region, kind):
                 'https://rent.591.com.tw/?region=' + str(region) + "&kind=" + str(kind) + '&firstRow=' + str(i * DataPerPage))
             print('finish inserting page ' + str(i))
             time.sleep(2)
-           
+
         except Exception:
             continue
+
 
 # 1 for Teipei
 # 3 for New Taipei
@@ -149,4 +148,3 @@ delete_date = today - datetime.timedelta(days=3)
 # drop house data three days ago
 db["houseDataRaw" + str(delete_date)].drop()
 exit()
-

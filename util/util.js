@@ -7,15 +7,6 @@ const { TOKEN_SECRET } = process.env // 30 days by seconds
 const N = Number(process.env.N)
 const M = Number(process.env.M)
 
-// reference: https://thecodebarbarian.com/80-20-guide-to-express-error-handling
-const wrapAsync = (fn) => {
-  return function (req, res, next) {
-    // Make sure to `.catch()` any errors and pass them along to the `next()`
-    // middleware in the chain, in this case the error handler.
-    fn(req, res, next).catch(next)
-  }
-}
-
 async function rateLimiter(req, res, next) {
   if (!Redis.client.connected) {
     return next()
@@ -23,7 +14,6 @@ async function rateLimiter(req, res, next) {
 
   // rate limiter
   const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress || null
-  //   console.log(ip)
   const counter = await Redis.get(`counter-${ip}`)
 
   if (counter >= N) {
@@ -60,7 +50,6 @@ const authentication = () => {
 
       let userDetail
       userDetail = await User.getUserDetail(user.email)
-      // console.log(userDetail)
       if (!userDetail) {
         res.status(403).send({ error: 'Forbidden' })
       } else {
@@ -76,14 +65,7 @@ const authentication = () => {
   }
 }
 
-function isInBox(
-  latitude,
-  longitude,
-  latitudeTopLeft,
-  latitudeBottomRight,
-  longitudeTopLeft,
-  longitudeBottomRight
-) {
+function isInBox(latitude, longitude, latitudeTopLeft, latitudeBottomRight, longitudeTopLeft, longitudeBottomRight) {
   return (
     latitude < latitudeTopLeft &&
     latitude > latitudeBottomRight &&
@@ -93,7 +75,6 @@ function isInBox(
 }
 
 module.exports = {
-  wrapAsync,
   authentication,
   rateLimiter,
   isInBox

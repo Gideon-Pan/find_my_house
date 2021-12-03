@@ -12,5 +12,4 @@ COPY ./ ./
 COPY ./.env.docker /usr/app/.env 
 
 # Default command
-# CMD ["ls", "/usr/app"]
 CMD ["pm2-runtime", "start", "app.js", "--node-args='--max-old-space-size=4096'"]

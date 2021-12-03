@@ -74,15 +74,11 @@ class PQ {
         priorityChildIndex = leftChildIndex
       } else {
         priorityChildIndex =
-          this._queue[leftChildIndex]._priority <
-          this._queue[rightChildIndex]._priority
+          this._queue[leftChildIndex]._priority < this._queue[rightChildIndex]._priority
             ? leftChildIndex
             : rightChildIndex
       }
-      if (
-        this._queue[current_index]._priority >
-        this._queue[priorityChildIndex]._priority
-      ) {
+      if (this._queue[current_index]._priority > this._queue[priorityChildIndex]._priority) {
         this._swap(this._queue[current_index], this._queue[priorityChildIndex])
         current_index = priorityChildIndex
         continue
@@ -94,10 +90,7 @@ class PQ {
   swim(qelement) {
     let current_index = qelement._index
     let parentIndex = this._getParentIndex(current_index)
-    while (
-      qelement._priority < this._queue[parentIndex]._priority &&
-      current_index > 1
-    ) {
+    while (qelement._priority < this._queue[parentIndex]._priority && current_index > 1) {
       // const tmp = qelement
       this._swap(this._queue[current_index], this._queue[parentIndex])
       current_index = parentIndex
