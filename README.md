@@ -34,9 +34,9 @@ Website URL: https://find-my-house.site
 * Bootstrap
 * AJAX
 
-### Data Pipeline
-* crawler
-* crontab
+### Data Engineering
+* Crawler
+* Crontab
 
 ### DevOps
 *  Docker
@@ -70,7 +70,7 @@ Website URL: https://find-my-house.site
 
 ### Data Source
 * [Public Transport Data Exchange Platform](https://ptx.transportdata.tw)
-* [591 offical website](https://rent.591.com.tw/)
+* [https://rent.591.com.tw](https://rent.591.com.tw/)
 
 ## Architecture
 ![Architecture](./public/assets/readme/architecture.jpg)
@@ -88,24 +88,22 @@ Modify the options to fit the user's need.
   * Time Period:
     * The time period user commutes
   * Commute Time:
-    * The commute time expected to spend from the
+    * The commute time expected to spend every day
   * Transit Mode
     * Supported transits:
 	     1. Taipei Metro system
 	     2. Bus network of Greater Taipei Area
-  * Number of Transfers
-    * The specified number of transfers between different routes or different transits.
   * Maximum Walking Distance
     * The maximum distance commuters willing to walk, including the following:
 	     1. from the apartment to the first transit station
        2. walking distance during transfer  
 	     3. from the last transit station to office
   * House Type
-    * Three diffent house type available, including ndependant suite, shared suite and studio
+    * Three diffent house types available, including ndependant suite, shared suite and studio
   * Budget
     * The budget of renting an apartment per month
   * Other Preference
-    * Check boxes for preference such as equipped for cooking, keeping pets and short-term rental
+    * Check boxes for preference such as permission of cooking, keeping pets and short-term rental
 
 
 ![Apartment Searching](./public/assets/readme/reachable_area.gif)
