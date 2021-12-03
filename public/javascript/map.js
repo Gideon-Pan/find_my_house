@@ -18,13 +18,11 @@ function initMap() {
   })
 
   const icon = {
-    url: './assets/office_2.png', // url
-    scaledSize: new google.maps.Size(60, 60), // scaled size
-    origin: new google.maps.Point(0, 0) // origin
-    // anchor: new google.maps.Point(20, 25) // anchor
+    url: './assets/office_2.png',
+    scaledSize: new google.maps.Size(60, 60),
+    origin: new google.maps.Point(0, 0)
   }
   const officeMarker = new google.maps.Marker({
-    // position: { lat: 25.042482379737326, lng: 121.5647583475222 },
     position: office,
     map: map,
     icon: icon,
@@ -46,7 +44,7 @@ function initMap() {
   officeMarker.addListener('dragend', (mapsMouseEvent) => {
     officeLat = mapsMouseEvent.latLng.toJSON().lat
     officeLng = mapsMouseEvent.latLng.toJSON().lng
-    search(false)
+    // search(false)
   })
 
   houseInfowindow = new google.maps.InfoWindow()

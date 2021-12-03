@@ -1,9 +1,3 @@
-// const { HostAddress } = require("mongodb")
-
-const officePosition = {
-  lat: 25.04222965263713,
-  lng: 121.5648119917025
-}
 const houseMap = {}
 const houses = []
 let houseInfowindow
@@ -20,24 +14,21 @@ let activeIndex = 0
 async function getFavorite() {
   const accessToken = window.localStorage.getItem('accessToken')
   try {
-    const { data } = await axios.get(
-      '/api/1.0/user/like/details',
-      {
-        headers: {
-          Authorization: `Bearer ${accessToken}`
-        }
+    const { data } = await axios.get('/api/1.0/user/like/details', {
+      headers: {
+        Authorization: `Bearer ${accessToken}`
       }
-    )
+    })
     if (data.favoriteHouses.length === 0) {
       $('main').css('display', 'none')
       return $('.no-like').css('display', 'flex')
     }
-    data.favoriteHouses.forEach(favoriteHouse => {
+    data.favoriteHouses.forEach((favoriteHouse) => {
       houseMap[favoriteHouse.id] = favoriteHouse
       houses.push(favoriteHouse)
     })
   } catch (e) {
-    location.href= '/'
+    location.href = '/'
   }
 }
 
@@ -51,9 +42,7 @@ async function signout() {
 }
 
 function initMap() {
-  // console.log('fuc')
   const myLatlng = { lat: 25.03746, lng: 121.532558 }
-  // console.log(google)
   map = new google.maps.Map(document.getElementById('map'), {
     zoom: 13,
     center: myLatlng,
@@ -66,11 +55,11 @@ function initMap() {
 }
 
 function renderListGroup() {
-  // currentIndex = currentIndex ? currentIndex : 0
-  // console.log(activeIndex)
   let htmls = ''
   houses.forEach((house, index) => {
-    const html = `<li class="list-group-item ${index === activeIndex ? 'item-selected' : 'item-not-selected'}" id="${house.id}" onclick="selectHouse(${house.id})">
+    const html = `<li class="list-group-item ${index === activeIndex ? 'item-selected' : 'item-not-selected'}" id="${
+      house.id
+    }" onclick="selectHouse(${house.id})">
     <div class="house-item">
       <img
         src="${house.image}"
@@ -97,19 +86,16 @@ function renderListGroup() {
       </div>
     </div>
   </li>`
-  // <div onclick="selectHouse(${house.id})" target="_blank">查看位置</div>
     htmls += html
-    // console.log($(`#${house.id}`))
   })
 
   $('.list-group').html(htmls)
-  houses.forEach(house => {
+  houses.forEach((house) => {
     $(`#${house.id}-dislike`).click(dislike)
   })
 }
 
 function selectHouse(id) {
-  // console.log('fuck')
   renderHouse(id)
   $('.item-selected').addClass('item-not-selected')
   $('.item-selected').removeClass('item-selected')
@@ -123,40 +109,23 @@ function selectHouse(id) {
 }
 
 function renderHouse(id) {
-  // console.log(id)
   if (currentHouseMarker) {
     currentHouseMarker.setMap(null)
   }
   const house = houseMap[id]
   if (!house) return
-  let {
-    title,
-    area,
-    link,
-    category,
-    image,
-    price,
-    address,
-    latitude,
-    longitude,
-  } = house
-  // currentId = id
+  let { title, area, link, category, image, price, address, latitude, longitude } = house
   if (area % 1 !== 0) {
     area = area.toFixed(1)
   }
-  // houseDataMap[id] = house
   const houseIcon = {
     url: './assets/house-like.png',
     scaledSize: new google.maps.Size(40, 40),
-    // scaledSize: likeMap[id] ? new google.maps.Size(35, 35) : new google.maps.Size(30, 30), // scaled size
-    origin: new google.maps.Point(0, 0), // origin
-    // anchor: likeMap[id] ? new google.maps.Point(17, 22) :  new google.maps.Point(15, 20) // anchor
-    anchor: new google.maps.Point(22, 30), // anchor
-    // anchor: new google.maps.Point(0, 0),
+    origin: new google.maps.Point(0, 0),
+    anchor: new google.maps.Point(22, 30),
     zIndex: 200
   }
   const marker = new google.maps.Marker({
-    // position: { lat: 25.042482379737326, lng: 121.5647583475222 },
     position: {
       lat: latitude,
       lng: longitude
@@ -164,10 +133,7 @@ function renderHouse(id) {
     map: map,
     icon: houseIcon,
     zIndex: 2000
-    // label: `${i}`
   })
-  // const zIndex = marker.getZIndex()
-  // console.log('house', zIndex)
   currentHouseMarker = marker
   currentHouse = house
   clearLifeFunction()
@@ -175,8 +141,6 @@ function renderHouse(id) {
     renderRadio()
     renderLifeFunction()
   }
-  // renderRadio()
-  // renderLifeFunction()
   map.panTo({
     lat: latitude,
     lng: longitude
@@ -195,15 +159,9 @@ function changeSwitchState() {
 }
 
 async function dislike(event) {
-  console.log(event)
   event.stopPropagation()
   const id = Number(event.target.id.split('-')[0])
-  // console.log(id)
-  // console.log('213123213')
   const accessToken = window.localStorage.getItem('accessToken')
-  // console.log('here')
-  // console.log(accessToken)
-  // console.log(selectedHouseId)
   try {
     const { data } = await axios.delete('/api/1.0/user/like', {
       data: {
@@ -243,7 +201,6 @@ async function main() {
   renderListGroup()
   renderHouse(Object.keys(houseMap)[0])
   $('main').css('visibility', 'inherit')
-  // $('main').css('dispaly', 'inline')
 }
 
 main()

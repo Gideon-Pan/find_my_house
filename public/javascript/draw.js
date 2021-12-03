@@ -40,11 +40,7 @@ async function showReachableArea(stations, time1) {
   // console.log('he')
   const paths = stations.map((station) => {
     const { lat, lng, distanceLeft } = station
-    return drawCircle(
-      new google.maps.LatLng(lat, lng),
-      distanceLeft / 1609.366,
-      1
-    )
+    return drawCircle(new google.maps.LatLng(lat, lng), distanceLeft / 1609.366, 1)
   })
   var joined = new google.maps.Polygon({
     paths,

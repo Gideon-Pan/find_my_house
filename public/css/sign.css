@@ -3,6 +3,10 @@ header a {
   text-decoration: none;
 }
 
-header img {
-  margin-top: 5px;
+.logo > img {
+  margin-top: 6px;
+}
+
+.logo > p {
+  margin-bottom: 9px;
 }

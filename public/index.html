@@ -3,10 +3,7 @@
   <head>
     <title>好屋好屋</title>
     <script src="https://polyfill.io/v3/polyfill.min.js?features=default"></script>
-    <!-- <link rel="icon" type="image/jpg" href="./assets/renting-house.jpg"> -->
-    <link rel="icon" href="./assets/favicon.ico" sizes="0">
-    <!-- <link rel="icon" href="./assets/logo.png" sizes="0"> -->
-    
+    <link rel="icon" href="./assets/favicon.ico" sizes="0" />
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css"
       rel="stylesheet"
@@ -14,7 +11,6 @@
       crossorigin="anonymous"
     />
     <link rel="stylesheet" type="text/css" href="./css/reset2.css" />
-    <!-- <link rel="stylesheet" type="text/css" href="./header.css" /> -->
     <link rel="stylesheet" type="text/css" href="./css/style.css" />
     <link rel="stylesheet" type="text/css" href="./css/info_window.css" />
   </head>
@@ -26,109 +22,47 @@
           <p>好屋好屋</p>
         </a>
         <div class="blank"></div>
-        <!-- <div class="nav">
-          <a href="/">我的聊天</a>
-        </div> -->
-        <div
-          class="nav like"
-          onclick="(function() {location.href=`/favorite.html`}())"
-        >
-          我的收藏
-        </div>
-        <div class="nav sign">
-          <!-- <div onclick="signout()">登出</div> -->
-        </div>
-        <!-- <div class="nav avator">
-          <img src="assets/member.png" />
-        </div> -->
+        <div class="nav like" onclick="(function() {location.href=`/favorite.html`}())">我的收藏</div>
+        <div class="nav sign"></div>
       </div>
     </header>
     <main>
       <div class="search-field">
         <div class="filters">
           <div class="selects">
-            <!-- <label>活動商品名稱</label> -->
-            <select
-              name="period"
-              id="period"
-              class="form-select"
-              aria-label="Default select example"
-            >
-              <!-- <option value="">上班時間</option> -->
+            <select name="period" id="period" class="form-select" aria-label="Default select example">
               <option value="" selected="true" disabled="disabled">通勤時段</option>
               <option value="weekdaysPeak">平日尖峰</option>
               <option value="weekdays">平日離峰</option>
               <option value="weekend">假日</option>
             </select>
-            <!-- | -->
-            <select
-              name="commute-time"
-              id="commute-time"
-              class="form-select"
-              aria-label="Default select example"
-            >
-              <!-- <option value="">通勤時間</option> -->
+
+            <select name="commute-time" id="commute-time" class="form-select" aria-label="Default select example">
               <option value="" selected="true" disabled="disabled">通勤時間</option>
-              <!-- <option value="9:00">10分鐘</option>
-              <option value="9:00">15分鐘</option> -->
               <option value="20">20分鐘</option>
-              <!-- <option value="25">25min</option> -->
               <option value="30">30分鐘</option>
               <option value="40">40分鐘</option>
-              <!-- <option value="50">50分鐘</option>
-              <option value="60">1小時</option> -->
-              <!-- <option value="60">1hr</option> -->
             </select>
-            <!-- | -->
-            <select
-              name="commute-way"
-              id="commute-way"
-              class="form-select"
-              aria-label="Default select example"
-            >
-              <!-- <option value="">交通方式</option> -->
+            <select name="commute-way" id="commute-way" class="form-select" aria-label="Default select example">
               <option value="" selected="true" disabled="disabled">交通方式</option>
               <option value="metro">捷運</option>
               <option value="bus">公車</option>
               <option value="mix">公車+捷運</option>
-              
             </select>
-            <!-- | -->
-            <select
-              name="walk-distance"
-              id="walk-distance"
-              class="form-select"
-              aria-label="Default select example"
-            >
-              <!-- <option value="">步行距離</option> -->
+            <select name="walk-distance" id="walk-distance" class="form-select" aria-label="Default select example">
               <option value="" selected="true" disabled="disabled">步行距離</option>
               <option value="400">400公尺</option>
               <option value="500">500公尺</option>
               <option value="1000">1公里</option>
               >
-              <!-- <option value="10000000000000000">不限</option> -->
             </select>
-            <!-- | -->
-            <select
-              name="house-type"
-              id="house-type"
-              class="form-select"
-              aria-label="Default select example"
-            >
-              <!-- <option value="">預算</option> -->
+            <select name="house-type" id="house-type" class="form-select" aria-label="Default select example">
               <option value="">房型不限</option>
               <option value="shared-suite">分租套房</option>
               <option value="independant-suite">獨立套房</option>
               <option value="studio">雅房</option>
             </select>
-            <!-- | -->
-            <select
-              name="budget"
-              id="budget"
-              class="form-select form-select-m"
-              aria-label="Default select example"
-            >
-              <!-- <option value="">預算</option> -->
+            <select name="budget" id="budget" class="form-select form-select-m" aria-label="Default select example">
               <option value="100000000">預算不限</option>
               <option value="5000">5000元/月</option>
               <option value="10000">10000元/月</option>
@@ -136,66 +70,27 @@
               <option value="20000">20000元/月</option>
             </select>
 
-            <!-- <select name="start_work" id="start_work">
-              <option value="">上班時間</option>
-              <option value="9:00">9:00</option>
-            </select> -->
-
-            <!-- <button onclick="search()">搜尋</button> -->
           </div>
           <div class="checks">
             <div class="form-check form-check-inline">
-              <input
-                class="form-check-input"
-                type="checkbox"
-                id="fire"
-                value="option1"
-              />
-              <label class="form-check-label" for="inlineCheckbox1"
-                >可開火</label
-              >
+              <input class="form-check-input" type="checkbox" id="fire" value="option1" />
+              <label class="form-check-label" for="inlineCheckbox1">可開火</label>
             </div>
             <div class="form-check form-check-inline">
-              <input
-                class="form-check-input"
-                type="checkbox"
-                id="short-rent"
-                value="option2"
-              />
-              <label class="form-check-label" for="inlineCheckbox2"
-                >可短租</label
-              >
+              <input class="form-check-input" type="checkbox" id="short-rent" value="option2" />
+              <label class="form-check-label" for="inlineCheckbox2">可短租</label>
             </div>
             <div class="form-check form-check-inline">
-              <input
-                class="form-check-input"
-                type="checkbox"
-                id="direct-rent"
-                value="option3"
-              />
-              <label class="form-check-label" for="inlineCheckbox3"
-                >屋主直租</label
-              >
+              <input class="form-check-input" type="checkbox" id="direct-rent" value="option3" />
+              <label class="form-check-label" for="inlineCheckbox3">屋主直租</label>
             </div>
             <div class="form-check form-check-inline">
-              <input
-                class="form-check-input"
-                type="checkbox"
-                id="pet"
-                value="option4"
-              />
+              <input class="form-check-input" type="checkbox" id="pet" value="option4" />
               <label class="form-check-label" for="inlineCheckbox4">寵物</label>
             </div>
             <div class="form-check form-check-inline">
-              <input
-                class="form-check-input"
-                type="checkbox"
-                id="new-item"
-                value="option4"
-              />
-              <label class="form-check-label" for="inlineCheckbox4"
-                >新品上架</label
-              >
+              <input class="form-check-input" type="checkbox" id="new-item" value="option4" />
+              <label class="form-check-label" for="inlineCheckbox4">新品上架</label>
             </div>
             <!-- checks -->
           </div>
@@ -246,19 +141,13 @@
     <div class="blockUI block-full-w">
       <div class="block block-full-w"></div>
       <div class="loading block-full-w" style="text-align: center">
-        <i
-          class="fas fa-spinner fa-spin fa-5x"
-          style="color: rgb(254, 254, 255)"
-        ></i>
+        <i class="fas fa-spinner fa-spin fa-5x" style="color: rgb(254, 254, 255)"></i>
       </div>
     </div>
 
     <div class="spinner">
-      <img src="./assets/spinner.gif">
+      <img src="./assets/spinner.gif" />
     </div>
-    
-
-    
 
     <!-- Async script executes immediately and must be after any DOM elements used in callback. -->
     <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>

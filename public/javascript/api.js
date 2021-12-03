@@ -3,13 +3,10 @@ async function like() {
   if (!accessToken) {
     Swal.fire({
       title: '加入收藏前請先登入',
-      // showDenyButton: true,
       showCancelButton: true,
       confirmButtonText: '前往登入',
-      // denyButtonText: `不了謝謝`,
       cancelButtonText: '不了謝謝'
     }).then((result) => {
-      /* Read more about isConfirmed, isDenied below */
       if (result.isConfirmed) {
         location.href = '/signin.html'
       }
@@ -19,7 +16,6 @@ async function like() {
 
   likeMap[selectedHouseId] = true
   setLike(selectedHouseId)
-  // console.log(selectedHouseId)
   try {
     const { data } = await axios.post(
       '/api/1.0/user/like',
@@ -32,18 +28,13 @@ async function like() {
         }
       }
     )
-    // console.log('successfully like')
   } catch (e) {
-    // console.log(e)
     Swal.fire({
       title: '加入收藏前請先登入',
-      // showDenyButton: true,
       showCancelButton: true,
       confirmButtonText: '前往登入',
-      // denyButtonText: `不了謝謝`,
       cancelButtonText: '不了謝謝'
     }).then((result) => {
-      /* Read more about isConfirmed, isDenied below */
       if (result.isConfirmed) {
         location.href = '/signin.html'
       }
@@ -110,7 +101,6 @@ async function getLikes() {
     })
     $('.sign').html('<div onclick="signout()">登出</div>')
   } catch (e) {
-    // console.log(e)
     $('.sign').html('<a href="/signin.html">登入</div>')
     $('.like').css('display', 'none')
     $('.avator').css('display', 'none')

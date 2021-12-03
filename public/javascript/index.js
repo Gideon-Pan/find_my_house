@@ -17,21 +17,14 @@ async function search(isOldSearch) {
   const time1 = Date.now()
   const period = $('#period').val()
   const commuteTime = $('#commute-time').val()
-  // console.log(commuteTime)
   const commuteWay = $('#commute-way').val()
   const maxWalkDistance = $('#walk-distance').val()
   const budget = $('#budget').val()
-  // console.log(budget)
   const houseType = $('#house-type').val()
-  // const fire = $('#fire').val()
   const fire = document.querySelector('#fire').checked
-  // console.log(fire)
   const shortRent = document.querySelector('#short-rent').checked
-  // console.log(shortRent)
   const directRent = document.querySelector('#direct-rent').checked
-  // console.log(directRent)
   const pet = document.querySelector('#pet').checked
-  // console.log(pet)
   const newItem = document.querySelector('#new-item').checked
 
   if (period === null) {
@@ -123,10 +116,6 @@ async function search(isOldSearch) {
       }
     })
   }
-  // 條件判斷是否要重新render整個cluster
-  // if (Object.keys(idsToRemoveMap).length < 100 && Object.keys(idsToAddMap).length < 100) {
-  //   clearClusterAll = false
-  // }
   latestHouseIdMap = currentHouseIdMap
   if (isOldSearch && !clearClusterAll) {
     clearClusterPartly(idsToRemoveMap)
@@ -200,27 +189,10 @@ function makeContentString(house) {
 
 function renderHouse(house) {
   const timer0 = Date.now()
-  let {
-    title,
-    area,
-    link,
-    category,
-    image,
-    price,
-    address,
-    latitude,
-    longitude,
-    id
-  } = house
+  let { title, area, link, category, image, price, address, latitude, longitude, id } = house
   const latlng = new google.maps.LatLng(latitude, longitude)
   const timer1 = Date.now()
 
-  // if (
-  //   !isInBound &&
-  //   Object.keys(houseDataMap).length > RENDER_LIMIT
-  // ) {
-  //   return
-  // }
   if (house.area % 1 !== 0) {
     house.area = house.area.toFixed(0)
   }
@@ -285,7 +257,7 @@ function renderHouse(house) {
         infowindow.addListener('closeclick', () => (houseInfoStatus = false))
         houseInfoStatus = true
         houseInfowindow.setOptions({
-          disableAutoPan: true,
+          disableAutoPan: true
         })
       }
     })(marker, id, houseInfowindow)
@@ -298,9 +270,6 @@ function renderHouse(house) {
     houseInfowindow.open(map, marker)
     lastOpenedInfoWindow = houseInfowindow
     houseInfoStatus = true
-    // houseInfowindow.setOptions({
-    //   disableAutoPan: true,
-    // })
   }
 
   markerMap[id] = marker
@@ -317,8 +286,6 @@ async function renderLifeFunction(id) {
   clearLifeFunction()
   const { data } = await axios.get(`/api/1.0/house/details?id=${id}`)
   document.querySelector('.radio').setAttribute('style', 'display: inline;')
-  // console.log($('.radio').attr("display"))
-
   if (!currentLifeFunctionType) {
     currentLifeFunctionType = 'traffic'
   }
@@ -362,7 +329,6 @@ function renderHouses(houses) {
   const timeBeforeCluster = Date.now()
 
   if (!markerCluster || clearClusterAll) {
-    // var mcOptions = {gridSize: 40, maxZoom: 16, zoomOnClick: false, minimumClusterSize: 2};
     markerCluster = new markerClusterer.MarkerClusterer({ markers, map })
   }
 }
@@ -383,7 +349,6 @@ function removeRadio() {
 }
 
 function showLifeFunction(type, subtype) {
-  // console.log(currentHouse)
   const { coordinate } = currentHouse
 
   const houseCoordinate = {
@@ -411,11 +376,7 @@ function showLifeFunction(type, subtype) {
           infowindow.setContent(content)
           infowindow.open(map, marker)
         }
-      })(
-        lifeFunction,
-        `<p class="life-function">${name}</p>`,
-        lifeFunctionInfowindow
-      )
+      })(lifeFunction, `<p class="life-function">${name}</p>`, lifeFunctionInfowindow)
     )
     // hide the infowindow when user mouses-out
     lifeFunction.addListener('mouseout', function () {
@@ -478,9 +439,7 @@ function makeHouseIcon(id) {
   return {
     url,
     scaledSize: new google.maps.Size(35, 35),
-    // scaledSize: likeMap[id] ? new google.maps.Size(35, 35) : new google.maps.Size(30, 30), // scaled size
     origin: new google.maps.Point(0, 0), // origin
-    // anchor: likeMap[id] ? new google.maps.Point(17, 22) :  new google.maps.Point(15, 20) // anchor
     anchor: new google.maps.Point(15, 20) // anchor
   }
 }
@@ -493,16 +452,9 @@ function showBlock() {
   let wh = window.innerHeight //計算可見視窗的高度，用來處理loading圖示的垂直居中
   blockUI.setAttribute('style', `height:${scrollH}px`)
   block.setAttribute('style', `height:${scrollH}px`)
-  load.setAttribute(
-    'style',
-    `height:${wh}px;text-align: center; line-height:${wh}px`
-  )
+  load.setAttribute('style', `height:${wh}px;text-align: center; line-height:${wh}px`)
   blockUI.setAttribute('style', 'display:inline')
   $('.loading').css('display', 'fixed')
-  // return
-  // setTimeout(() => {
-  //     blockUI.setAttribute('style', 'display:none');
-  // }, 3000);
 }
 
 function removeBlock() {
@@ -520,10 +472,6 @@ async function sleep(n) {
 }
 
 async function main() {
-  // $('.loading').css('visibility', 'hidden')
-  // $('.loading').css('visibility', 'inherit')
-  // $('.loading').css('display', 'absolute')
-  // await init()
   await getLikes()
   $('body').css('display', 'inline')
 }

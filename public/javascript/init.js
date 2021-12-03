@@ -5,8 +5,6 @@ function setInitialOption(selectId, localStorageKey) {
   for (let i = 0; i < select.options.length; i++) {
     const option = select.options[i]
     if (option.value === value) {
-      // console.log('21312')
-      // console.log(i)
       select.selectedIndex = i
       break
     }
@@ -19,11 +17,9 @@ function setInitialCheck(checkId, localStorageKey) {
 }
 
 function setInitialOptions() {
-  // console.log(1)
   if (!window.localStorage.getItem('commuteTime')) {
     return
   }
-  // console.log(2)
   setInitialOption('period', 'period')
   setInitialOption('commute-time', 'commuteTime')
   setInitialOption('commute-way', 'commuteWay')
@@ -38,4 +34,3 @@ function setInitialOptions() {
 }
 
 setInitialOptions()
-

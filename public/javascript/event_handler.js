@@ -21,7 +21,6 @@ async function handleDrag() {
   latestLongitudeNW = longitudeNW
   height = Math.abs(latitudeNW - latitudeSE)
   width = Math.abs(longitudeNW - longitudeSE)
-  // console.log(latitudeNew)
   console.log('much')
   await search(true)
   return

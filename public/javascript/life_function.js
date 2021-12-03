@@ -1,7 +1,4 @@
 function clearLifeFunction() {
-  // if (lifeFunctions.length === 0) {
-  //   return
-  // }
   for (let lifeFunction of lifeFunctions) {
     lifeFunction.setMap(null)
   }
@@ -17,62 +14,36 @@ function renderRadio() {
 }
 
 function showLifeFunction(type, subtype) {
-  // clearLifeFunction()
-  // removeLines()
-  // removeRadio()
   console.log(currentHouse)
-  // const { coordinate } = currentHouse
-
   const houseCoordinate = {
     lat: currentHouse.latitude,
     lng: currentHouse.longitude
   }
   map.panTo(houseCoordinate)
   const stations = currentHouse.lifeFunction[type][subtype]
-  // const currentId
   stations.forEach((station) => {
     const { id, name, latitude, longitude, distance, subtype, type } = station
-    // coordinates.push({lat: latitude, lng: longitude})
-
     // make line
     const spotCoordinate = { lat: latitude, lng: longitude }
-    // const line = new google.maps.Polyline({
-    //   path: [houseCoordinate, spotCoordinate],
-    //   geodesic: true,
-    //   strokeColor: '#000000',
-    //   strokeOpacity: 1.0,
-    //   strokeWeight: 5,
-    //   'z-index': 2
-    // })
-    // line.setMap(map)
-    // lines.push(line)
 
     // make marker
     const lifeFunction = new google.maps.Marker({
       position: spotCoordinate,
-      // label: name,
       map: map
     })
-    // const zIndex = lifeFunction.getZIndex()
-    // console.log('lifeFunction', zIndex)
-    // console.log(lifeFunctionInfowindow)
     lifeFunction.addListener(
       'mouseover',
       (function (marker, content, infowindow) {
         return function () {
-          // console.log('hover life function')
-          // console.log(infowindow)
           infowindow.setContent(content)
           infowindow.open(map, marker)
         }
       })(lifeFunction, `<p>${name}</p>`, lifeFunctionInfowindow)
     )
-    // assuming you also want to hide the infowindow when user mouses-out
     lifeFunction.addListener('mouseout', function () {
       lifeFunctionInfowindow.close()
     })
     lifeFunctions.push(lifeFunction)
-    // console.log('here')
   })
 }
 

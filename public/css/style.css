@@ -16,8 +16,6 @@ body {
   justify-content: space-around;
   align-items: center;
   height: 50px;
-  /* width: 100vw; */
-  /* position: fixed; */
   border-bottom: 40px;
   background-color: white;
 }
