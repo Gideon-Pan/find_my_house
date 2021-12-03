@@ -15,7 +15,7 @@ Website URL: https://find-my-house.site
 * [Technologies](#Technologies)
 * [Architecture](#Architecture)
 * [Database Schema](#Database-Schema)
-* [Data Pipeline](#Database-Pipeline)
+* [Data Pipeline](#Data-Pipeline)
 * [Features](#Features)
 * [Demo Account](#Demo-Account)
 * [Contact](#Contact)
@@ -79,6 +79,7 @@ Website URL: https://find-my-house.site
 ![Database Schema](./public/assets/readme/schema.png)
 
 ## Data Pipeline
+![Data Pipeline](./public/assets/readme/data_pipeline.png)
 
 ## Features
 ### Apartment Searching
