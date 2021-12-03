@@ -3,7 +3,7 @@ const { expect } = require('chai')
 const { PQ } = require('../util/dijkstra/priority_queue')
 const { Graph, Vertex, Edge } = require('../util/dijkstra/graph')
 const { getReachableStops } = require('../util/dijkstra/shortest_path')
-describe('Dijkstra algorithm for getting house in range', function () {
+describe('Dijkstra algorithm for getting houses in range', function () {
   describe('priority queue', function () {
     it('should get the right size for queue', function () {
       const pq = new PQ()
@@ -83,8 +83,15 @@ describe('Dijkstra algorithm for getting house in range', function () {
       stop4: 0,
       stop5: 0
     }
+
     it('should get the reachable stops given time limit, period and the whole graph', function () {
-      const reacahbleStopsArray = getReachableStops(graph, 'startPoint', 10, 'periodTest', waitingTimeMap)
+      const reacahbleStopsArray = getReachableStops(
+        graph,
+        'startPoint',
+        10,
+        'periodTest',
+        waitingTimeMap
+      )
       // console.log(reacahbleStopsArray)
       const expectedArray = [
         {
@@ -116,9 +123,46 @@ describe('Dijkstra algorithm for getting house in range', function () {
           startStationId: 'stop1',
           timeSpent: 5,
           walkDistance: 70
-        },
+        }
       ]
       expect(reacahbleStopsArray).to.have.deep.members(expectedArray)
+    })
+
+    it('should get the reachable stops given tight time limit, period and the whole graph', function () {
+      const reacahbleStopsArray = getReachableStops(
+        graph,
+        'startPoint',
+        4,
+        'periodTest',
+        waitingTimeMap
+      )
+      // console.log(reacahbleStopsArray)
+      const expectedArray = [
+        {
+          id: 'startPoint',
+          startStationId: undefined,
+          timeSpent: 0,
+          walkDistance: undefined
+        },
+        {
+          id: 'stop1',
+          startStationId: 'stop1',
+          timeSpent: 1,
+          walkDistance: 70
+        },
+        {
+          id: 'stop2',
+          startStationId: 'stop2',
+          timeSpent: 1,
+          walkDistance: 30
+        },
+        {
+          id: 'stop3',
+          startStationId: 'stop2',
+          timeSpent: 3,
+          walkDistance: 30
+        }
+      ]
     })
   })
 })

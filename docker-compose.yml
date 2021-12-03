@@ -1,18 +1,13 @@
 version: "3.7"
-
 services:
   app:
     image: s00971052s/renting
-    # command: sh -c "yarn install && yarn run dev"
     ports:
-      - 3001:3000
+      - 80:3000
+    # network_mode: "host"
     working_dir: /usr/app
-    # volumes:
-    #   - ./:/usr/app
     environment:
       TOKEN_SECRET: ${TOKEN_SECRET}
       MYSQL_HOST: ${MYSQL_HOST}
       MYSQL_USER: ${MYSQL_USER}
       MYSQL_PASSWORD: ${MYSQL_PASSWORD}
-      
-
