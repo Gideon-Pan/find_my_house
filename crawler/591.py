@@ -12,6 +12,9 @@ import sys
 import os
 from dotenv import load_dotenv
 from mongo import db
+from selenium.webdriver.chrome.service import Service
+from webdriver_manager.chrome import ChromeDriverManager
+
 load_dotenv()
 ENVIROMENT = os.environ.get("ENVIRONMENT")
 
@@ -45,7 +48,8 @@ if (ENVIROMENT == 'local'):
     chromePath = './chromedriver'
 else:
     chromePath = '/usr/bin/chromedriver'
-
+#print(chromePath)
+s = Service(chromePath)
 
 def insertMongo(collection, houseData):
     houses = db[collection]
@@ -74,7 +78,7 @@ def get_house_info(id):
 
 
 def insertData(url):
-    driver = webdriver.Chrome(chromePath)
+    driver = webdriver.Chrome(chromePath, chrome_options=chrome_options)
     driver.get(url)  # 開啟連結
     time.sleep(2)
     soup = BeautifulSoup(driver.page_source, 'html.parser')
@@ -83,6 +87,7 @@ def insertData(url):
     housesData = []
     today = date.today()
     # get house data by id
+    # print(ids)
     for id in ids:
         try:
             houseData = get_house_info(id)
@@ -102,7 +107,7 @@ def insertData(url):
 
 
 def getDataAmount(firstPageUrl):
-    driver = webdriver.Chrome(chromePath)
+    driver = webdriver.Chrome(chromePath, chrome_options=chrome_options)
     driver.get(firstPageUrl)  # 開啟連結
     time.sleep(5)
     soup = BeautifulSoup(driver.page_source, 'html.parser')
@@ -121,12 +126,14 @@ def insertDataOfRegion(region, kind):
     page = math.floor(dataAmount / DataPerPage)
     for i in range(page + 5):
         try:
+            #print(123)
             houseData = insertData(
                 'https://rent.591.com.tw/?region=' + str(region) + "&kind=" + str(kind) + '&firstRow=' + str(i * DataPerPage))
             print('finish inserting page ' + str(i))
             time.sleep(2)
 
-        except Exception:
+        except Exception as e:
+            print(e)
             continue
 
 
@@ -138,10 +145,12 @@ regions = [1, 3]
 # 4 for 雅房
 kinds = [2, 3, 4]
 for region in regions:
+    #print('123')
     for kind in kinds:
         try:
             insertDataOfRegion(region, kind)
-        except:
+        except Exception as e:
+            print(e)
             continue
 today = date.today()
 delete_date = today - datetime.timedelta(days=3)
