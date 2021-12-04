@@ -8,7 +8,7 @@ async function cleanseData(rawDataCollection, today) {
   const housesData = []
   const map = {}
   houses.forEach((house) => {
-    if (!house.data.shareInfo) {
+    if (!house.data || !house.data.shareInfo) {
       return
     }
     map[house.id] = house
