@@ -16,6 +16,12 @@ async function getHouseInConstraint(budget, validTags, houseTypeId) {
   let [houses] = await pool.query(q, [validTags])
   const housesFiltered = []
   const houseMap = {}
+  if (validTags.length === 0) {
+    houses.forEach(house => {
+      houseMap[house.id] = house
+    })
+    return Object.values(houseMap)
+  }
   houses.forEach((house) => {
     if (!houseMap[house.id]) {
       houseMap[house.id] = house

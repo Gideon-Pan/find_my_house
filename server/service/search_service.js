@@ -48,11 +48,11 @@ async function getHousesInConstraint(budget, houseType, validTags) {
   const houseTypeId = typeMap[houseType]
   let houses = await getHousesInConstraintWithRedis(budget, validTags, houseTypeId)
   if (houses) {
+    houses = filterRepeatedHouse(houses)
     return houses
   }
 
   houses = await SearchModel.getHouseInConstraint(budget, validTags, houseTypeId)
-
   // get the houses which satisfy all tags
   const houseMap = {}
   houses.forEach((house) => {
@@ -75,7 +75,19 @@ async function getHousesInConstraint(budget, houseType, validTags) {
   if (Redis.client.connected) {
     makeHouseMap()
   }
+  // console.log(houses.length)
+  houses = filterRepeatedHouse(houses)
+  // console.log(houses.length)
   return houses
+}
+
+function filterRepeatedHouse(houses) {
+  const houseMap = {}
+  houses.forEach(house => {
+    houseMap[`${house.latitude}-${house.longitude}`] = house
+  })
+  // console.log(houseMap)
+  return Object.values(houseMap)
 }
 
 async function getReachableHouses(positionData, houses) {
