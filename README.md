@@ -127,21 +127,23 @@ Modify the options to fit the user's need.
     2. walking distance during transfer
     3. from the last transit station to office
 - House Type
-  - Three diffent house types available, including ndependant suite, shared suite and studio
+  - Three diffent house types available, including idependant suite, shared suite and studio
 - Budget
   - The budget of renting an apartment per month
 - Other Preference
   - Check boxes for preference such as permission of cooking, keeping pets and short-term rental
 
-![Apartment Searching](./public/assets/readme/reachable_area.gif)
+![Apartment Searching](./public/assets/readme/search.gif)
 
 ### House Info
 
 - basic house info
 - life function nearby
-- Favorite houses
 
-![House Info](./public/assets/readme/place_info.gif)
+![House Info](./public/assets/readme/detail.gif)
+
+### favorite houses
+![Favorite House](./public/assets/readme/favorite.gif)
 
 ## Demo Account
 
