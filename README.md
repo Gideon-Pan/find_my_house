@@ -6,17 +6,25 @@ calculating commuting time by public
 transport, and helps commuters find the
 ideal apartment.
 
+## Demo Account
 Website URL: https://find-my-house.site
+
+Demo Account
+- Account: demo@demo.com
+- Password: demo
 
 ## ![Preview](./public/assets/readme/preview.jpeg)
 
+
+
+
 ## Table of Contents
 
+- [Demo Account](#Demo-Account)
 - [Features](#Features)
 - [Architecture](#Architecture)
 - [Database Schema](#Database-Schema)
 - [Technologies](#Technologies)
-- [Demo Account](#Demo-Account)
 - [Contact](#Contact)
 
 
@@ -73,7 +81,6 @@ Modify the options to fit the user's need.
 ### Back-End
 
 - Node.js / Express
-- python (crawler)
 - RESTful APIs
 
 ### Front-End
@@ -140,10 +147,7 @@ Modify the options to fit the user's need.
 
 
 
-## Demo Account
 
-- Account: demo@demo.com
-- Password: demo
 
 ## Contact
 
