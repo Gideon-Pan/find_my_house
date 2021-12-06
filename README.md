@@ -65,6 +65,8 @@ Modify the options to fit the user's need.
 
 ### Favorite Houses
 
+- link to specific house on 591 offical website
+
 ![Favorite House](./public/assets/readme/favorite.gif)
 
 
@@ -80,8 +82,9 @@ Modify the options to fit the user's need.
 
 ### Back-End
 
-- Node.js / Express
-- RESTful APIs
+- Runtime: Node.js
+- Framework: Express
+- OS: Linux
 
 ### Front-End
 
@@ -135,9 +138,10 @@ Modify the options to fit the user's need.
 
 ### Others
 
+- RESTful APIs
 - Design Pattern: MVC
-- Version Control: Git, GitHub
-- Agile: Trello (Scrum)
+- Version Control: Git & GitHub
+- Scrum: Trello
 - Linter: Prettier
 
 ### Data Source
