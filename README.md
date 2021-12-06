@@ -13,10 +13,9 @@ Website URL: https://find-my-house.site
 ## Table of Contents
 
 - [Features](#Features)
-- [Technologies](#Technologies)
 - [Architecture](#Architecture)
 - [Database Schema](#Database-Schema)
-- [Data Pipeline](#Data-Pipeline)
+- [Technologies](#Technologies)
 - [Demo Account](#Demo-Account)
 - [Contact](#Contact)
 
@@ -56,7 +55,7 @@ Modify the options to fit the user's need.
 
 ![House Info](./public/assets/readme/detail.gif)
 
-### favorite houses
+### Favorite Houses
 ![Favorite House](./public/assets/readme/favorite.gif)
 
 
@@ -68,9 +67,6 @@ Modify the options to fit the user's need.
 
 ![Database Schema](./public/assets/readme/schema.png)
 
-## Data Pipeline
-
-![Data Pipeline](./public/assets/readme/data_pipeline.png)
 ## Technologies
 
 ### Back-End
@@ -88,14 +84,10 @@ Modify the options to fit the user's need.
 - Bootstrap
 - AJAX
 
-### Data Engineering
+### Data Pipeline
 
-- Crawler
+- Crawler with Python
 - Crontab
-
-### DevOps
-
-- Docker
 
 ### Database
 
