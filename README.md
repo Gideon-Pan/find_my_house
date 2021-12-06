@@ -50,12 +50,13 @@ Modify the options to fit the user's need.
 
 ### House Info
 
-- basic house info
-- life function nearby
+- Basic House Info
+- Life Function Nearby
 
 ![House Info](./public/assets/readme/detail.gif)
 
 ### Favorite Houses
+
 ![Favorite House](./public/assets/readme/favorite.gif)
 
 
