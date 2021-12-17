@@ -1,10 +1,17 @@
+
 version: "3.7"
 services:
-  app:
+  nginx:
+      build: ./nginx
+      links:
+          - nodejs:nodejs
+      ports:
+          - "80:80"
+  nodejs:
     image: s00971052s/renting
     ports:
-      - 80:3000
-    # network_mode: "host"
+      - 3000
+    #network_mode: "host"
     working_dir: /usr/app
     environment:
       TOKEN_SECRET: ${TOKEN_SECRET}

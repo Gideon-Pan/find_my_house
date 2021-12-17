@@ -11,4 +11,5 @@ bus_velocity.json
 .env.crawler_and_cleanser
 .env.docker-compose
 .env.docker
+.env.temp
 591/chromedriver_win32.zip

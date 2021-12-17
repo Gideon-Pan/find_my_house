@@ -42,15 +42,8 @@ async function signIn(req, res) {
       }
       res.send({ data: { accessToken } })
       break
-    case 'facebook':
-      if (!token) {
-        res.status(400).send('token is required')
-      }
-      UserModel.facebookSignIn(token)
-      res.send()
-      break
     default:
-      res.status(400).send('provier must be facebook or native')
+      res.status(400).send('provier must be native')
   }
 }
 
